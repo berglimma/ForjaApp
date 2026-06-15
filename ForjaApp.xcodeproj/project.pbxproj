@@ -1,0 +1,549 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* ForjaAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* ForjaAppApp.swift */; };
+		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
+		A10000000000000000000003 /* ForgeSessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* ForgeSessionState.swift */; };
+		A10000000000000000000004 /* ShopItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* ShopItem.swift */; };
+		A10000000000000000000005 /* UserProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* UserProgress.swift */; };
+		A10000000000000000000006 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* Color+Hex.swift */; };
+		A10000000000000000000007 /* ForgeTimerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* ForgeTimerService.swift */; };
+		A10000000000000000000008 /* FocusMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* FocusMonitor.swift */; };
+		A10000000000000000000009 /* ShopCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* ShopCatalog.swift */; };
+		A1000000000000000000000A /* InventoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000A /* InventoryManager.swift */; };
+		A1000000000000000000000B /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000B /* FirebaseManager.swift */; };
+		A1000000000000000000000C /* ForgeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000C /* ForgeViewModel.swift */; };
+		A1000000000000000000000D /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000D /* MainTabView.swift */; };
+		A1000000000000000000000E /* ForgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000E /* ForgeView.swift */; };
+		A1000000000000000000000F /* TimerSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* TimerSetupView.swift */; };
+		A10000000000000000000010 /* ResultOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* ResultOverlayView.swift */; };
+		A10000000000000000000011 /* InventoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* InventoryView.swift */; };
+		A10000000000000000000012 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* ShopView.swift */; };
+		A10000000000000000000013 /* ForgeBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* ForgeBackgroundView.swift */; };
+		A10000000000000000000014 /* ForgeSceneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000014 /* ForgeSceneView.swift */; };
+		A10000000000000000000015 /* ForgeFireView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* ForgeFireView.swift */; };
+		A10000000000000000000016 /* OreForgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* OreForgeView.swift */; };
+		A10000000000000000000017 /* SparkParticlesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* SparkParticlesView.swift */; };
+		A10000000000000000000018 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* ButtonStyles.swift */; };
+		A10000000000000000000019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* Assets.xcassets */; };
+		A1000000000000000000001A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A50000000000000000000002 /* FirebaseAuth */; };
+		A1000000000000000000001B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A50000000000000000000003 /* FirebaseFirestore */; };
+		A1000000000000000000001C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001C /* GoogleService-Info.plist */; };
+		A1000000000000000000001D /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001D /* UserProfile.swift */; };
+		A1000000000000000000001E /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001E /* ProfileViewModel.swift */; };
+		A1000000000000000000001F /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001F /* ProfileView.swift */; };
+		A10000000000000000000020 /* AnvilView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000020 /* AnvilView.swift */; };
+		A10000000000000000000021 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A50000000000000000000005 /* GoogleSignIn */; };
+		A10000000000000000000022 /* GoogleSignInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* GoogleSignInService.swift */; };
+		A10000000000000000000023 /* FocusTimeChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* FocusTimeChartView.swift */; };
+		A10000000000000000000024 /* ProfileImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000023 /* ProfileImageStore.swift */; };
+		A10000000000000000000025 /* ProfileAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000024 /* ProfileAvatarView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A20000000000000000000001 /* ForjaAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForjaAppApp.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A20000000000000000000003 /* ForgeSessionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgeSessionState.swift; sourceTree = "<group>"; };
+		A20000000000000000000004 /* ShopItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopItem.swift; sourceTree = "<group>"; };
+		A20000000000000000000005 /* UserProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProgress.swift; sourceTree = "<group>"; };
+		A20000000000000000000006 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
+		A20000000000000000000007 /* ForgeTimerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgeTimerService.swift; sourceTree = "<group>"; };
+		A20000000000000000000008 /* FocusMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusMonitor.swift; sourceTree = "<group>"; };
+		A20000000000000000000009 /* ShopCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopCatalog.swift; sourceTree = "<group>"; };
+		A2000000000000000000000A /* InventoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryManager.swift; sourceTree = "<group>"; };
+		A2000000000000000000000B /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
+		A2000000000000000000000C /* ForgeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgeViewModel.swift; sourceTree = "<group>"; };
+		A2000000000000000000000D /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		A2000000000000000000000E /* ForgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgeView.swift; sourceTree = "<group>"; };
+		A2000000000000000000000F /* TimerSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerSetupView.swift; sourceTree = "<group>"; };
+		A20000000000000000000010 /* ResultOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOverlayView.swift; sourceTree = "<group>"; };
+		A20000000000000000000011 /* InventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryView.swift; sourceTree = "<group>"; };
+		A20000000000000000000012 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
+		A20000000000000000000013 /* ForgeBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgeBackgroundView.swift; sourceTree = "<group>"; };
+		A20000000000000000000014 /* ForgeSceneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgeSceneView.swift; sourceTree = "<group>"; };
+		A20000000000000000000015 /* ForgeFireView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgeFireView.swift; sourceTree = "<group>"; };
+		A20000000000000000000016 /* OreForgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OreForgeView.swift; sourceTree = "<group>"; };
+		A20000000000000000000017 /* SparkParticlesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkParticlesView.swift; sourceTree = "<group>"; };
+		A20000000000000000000018 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
+		A20000000000000000000019 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A2000000000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A2000000000000000000001B /* ForjaApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ForjaApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000000000000000000001C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		A2000000000000000000001D /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		A2000000000000000000001E /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		A2000000000000000000001F /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		A20000000000000000000020 /* AnvilView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnvilView.swift; sourceTree = "<group>"; };
+		A20000000000000000000021 /* GoogleSignInService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInService.swift; sourceTree = "<group>"; };
+		A20000000000000000000022 /* FocusTimeChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTimeChartView.swift; sourceTree = "<group>"; };
+		A20000000000000000000023 /* ProfileImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageStore.swift; sourceTree = "<group>"; };
+		A20000000000000000000024 /* ProfileAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileAvatarView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A30000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000000000000000000001A /* FirebaseAuth in Frameworks */,
+				A1000000000000000000001B /* FirebaseFirestore in Frameworks */,
+				A10000000000000000000021 /* GoogleSignIn in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A40000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A40000000000000000000002 /* ForjaApp */,
+				A40000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A40000000000000000000002 /* ForjaApp */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000001 /* ForjaAppApp.swift */,
+				A20000000000000000000002 /* ContentView.swift */,
+				A40000000000000000000004 /* Models */,
+				A40000000000000000000005 /* Services */,
+				A40000000000000000000006 /* ViewModels */,
+				A40000000000000000000007 /* Views */,
+				A40000000000000000000008 /* Extensions */,
+				A20000000000000000000019 /* Assets.xcassets */,
+				A2000000000000000000001A /* Info.plist */,
+				A2000000000000000000001C /* GoogleService-Info.plist */,
+			);
+			path = ForjaApp;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A2000000000000000000001B /* ForjaApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000003 /* ForgeSessionState.swift */,
+				A20000000000000000000004 /* ShopItem.swift */,
+				A20000000000000000000005 /* UserProgress.swift */,
+				A2000000000000000000001D /* UserProfile.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000005 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000007 /* ForgeTimerService.swift */,
+				A20000000000000000000008 /* FocusMonitor.swift */,
+				A20000000000000000000009 /* ShopCatalog.swift */,
+				A2000000000000000000000A /* InventoryManager.swift */,
+				A2000000000000000000000B /* FirebaseManager.swift */,
+				A20000000000000000000021 /* GoogleSignInService.swift */,
+				A20000000000000000000023 /* ProfileImageStore.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000006 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A2000000000000000000000C /* ForgeViewModel.swift */,
+				A2000000000000000000001E /* ProfileViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000007 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A2000000000000000000000D /* MainTabView.swift */,
+				A2000000000000000000000E /* ForgeView.swift */,
+				A2000000000000000000000F /* TimerSetupView.swift */,
+				A20000000000000000000010 /* ResultOverlayView.swift */,
+				A20000000000000000000011 /* InventoryView.swift */,
+				A20000000000000000000012 /* ShopView.swift */,
+				A2000000000000000000001F /* ProfileView.swift */,
+				A40000000000000000000009 /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000008 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000006 /* Color+Hex.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000009 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000013 /* ForgeBackgroundView.swift */,
+				A20000000000000000000014 /* ForgeSceneView.swift */,
+				A20000000000000000000015 /* ForgeFireView.swift */,
+				A20000000000000000000016 /* OreForgeView.swift */,
+				A20000000000000000000017 /* SparkParticlesView.swift */,
+				A20000000000000000000018 /* ButtonStyles.swift */,
+				A20000000000000000000020 /* AnvilView.swift */,
+				A20000000000000000000022 /* FocusTimeChartView.swift */,
+				A20000000000000000000024 /* ProfileAvatarView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A60000000000000000000001 /* ForjaApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A80000000000000000000003 /* Build configuration list for PBXNativeTarget "ForjaApp" */;
+			buildPhases = (
+				A30000000000000000000002 /* Sources */,
+				A30000000000000000000001 /* Frameworks */,
+				A30000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ForjaApp;
+			packageProductDependencies = (
+				A50000000000000000000002 /* FirebaseAuth */,
+				A50000000000000000000003 /* FirebaseFirestore */,
+				A50000000000000000000005 /* GoogleSignIn */,
+			);
+			productName = ForjaApp;
+			productReference = A2000000000000000000001B /* ForjaApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A70000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					A60000000000000000000001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = A80000000000000000000001 /* Build configuration list for PBXProject "ForjaApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = "pt-BR";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"pt-BR",
+			);
+			mainGroup = A40000000000000000000001;
+			packageReferences = (
+				A50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				A50000000000000000000004 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
+			productRefGroup = A40000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A60000000000000000000001 /* ForjaApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A30000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000019 /* Assets.xcassets in Resources */,
+				A1000000000000000000001C /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A30000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* ForjaAppApp.swift in Sources */,
+				A10000000000000000000002 /* ContentView.swift in Sources */,
+				A10000000000000000000003 /* ForgeSessionState.swift in Sources */,
+				A10000000000000000000004 /* ShopItem.swift in Sources */,
+				A10000000000000000000005 /* UserProgress.swift in Sources */,
+				A10000000000000000000006 /* Color+Hex.swift in Sources */,
+				A10000000000000000000007 /* ForgeTimerService.swift in Sources */,
+				A10000000000000000000008 /* FocusMonitor.swift in Sources */,
+				A10000000000000000000009 /* ShopCatalog.swift in Sources */,
+				A1000000000000000000000A /* InventoryManager.swift in Sources */,
+				A1000000000000000000000B /* FirebaseManager.swift in Sources */,
+				A1000000000000000000000C /* ForgeViewModel.swift in Sources */,
+				A1000000000000000000000D /* MainTabView.swift in Sources */,
+				A1000000000000000000000E /* ForgeView.swift in Sources */,
+				A1000000000000000000000F /* TimerSetupView.swift in Sources */,
+				A10000000000000000000010 /* ResultOverlayView.swift in Sources */,
+				A10000000000000000000011 /* InventoryView.swift in Sources */,
+				A10000000000000000000012 /* ShopView.swift in Sources */,
+				A10000000000000000000013 /* ForgeBackgroundView.swift in Sources */,
+				A10000000000000000000014 /* ForgeSceneView.swift in Sources */,
+				A10000000000000000000015 /* ForgeFireView.swift in Sources */,
+				A10000000000000000000016 /* OreForgeView.swift in Sources */,
+				A10000000000000000000017 /* SparkParticlesView.swift in Sources */,
+				A10000000000000000000018 /* ButtonStyles.swift in Sources */,
+				A1000000000000000000001D /* UserProfile.swift in Sources */,
+				A1000000000000000000001E /* ProfileViewModel.swift in Sources */,
+				A1000000000000000000001F /* ProfileView.swift in Sources */,
+				A10000000000000000000020 /* AnvilView.swift in Sources */,
+				A10000000000000000000022 /* GoogleSignInService.swift in Sources */,
+				A10000000000000000000023 /* FocusTimeChartView.swift in Sources */,
+				A10000000000000000000024 /* ProfileImageStore.swift in Sources */,
+				A10000000000000000000025 /* ProfileAvatarView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A90000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A90000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A90000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ForjaApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.adventure-games";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.forja.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A90000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ForjaApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.adventure-games";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.forja.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A80000000000000000000001 /* Build configuration list for PBXProject "ForjaApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A90000000000000000000001 /* Debug */,
+				A90000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A80000000000000000000003 /* Build configuration list for PBXNativeTarget "ForjaApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A90000000000000000000003 /* Debug */,
+				A90000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
+		A50000000000000000000004 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A50000000000000000000002 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		A50000000000000000000003 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		A50000000000000000000005 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A50000000000000000000004 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A70000000000000000000001 /* Project object */;
+}
