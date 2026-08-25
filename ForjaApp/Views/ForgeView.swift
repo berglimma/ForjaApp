@@ -62,7 +62,9 @@ struct ForgeView: View {
                     progress: 0,
                     isForging: false,
                     isFailed: false,
-                    isSuccess: false
+                    isSuccess: false,
+                    anvilSkinID: inventory.progress.equippedAnvilSkinID,
+                    furnaceSkinID: inventory.progress.equippedFurnaceSkinID
                 )
                 .frame(height: 220)
 
@@ -105,7 +107,9 @@ struct ForgeView: View {
                 progress: viewModel.timerService.progress,
                 isForging: viewModel.sessionState == .forging,
                 isFailed: isFailedState,
-                isSuccess: viewModel.sessionState == .success
+                isSuccess: viewModel.sessionState == .success,
+                anvilSkinID: inventory.progress.equippedAnvilSkinID,
+                furnaceSkinID: inventory.progress.equippedFurnaceSkinID
             )
             .frame(height: 260)
             .padding(.horizontal, 24)
@@ -137,18 +141,23 @@ struct ForgeView: View {
                             endPoint: .trailing
                         )
                     )
-                Text("Mantenha o foco. Forje barras.")
+                Text("Mantenha o foco. Forje minério.")
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.65))
             }
 
             Spacer()
 
-            HStack(spacing: 6) {
-                Text("🧱")
-                Text("\(inventory.forgedBars)")
-                    .font(.headline.bold())
-                    .monospacedDigit()
+            VStack(alignment: .trailing, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text("🪨")
+                    Text("\(inventory.ore)")
+                        .font(.headline.bold())
+                        .monospacedDigit()
+                }
+                Text("\(inventory.progress.lifetimeBars) barras")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.6))
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
@@ -168,6 +177,12 @@ struct ForgeView: View {
                     .foregroundStyle(.white)
                     .contentTransition(.numericText())
                     .animation(.snappy, value: viewModel.timerService.remainingSeconds)
+
+                if viewModel.remainingGraceSeconds > 0 {
+                    Text("Graça: \(viewModel.remainingGraceSeconds)s para voltar à forja")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color(hex: "#F6E05E") ?? .yellow)
+                }
 
                 ProgressView(value: viewModel.timerService.progress)
                     .tint(Color(hex: "#F6AD55") ?? .orange)
@@ -202,6 +217,7 @@ struct ForgeView: View {
         }
     }
 
+    @ViewBuilder
     private var setupControlButton: some View {
         Button {
             if viewModel.sessionState == .idle {
@@ -216,6 +232,13 @@ struct ForgeView: View {
         }
         .buttonStyle(ForgePrimaryButtonStyle())
         .disabled(!viewModel.canStartForge)
+
+        if let blocked = viewModel.sessionBlockedMessage {
+            Text(blocked)
+                .font(.caption)
+                .foregroundStyle(.red.opacity(0.9))
+                .multilineTextAlignment(.center)
+        }
     }
 }
 

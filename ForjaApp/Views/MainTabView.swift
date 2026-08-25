@@ -16,14 +16,19 @@ struct MainTabView: View {
                     Label("Forja", systemImage: "flame.fill")
                 }
 
-            InventoryView()
+            TrailMapView()
                 .tabItem {
-                    Label("Inventário", systemImage: "shippingbox.fill")
+                    Label("Trilha", systemImage: "map.fill")
                 }
 
             ShopView()
                 .tabItem {
                     Label("Loja", systemImage: "cart.fill")
+                }
+
+            SocialHubView()
+                .tabItem {
+                    Label("Guilda", systemImage: "shield.fill")
                 }
 
             ProfileView()

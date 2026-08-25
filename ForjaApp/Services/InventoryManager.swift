@@ -6,6 +6,7 @@
 
 import Foundation
 import Combine
+import WidgetKit
 
 @MainActor
 final class InventoryManager: ObservableObject {
@@ -19,31 +20,43 @@ final class InventoryManager: ObservableObject {
     private init() {
         progress = Self.loadLocal()
         progress.rollPeriodsIfNeeded()
+        saveLocal()
+        publishWidget()
     }
 
     var forgedBars: Int { progress.forgedBars }
+    var ore: Int { progress.forgedBars }
+    var gems: Int { progress.gems }
 
     func completeForge(barsEarned: Int, focusSeconds: Int) {
         progress.rollPeriodsIfNeeded()
         progress.forgedBars += barsEarned
+        progress.lifetimeBars += barsEarned
+        progress.weeklyBars += barsEarned
+        progress.sessionsToday += 1
         progress.totalSessions += 1
         progress.successfulSessions += 1
         progress.addFocusTime(seconds: focusSeconds)
+        progress.recordSessionHour()
         progress.currentStreak += 1
         progress.bestStreak = max(progress.bestStreak, progress.currentStreak)
         persist()
+        Task { await SocialService.shared.syncWeeklyTotals() }
     }
 
     func failForge(focusSeconds: Int = 0, plannedSeconds: Int = 0) {
         progress.rollPeriodsIfNeeded()
+        progress.sessionsToday += 1
         progress.totalSessions += 1
         progress.failedSessions += 1
         progress.currentStreak = 0
+        progress.recordSessionHour()
         progress.addUnfulfilledTime(seconds: max(0, plannedSeconds - focusSeconds))
         if focusSeconds > 0 {
             progress.addFocusTime(seconds: focusSeconds)
         }
         persist()
+        Task { await SocialService.shared.syncWeeklyTotals() }
     }
 
     func purchase(item: ShopItem) -> Bool {
@@ -59,6 +72,100 @@ final class InventoryManager: ObservableObject {
 
     func canAfford(_ item: ShopItem) -> Bool {
         progress.forgedBars >= item.price
+    }
+
+    func addGems(_ amount: Int) {
+        guard amount > 0 else { return }
+        progress.gems += amount
+        persist()
+    }
+
+    func purchaseCosmetic(_ item: CosmeticItem) -> Bool {
+        if item.requiresSubscription, !EntitlementStore.shared.isPremium {
+            return false
+        }
+        if item.gemPrice > 0 {
+            guard progress.gems >= item.gemPrice else { return false }
+            progress.gems -= item.gemPrice
+        }
+        progress.grantCosmetic(item.id)
+        persist()
+        return true
+    }
+
+    func unlockSeasonalPack(_ season: CosmeticSeason) {
+        let pack = CosmeticCatalog.seasonalPacks.first { $0.season == season }
+        if let pack {
+            for id in CosmeticCatalog.ownedIDs(from: pack) {
+                progress.grantCosmetic(id)
+            }
+            persist()
+        }
+    }
+
+    func unlockHardcore() {
+        progress.hasUnlockedHardcore = true
+        persist()
+    }
+
+    func equipCosmetic(_ item: CosmeticItem) {
+        guard progress.ownsCosmetic(item.id) || (item.requiresSubscription && EntitlementStore.shared.isPremium) else { return }
+        switch item.kind {
+        case .anvilSkin:
+            progress.equippedAnvilSkinID = item.id
+        case .furnaceSkin:
+            progress.equippedFurnaceSkinID = item.id
+        case .shopTheme, .seasonalPack:
+            progress.equippedShopThemeID = item.id
+        }
+        persist()
+    }
+
+    func selectAvatar(_ avatar: MedievalAvatar) {
+        progress.selectedAvatarID = avatar.id
+        persist()
+    }
+
+    func updateGraceSeconds(_ seconds: Int) {
+        let maxAllowed = EntitlementStore.shared.maxGraceSeconds
+        progress.graceSeconds = max(0, min(maxAllowed, seconds))
+        persist()
+    }
+
+    func setHardcoreEnabled(_ enabled: Bool) {
+        guard !enabled || EntitlementStore.shared.canEnableHardcore else { return }
+        progress.isHardcoreEnabled = enabled
+        if enabled {
+            progress.graceSeconds = 0
+        } else if progress.graceSeconds == 0 {
+            progress.graceSeconds = 5
+        }
+        persist()
+    }
+
+    func startTrialIfNeeded() {
+        if progress.trialStartedAt == nil {
+            progress.trialStartedAt = Date()
+        }
+        progress.onboardingCompleted = true
+        persist()
+    }
+
+    func completeOnboarding() {
+        progress.onboardingCompleted = true
+        persist()
+    }
+
+    func setNotificationsEnabled(_ enabled: Bool) {
+        progress.notificationsEnabled = enabled
+        persist()
+        NotificationScheduler.reschedule(for: progress)
+    }
+
+    func canAffordCosmetic(_ item: CosmeticItem) -> Bool {
+        if item.requiresSubscription { return EntitlementStore.shared.isPremium }
+        if item.isDirectIAP { return false }
+        return progress.gems >= item.gemPrice
     }
 
     func updateDisplayName(_ name: String) {
@@ -78,17 +185,39 @@ final class InventoryManager: ObservableObject {
         persist()
     }
 
+    func rollPeriodsIfNeeded() {
+        progress.rollPeriodsIfNeeded()
+    }
+
     func applyRemoteProgress(_ remote: UserProgress) {
         progress = remote
         progress.rollPeriodsIfNeeded()
         saveLocal()
+        publishWidget()
     }
 
     private func persist() {
         saveLocal()
+        publishWidget()
         Task {
             await firebaseManager.syncProgress(progress)
         }
+    }
+
+    private func publishWidget() {
+        WidgetBridge.save(
+            WidgetSnapshot(
+                currentStreak: progress.currentStreak,
+                bestStreak: progress.bestStreak,
+                dailyFocusSeconds: progress.dailyFocusSeconds,
+                dailyGoalSeconds: progress.dailyGoalSeconds,
+                displayName: progress.displayName,
+                avatarEmoji: progress.selectedAvatar.emoji,
+                lifetimeBars: progress.lifetimeBars,
+                isDailyGoalMet: progress.isDailyGoalMet
+            )
+        )
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func saveLocal() {

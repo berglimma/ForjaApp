@@ -159,7 +159,7 @@ final class FirebaseManager: ObservableObject {
         defer { isSyncing = false }
 
         let db = Firestore.firestore()
-        let data: [String: Any] = [
+        var data: [String: Any] = [
             "displayName": progress.displayName,
             "forgedBars": progress.forgedBars,
             "totalSessions": progress.totalSessions,
@@ -177,6 +177,22 @@ final class FirebaseManager: ObservableObject {
             "weeklyFocusSeconds": progress.weeklyFocusSeconds,
             "weekOfYear": progress.weekOfYear,
             "calendarYear": progress.calendarYear,
+            "gems": progress.gems,
+            "lifetimeBars": progress.lifetimeBars,
+            "weeklyBars": progress.weeklyBars,
+            "sessionsToday": progress.sessionsToday,
+            "graceSeconds": progress.graceSeconds,
+            "isHardcoreEnabled": progress.isHardcoreEnabled,
+            "selectedAvatarID": progress.selectedAvatarID,
+            "equippedAnvilSkinID": progress.equippedAnvilSkinID,
+            "equippedFurnaceSkinID": progress.equippedFurnaceSkinID,
+            "equippedShopThemeID": progress.equippedShopThemeID,
+            "ownedCosmeticIDs": progress.ownedCosmeticIDs,
+            "weekdayFocusSeconds": progress.weekdayFocusSeconds,
+            "hourlySessionCounts": progress.hourlySessionCounts,
+            "onboardingCompleted": progress.onboardingCompleted,
+            "hasUnlockedHardcore": progress.hasUnlockedHardcore,
+            "notificationsEnabled": progress.notificationsEnabled,
             "ownedCollectibles": progress.ownedCollectibles.map {
                 [
                     "id": $0.id,
@@ -186,6 +202,9 @@ final class FirebaseManager: ObservableObject {
             },
             "updatedAt": FieldValue.serverTimestamp()
         ]
+        if let trialStartedAt = progress.trialStartedAt {
+            data["trialStartedAt"] = Timestamp(date: trialStartedAt)
+        }
 
         do {
             try await db.collection("users").document(uid).setData(data, merge: true)
@@ -264,6 +283,13 @@ final class FirebaseManager: ObservableObject {
             return OwnedCollectible(id: id, itemID: itemID, acquiredAt: date)
         }
 
+        let trialStartedAt: Date?
+        if let timestamp = data["trialStartedAt"] as? Timestamp {
+            trialStartedAt = timestamp.dateValue()
+        } else {
+            trialStartedAt = nil
+        }
+
         return UserProgress(
             forgedBars: data["forgedBars"] as? Int ?? 0,
             ownedCollectibles: collectibles,
@@ -282,12 +308,52 @@ final class FirebaseManager: ObservableObject {
             weeklyGoalMinutes: data["weeklyGoalMinutes"] as? Int ?? 300,
             weeklyFocusSeconds: data["weeklyFocusSeconds"] as? Int ?? 0,
             weekOfYear: data["weekOfYear"] as? Int ?? UserProgress.empty.weekOfYear,
-            calendarYear: data["calendarYear"] as? Int ?? UserProgress.empty.calendarYear
+            calendarYear: data["calendarYear"] as? Int ?? UserProgress.empty.calendarYear,
+            gems: data["gems"] as? Int ?? 0,
+            lifetimeBars: data["lifetimeBars"] as? Int ?? (data["forgedBars"] as? Int ?? 0),
+            weeklyBars: data["weeklyBars"] as? Int ?? 0,
+            sessionsToday: data["sessionsToday"] as? Int ?? 0,
+            graceSeconds: data["graceSeconds"] as? Int ?? 5,
+            isHardcoreEnabled: data["isHardcoreEnabled"] as? Bool ?? false,
+            selectedAvatarID: data["selectedAvatarID"] as? String ?? MedievalAvatar.default.id,
+            equippedAnvilSkinID: data["equippedAnvilSkinID"] as? String ?? CosmeticCatalog.defaultAnvilID,
+            equippedFurnaceSkinID: data["equippedFurnaceSkinID"] as? String ?? CosmeticCatalog.defaultFurnaceID,
+            equippedShopThemeID: data["equippedShopThemeID"] as? String ?? CosmeticCatalog.defaultThemeID,
+            ownedCosmeticIDs: data["ownedCosmeticIDs"] as? [String] ?? UserProgress.empty.ownedCosmeticIDs,
+            weekdayFocusSeconds: paddedIntArray(data["weekdayFocusSeconds"], count: 7),
+            hourlySessionCounts: paddedIntArray(data["hourlySessionCounts"], count: 24),
+            onboardingCompleted: data["onboardingCompleted"] as? Bool ?? false,
+            trialStartedAt: trialStartedAt,
+            hasUnlockedHardcore: data["hasUnlockedHardcore"] as? Bool ?? false,
+            notificationsEnabled: data["notificationsEnabled"] as? Bool ?? false
         )
+    }
+
+    private func paddedIntArray(_ raw: Any?, count: Int) -> [Int] {
+        let values: [Int]
+        if let ints = raw as? [Int] {
+            values = ints
+        } else if let numbers = raw as? [NSNumber] {
+            values = numbers.map(\.intValue)
+        } else {
+            values = []
+        }
+        var result = Array(repeating: 0, count: count)
+        for (index, value) in values.prefix(count).enumerated() {
+            result[index] = value
+        }
+        return result
     }
     #endif
 
     private func merge(local: UserProgress, remote: UserProgress) -> UserProgress {
+        func maxArray(_ a: [Int], _ b: [Int]) -> [Int] {
+            let size = max(a.count, b.count)
+            return (0..<size).map { index in
+                max(index < a.count ? a[index] : 0, index < b.count ? b[index] : 0)
+            }
+        }
+
         var merged = UserProgress(
             forgedBars: max(local.forgedBars, remote.forgedBars),
             ownedCollectibles: local.ownedCollectibles.count >= remote.ownedCollectibles.count
@@ -308,7 +374,24 @@ final class FirebaseManager: ObservableObject {
             weeklyGoalMinutes: remote.weeklyGoalMinutes > 0 ? remote.weeklyGoalMinutes : local.weeklyGoalMinutes,
             weeklyFocusSeconds: max(local.weeklyFocusSeconds, remote.weeklyFocusSeconds),
             weekOfYear: max(local.weekOfYear, remote.weekOfYear),
-            calendarYear: max(local.calendarYear, remote.calendarYear)
+            calendarYear: max(local.calendarYear, remote.calendarYear),
+            gems: max(local.gems, remote.gems),
+            lifetimeBars: max(local.lifetimeBars, remote.lifetimeBars),
+            weeklyBars: max(local.weeklyBars, remote.weeklyBars),
+            sessionsToday: max(local.sessionsToday, remote.sessionsToday),
+            graceSeconds: local.graceSeconds,
+            isHardcoreEnabled: local.isHardcoreEnabled || remote.isHardcoreEnabled,
+            selectedAvatarID: local.selectedAvatarID,
+            equippedAnvilSkinID: local.equippedAnvilSkinID,
+            equippedFurnaceSkinID: local.equippedFurnaceSkinID,
+            equippedShopThemeID: local.equippedShopThemeID,
+            ownedCosmeticIDs: Array(Set(local.ownedCosmeticIDs + remote.ownedCosmeticIDs)),
+            weekdayFocusSeconds: maxArray(local.weekdayFocusSeconds, remote.weekdayFocusSeconds),
+            hourlySessionCounts: maxArray(local.hourlySessionCounts, remote.hourlySessionCounts),
+            onboardingCompleted: local.onboardingCompleted || remote.onboardingCompleted,
+            trialStartedAt: [local.trialStartedAt, remote.trialStartedAt].compactMap { $0 }.min(),
+            hasUnlockedHardcore: local.hasUnlockedHardcore || remote.hasUnlockedHardcore,
+            notificationsEnabled: local.notificationsEnabled || remote.notificationsEnabled
         )
         merged.rollPeriodsIfNeeded()
         return merged

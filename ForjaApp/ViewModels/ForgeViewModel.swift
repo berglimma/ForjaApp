@@ -15,17 +15,26 @@ final class ForgeViewModel: ObservableObject {
     @Published var selectedSeconds: Int = 0
     @Published var barsEarnedOnSuccess: Int = 0
     @Published var showResultOverlay = false
+    @Published var sessionBlockedMessage: String?
 
     let timerService = ForgeTimerService()
     let focusMonitor = FocusMonitor()
 
     private var inventoryManager: InventoryManager?
     private var focusCancellable: AnyCancellable?
+    private var timerTickCancellable: AnyCancellable?
     private var cancellables = Set<AnyCancellable>()
     private var sessionStartedTotalSeconds = 0
 
     init() {
         timerService.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
+        focusMonitor.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.objectWillChange.send()
@@ -45,6 +54,10 @@ final class ForgeViewModel: ObservableObject {
         ForgeDurationOption.rewardBars(for: totalDurationSeconds)
     }
 
+    var remainingGraceSeconds: Int {
+        focusMonitor.remainingGraceSeconds
+    }
+
     func applyPreset(_ preset: ForgeDurationOption) {
         selectedMinutes = preset.minutes
         selectedSeconds = preset.seconds
@@ -62,6 +75,7 @@ final class ForgeViewModel: ObservableObject {
         timerService.configure(totalSeconds: totalDurationSeconds)
         sessionState = .ready
         showResultOverlay = false
+        sessionBlockedMessage = nil
         focusMonitor.reset()
     }
 
@@ -69,18 +83,46 @@ final class ForgeViewModel: ObservableObject {
         guard sessionState == .ready || sessionState == .idle else { return }
         guard canStartForge else { return }
 
+        inventoryManager?.rollPeriodsIfNeeded()
+        let progress = inventoryManager?.progress ?? .empty
+        if !EntitlementStore.shared.canStartSession(progress: progress) {
+            sessionBlockedMessage = "Limite diário de \(EntitlementLimits.freeDailySessions) sessões atingido. Assine Mestre Ferreiro para forjar sem limite."
+            return
+        }
+
         timerService.configure(totalSeconds: totalDurationSeconds)
         sessionStartedTotalSeconds = totalDurationSeconds
         sessionState = .forging
         showResultOverlay = false
+        sessionBlockedMessage = nil
+        focusMonitor.graceSeconds = progress.isHardcoreEnabled ? 0 : progress.graceSeconds
         focusMonitor.startMonitoring()
         UIApplication.shared.isIdleTimerDisabled = true
+
+        let displayName = progress.displayName
+        let avatar = progress.selectedAvatar.emoji
+        LiveActivityController.shared.start(
+            totalSeconds: totalDurationSeconds,
+            displayName: displayName,
+            avatarEmoji: avatar
+        )
 
         focusCancellable = focusMonitor.$didLoseFocus
             .dropFirst()
             .filter { $0 }
             .sink { [weak self] _ in
                 self?.handleFocusLost()
+            }
+
+        timerTickCancellable = timerService.$remainingSeconds
+            .sink { [weak self] remaining in
+                guard let self, self.sessionState == .forging else { return }
+                LiveActivityController.shared.update(
+                    remainingSeconds: remaining,
+                    totalSeconds: self.sessionStartedTotalSeconds,
+                    displayName: displayName,
+                    avatarEmoji: avatar
+                )
             }
 
         timerService.start { [weak self] in
@@ -139,6 +181,9 @@ final class ForgeViewModel: ObservableObject {
         focusMonitor.stopMonitoring()
         focusCancellable?.cancel()
         focusCancellable = nil
+        timerTickCancellable?.cancel()
+        timerTickCancellable = nil
+        LiveActivityController.shared.end()
         UIApplication.shared.isIdleTimerDisabled = false
     }
 

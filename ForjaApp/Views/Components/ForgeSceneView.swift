@@ -11,6 +11,8 @@ struct ForgeSceneView: View {
     let isForging: Bool
     let isFailed: Bool
     let isSuccess: Bool
+    var anvilSkinID: String = CosmeticCatalog.defaultAnvilID
+    var furnaceSkinID: String = CosmeticCatalog.defaultFurnaceID
 
     private var isIdleSetup: Bool {
         !isForging && !isFailed && !isSuccess
@@ -24,7 +26,7 @@ struct ForgeSceneView: View {
             }
 
             if isIdleSetup {
-                AnvilView(isForging: false, isFailed: false, isProminent: true)
+                AnvilView(isForging: false, isFailed: false, isProminent: true, skinID: anvilSkinID)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 VStack(spacing: 8) {
@@ -49,11 +51,11 @@ struct ForgeSceneView: View {
                                 .offset(y: 8)
                         }
 
-                        ForgeFireView(intensity: fireIntensity, isActive: isForging && !isFailed)
+                        ForgeFireView(intensity: fireIntensity, isActive: isForging && !isFailed, skinID: furnaceSkinID)
                     }
                     .frame(height: 110)
 
-                    AnvilView(isForging: isForging, isFailed: isFailed)
+                    AnvilView(isForging: isForging, isFailed: isFailed, skinID: anvilSkinID)
                         .frame(height: 88)
                 }
             }

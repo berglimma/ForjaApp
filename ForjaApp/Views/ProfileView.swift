@@ -10,13 +10,21 @@ struct ProfileView: View {
     @EnvironmentObject private var inventory: InventoryManager
     @EnvironmentObject private var firebase: FirebaseManager
     @StateObject private var viewModel = ProfileViewModel()
+    @StateObject private var entitlements = EntitlementStore.shared
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     accountSection
+                    subscriptionBanner
+                    FocusModeSettingsView()
                     statsSection
+                    if entitlements.canUseAdvancedStats {
+                        advancedStatsSection
+                    } else {
+                        lockedStatsSection
+                    }
                     chartSection
                     dailyGoalSection
                     weeklyGoalSection
@@ -34,6 +42,53 @@ struct ProfileView: View {
                 authSheet
             }
         }
+    }
+
+    private var subscriptionBanner: some View {
+        SubscriptionBanner()
+    }
+
+    private var advancedStatsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Estatísticas avançadas")
+                .font(.headline)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                ProfileStatTile(
+                    title: "Taxa de sucesso",
+                    value: "\(Int(inventory.progress.successRate * 100))%",
+                    icon: "percent"
+                )
+                ProfileStatTile(
+                    title: "Horário de pico",
+                    value: String(format: "%02dh", inventory.progress.peakHour),
+                    icon: "clock.badge.checkmark"
+                )
+                ProfileStatTile(
+                    title: "Melhor dia",
+                    value: UserProgress.weekdayFullLabel(index: inventory.progress.peakWeekdayIndex),
+                    icon: "calendar"
+                )
+                ProfileStatTile(
+                    title: "Barras no ofício",
+                    value: "\(inventory.progress.lifetimeBars)",
+                    icon: "hammer.fill"
+                )
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private var lockedStatsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Estatísticas avançadas")
+                .font(.headline)
+            Text("Horário de pico, taxa de sucesso e melhor dia da semana ficam no Mestre Ferreiro.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
     private var accountSection: some View {
@@ -375,6 +430,46 @@ struct ProfileStatTile: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
         .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+}
+
+struct SubscriptionBanner: View {
+    @StateObject private var entitlements = EntitlementStore.shared
+    @State private var showPaywall = false
+    @EnvironmentObject private var inventory: InventoryManager
+
+    var body: some View {
+        Button { showPaywall = true } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Mestre Ferreiro")
+                        .font(.headline)
+                    if entitlements.isStoreKitSubscribed {
+                        Text("Assinatura ativa")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    } else if entitlements.isTrialActive {
+                        Text("Trial · \(entitlements.trialDaysRemaining) dia(s)")
+                            .font(.caption)
+                            .foregroundStyle(Color(hex: "#F6E05E") ?? .yellow)
+                    } else {
+                        Text("Skins, stats avançadas, sessões ilimitadas")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                Image(systemName: "crown.fill")
+                    .foregroundStyle(Color(hex: "#F6E05E") ?? .yellow)
+            }
+            .padding()
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showPaywall) {
+            SubscriptionPaywallView()
+                .environmentObject(inventory)
+        }
     }
 }
 

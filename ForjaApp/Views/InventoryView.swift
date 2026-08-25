@@ -19,12 +19,13 @@ struct InventoryView: View {
     }
 
     var body: some View {
-        NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
                     statsHeader
 
                     barsSection
+                    FocusModeSettingsView()
+                    notificationSection
 
                     if groupedCollectibles.isEmpty {
                         emptyState
@@ -36,7 +37,6 @@ struct InventoryView: View {
             }
             .background((Color(hex: "#0D1117") ?? .black).ignoresSafeArea())
             .navigationTitle("Inventário")
-        }
     }
 
     private var statsHeader: some View {
@@ -48,17 +48,50 @@ struct InventoryView: View {
     }
 
     private var barsSection: some View {
-        HStack {
-            Text("🧱")
-                .font(.largeTitle)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Barras Forjadas")
-                    .font(.headline)
-                Text("\(inventory.forgedBars) disponíveis para trocar na loja")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("🧱")
+                    .font(.largeTitle)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Barras forjadas")
+                        .font(.headline)
+                    Text("\(inventory.progress.lifetimeBars) no ofício · nunca se vendem")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
             }
-            Spacer()
+
+            HStack {
+                Text("🪨 \(inventory.ore) minério pra oficina")
+                    .font(.subheadline)
+                Spacer()
+                Text("💎 \(inventory.gems) gemas")
+                    .font(.subheadline)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private var notificationSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Toggle("Lembretes da fornalha", isOn: Binding(
+                get: { inventory.progress.notificationsEnabled },
+                set: { enabled in
+                    Task {
+                        if enabled {
+                            let granted = await NotificationScheduler.requestPermission()
+                            inventory.setNotificationsEnabled(granted)
+                        } else {
+                            inventory.setNotificationsEnabled(false)
+                        }
+                    }
+                }
+            ))
+            Text("Avisa quando a fornalha esfria e no seu horário de pico histórico.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -115,6 +148,8 @@ struct StatCard: View {
 }
 
 #Preview {
-    InventoryView()
-        .environmentObject(InventoryManager.shared)
+    NavigationStack {
+        InventoryView()
+            .environmentObject(InventoryManager.shared)
+    }
 }

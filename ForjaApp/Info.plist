@@ -43,6 +43,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
+	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Permite escolher uma foto para seu perfil de ferreiro.</string>
 	<key>UISupportedInterfaceOrientations</key>

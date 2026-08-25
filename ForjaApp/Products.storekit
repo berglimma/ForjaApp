@@ -1,0 +1,193 @@
+{
+  "identifier" : "ForjaProducts",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "4.90",
+      "familyShareable" : false,
+      "internalID" : "A1GEMSMALL0001",
+      "localizations" : [
+        {
+          "description" : "40 gemas para skins e temas. Não compra colecionáveis da oficina.",
+          "displayName" : "Bolsa pequena de gemas",
+          "locale" : "pt_BR"
+        }
+      ],
+      "productID" : "com.forja.gems.small",
+      "referenceName" : "Gemas Pequena",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "9.90",
+      "familyShareable" : false,
+      "internalID" : "A1GEMMEDIUM001",
+      "localizations" : [
+        {
+          "description" : "110 gemas para a loja de tesouro.",
+          "displayName" : "Bolsa média de gemas",
+          "locale" : "pt_BR"
+        }
+      ],
+      "productID" : "com.forja.gems.medium",
+      "referenceName" : "Gemas Média",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "19.90",
+      "familyShareable" : false,
+      "internalID" : "A1GEMLARGE0001",
+      "localizations" : [
+        {
+          "description" : "300 gemas para skins e temas sazonais.",
+          "displayName" : "Cofre de gemas",
+          "locale" : "pt_BR"
+        }
+      ],
+      "productID" : "com.forja.gems.large",
+      "referenceName" : "Gemas Grande",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "12.90",
+      "familyShareable" : false,
+      "internalID" : "A1PACKHALLOW01",
+      "localizations" : [
+        {
+          "description" : "Pacote cosmético de Halloween. Não afeta minério nem barras.",
+          "displayName" : "Noite das Bruxas",
+          "locale" : "pt_BR"
+        }
+      ],
+      "productID" : "com.forja.pack.halloween",
+      "referenceName" : "Pack Halloween",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "12.90",
+      "familyShareable" : false,
+      "internalID" : "A1PACKNATAL0001",
+      "localizations" : [
+        {
+          "description" : "Pacote cosmético de Natal. Não afeta a economia de foco.",
+          "displayName" : "Inverno na Forja",
+          "locale" : "pt_BR"
+        }
+      ],
+      "productID" : "com.forja.pack.natal",
+      "referenceName" : "Pack Natal",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "6.90",
+      "familyShareable" : false,
+      "internalID" : "A1HARDCORE0001",
+      "localizations" : [
+        {
+          "description" : "Zero segundos de graça. Sair do app apaga o fogo na hora.",
+          "displayName" : "Modo Hardcore",
+          "locale" : "pt_BR"
+        }
+      ],
+      "productID" : "com.forja.unlock.hardcore",
+      "referenceName" : "Hardcore",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "0",
+    "_developerTeamID" : "",
+    "_failTransactionsEnabled" : false,
+    "_lastStorefrontRequestDate" : 0,
+    "_locale" : "pt_BR",
+    "_storefront" : "BRA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "A1MESTREGRUPO1",
+      "localizations" : [
+        {
+          "description" : "Assinatura Mestre Ferreiro",
+          "displayName" : "Mestre Ferreiro",
+          "locale" : "pt_BR"
+        }
+      ],
+      "name" : "Mestre Ferreiro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "14.90",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "A1SUBMONTHLY01",
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "internalID" : "A1TRIALMONTH01",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Skins, stats avançadas, sessões ilimitadas e backup na nuvem.",
+              "displayName" : "Mestre Ferreiro Mensal",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "com.forja.subscription.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Mensal",
+          "subscriptionGroupID" : "A1MESTREGRUPO1",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "99.90",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "A1SUBYEARLY001",
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "internalID" : "A1TRIALYEAR001",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Um ano de Mestre Ferreiro com economia em relação ao mensal.",
+              "displayName" : "Mestre Ferreiro Anual",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "com.forja.subscription.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Anual",
+          "subscriptionGroupID" : "A1MESTREGRUPO1",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

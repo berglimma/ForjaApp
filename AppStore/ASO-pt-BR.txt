@@ -1,0 +1,53 @@
+# App Store — Forja (ASO pt-BR)
+
+Nicho: app de foco para quem curte RPG/fantasia. Não competir de frente com Forest/Focus To-Do genéricos.
+
+## Nome
+Forja: Foco Pomodoro RPG
+
+## Subtítulo (30 caracteres)
+Foco gamificado na fornalha
+
+## Promotional text
+Acenda a forja, resista às distrações e transforme concentração em minério. Colecionáveis raros só nascem de mérito.
+
+## Descrição
+
+Forja é o Pomodoro RPG para quem gosta de fantasia, fornalha e progressão de verdade.
+
+Você liga o forno, mantém o foco enquanto o minério aquece na bigorna e ganha recompensas. Sair do app apaga o fogo — a menos que você esteja no modo tolerante.
+
+Por que Forja não é mais um timer genérico
+• Estética de ferreiro medieval, não planilha
+• Minério ganho por foco e Gemas compradas: lojas separadas, sem corromper colecionáveis raros
+• Trilha semanal gamificada com avatar medieval
+• Guildas e desafios entre amigos
+• Live Activity e Dynamic Island com o cronômetro da forja
+• Widget de streak e meta diária
+
+Assinatura Mestre Ferreiro (mensal/anual, 7 dias grátis no onboarding)
+• Skins de bigorna e fornalha
+• Estatísticas avançadas
+• Temas de loja exclusivos
+• Backup ilimitado na nuvem
+• Sessões diárias ilimitadas
+
+Palavras-chave sugeridas (100 caracteres):
+pomodoro RPG,foco gamificado,produtividade fantasia,timer estudo,forest,forja,concentração,pomodoro
+
+## Screenshots (ordem sugerida)
+1. Animação da forja em andamento (fogo, bigorna, faíscas) — NÃO só a tela de timer
+2. Trilha semanal com o avatar medieval nos dias de maior foco
+3. Loja dupla: Oficina (minério) vs Tesouro (gemas)
+4. Overlay de forja concluída + barra lendária
+5. Guilda / desafio semanal
+6. Widget + Live Activity na lock screen
+
+## Preview de vídeo
+Mostre 15–30s da forja acendendo, o minério evoluindo e o sucesso. O gancho é a animação, não a UI de configuração.
+
+## Categoria
+Produtividade (primária) · Jogos / Aventura (secundária)
+
+## Público
+Gamers e estudantes que gostam de estética de forja/RPG.

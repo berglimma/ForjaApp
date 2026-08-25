@@ -9,6 +9,7 @@ import SwiftUI
 struct ForgeFireView: View {
     let intensity: Double
     let isActive: Bool
+    var skinID: String = CosmeticCatalog.defaultFurnaceID
 
     @State private var flicker = false
     @State private var wave = false
@@ -74,14 +75,14 @@ struct ForgeFireView: View {
     }
 
     private func flameColors(for index: Int) -> [Color] {
+        let palette = FurnaceSkinPalette.palette(for: skinID)
+        let hexes: [String]
         switch index {
-        case 0:
-            return [Color(hex: "#C05621") ?? .red, Color(hex: "#ED8936") ?? .orange, Color(hex: "#FBD38D") ?? .yellow]
-        case 1:
-            return [Color(hex: "#9B2C2C") ?? .red, Color(hex: "#DD6B20") ?? .orange, Color(hex: "#F6AD55") ?? .orange]
-        default:
-            return [Color(hex: "#742A2A") ?? .red, Color(hex: "#C05621") ?? .orange, Color(hex: "#ED8936") ?? .yellow]
+        case 0: hexes = palette.inner
+        case 1: hexes = palette.mid
+        default: hexes = palette.outer
         }
+        return hexes.compactMap { Color(hex: $0) }
     }
 
     private func flameWidth(for index: Int) -> CGFloat {

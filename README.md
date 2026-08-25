@@ -14,8 +14,12 @@ Feito com **SwiftUI**, **Firebase** e animações temáticas de ferreiro.
 
 ### Progressão
 - **Inventário** de colecionáveis adquiridos na loja
-- **Loja** com 8 itens (Comum → Lendário)
+- **Loja dupla**: Oficina (Minério ganho por foco) e Tesouro (Gemas IAP)
+- Pacotes sazonais (Halloween/Natal) vendidos direto, sem mexer na economia de foco
 - Estatísticas de tempo de foco, forjas concluídas, falhas e sequência
+- **Trilha semanal** com avatar medieval e o dia de maior foco
+- Assinatura **Mestre Ferreiro** (mensal/anual) com trial de 7 dias
+- Widget de streak, Live Activity e notificações de fornalha esfriando
 
 ### Perfil
 - Login com **Google**, **e-mail/senha** ou modo convidado (anônimo)
@@ -112,6 +116,19 @@ service cloud.firestore {
 
 Os documentos ficam em `users/{uid}` com campos como `displayName`, `totalFocusSeconds`, `successfulSessions`, `forgedBars`, metas e colecionáveis.
 
+Regras extras para guildas e desafios:
+
+```javascript
+match /guilds/{guildId} {
+  allow read: if request.auth != null;
+  allow create, update: if request.auth != null;
+}
+match /challenges/{challengeId} {
+  allow read: if request.auth != null;
+  allow create, update: if request.auth != null;
+}
+```
+
 ## Estrutura do projeto
 
 ```
@@ -122,7 +139,16 @@ ForjaApp/
 │   ├── ForgeSessionState.swift
 │   ├── ShopItem.swift
 │   ├── UserProgress.swift
-│   └── UserProfile.swift
+│   ├── UserProfile.swift
+│   ├── MedievalAvatar.swift
+│   ├── CosmeticCatalog.swift
+│   └── SocialModels.swift
+├── Shared/                          # App Group + Live Activity
+├── Services/
+│   ├── FirebaseManager.swift      # Auth, sync, ranking
+│   ├── StoreManager.swift         # StoreKit 2
+│   ├── SocialService.swift        # Guildas e desafios
+│   └── ...
 ├── Services/
 │   ├── FirebaseManager.swift      # Auth, sync, ranking
 │   ├── ForgeTimerService.swift
@@ -168,9 +194,10 @@ O tempo parcial da sessão interrompida entra nas estatísticas de foco não cum
 | Aba | Conteúdo |
 |-----|----------|
 | **Forja** | Timer, animação e início da sessão |
-| **Inventário** | Colecionáveis adquiridos |
-| **Loja** | Compra com barras forjadas |
-| **Perfil** | Conta, stats, metas, gráfico e ranking |
+| **Trilha** | Mapa semanal com avatar medieval e inventário |
+| **Loja** | Oficina (minério), Tesouro (gemas) e pacotes sazonais |
+| **Guilda** | Clãs semanais e desafios entre amigos |
+| **Perfil** | Conta, stats, metas, ranking e assinatura |
 
 ## Licença
 

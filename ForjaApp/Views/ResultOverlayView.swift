@@ -37,8 +37,8 @@ struct ResultOverlayView: View {
 
                 if case .success = state {
                     HStack(spacing: 8) {
-                        Text("🧱")
-                        Text("+\(barsEarned) Barra\(barsEarned == 1 ? "" : "s") Forjada\(barsEarned == 1 ? "" : "s")")
+                        Text("🪨")
+                        Text("+\(barsEarned) Minério")
                             .font(.headline)
                     }
                     .padding(.horizontal, 20)
@@ -102,7 +102,7 @@ struct ResultOverlayView: View {
     private var message: String {
         switch state {
         case .success:
-            return "Você manteve o foco e transformou o minério em barras valiosas."
+            return "Você manteve o foco. O minério está na bolsa — a barra forjada entra no seu recorde de ofício."
         case .failed(let reason):
             return reason.message
         default:
@@ -111,7 +111,7 @@ struct ResultOverlayView: View {
     }
 
     private var buttonTitle: String {
-        isSuccess ? "Coletar barras" : "Tentar novamente"
+        isSuccess ? "Coletar minério" : "Tentar novamente"
     }
 }
 

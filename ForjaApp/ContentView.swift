@@ -7,8 +7,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var inventory: InventoryManager
+
     var body: some View {
-        MainTabView()
+        Group {
+            if inventory.progress.onboardingCompleted {
+                MainTabView()
+            } else {
+                OnboardingView()
+            }
+        }
+        .animation(.easeInOut, value: inventory.progress.onboardingCompleted)
     }
 }
 
