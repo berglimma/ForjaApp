@@ -10,6 +10,7 @@ struct FocusModeSettingsView: View {
     @StateObject private var entitlements = EntitlementStore.shared
     @StateObject private var store = StoreManager.shared
     @State private var showPaywall = false
+    @State private var isPurchasing = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -46,16 +47,29 @@ struct FocusModeSettingsView: View {
             }
 
             if !entitlements.canEnableHardcore && !inventory.progress.isHardcoreEnabled {
-                Button("Desbloquear Hardcore") {
-                    Task {
-                        if let product = store.product(id: StoreProductID.hardcore) {
-                            _ = await store.purchase(product)
+                Button {
+                    Task { await unlockHardcore() }
+                } label: {
+                    HStack(spacing: 10) {
+                        if isPurchasing {
+                            ProgressView()
+                                .tint(.white)
                         } else {
-                            showPaywall = true
+                            Image(systemName: "bolt.shield.fill")
                         }
+                        Text(isPurchasing ? "Abrindo a forja negra…" : "Desbloquear Hardcore")
+                            .font(.subheadline.weight(.semibold))
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
                 }
-                .buttonStyle(ForgeSecondaryButtonStyle())
+                .buttonStyle(HardcoreUnlockButtonStyle())
+                .disabled(isPurchasing)
+                .accessibilityLabel("Desbloquear Hardcore")
+
+                Text("Sem perdão: qualquer saída apaga o fogo. Compra única — ou incluso no Mestre Ferreiro.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
@@ -84,5 +98,20 @@ struct FocusModeSettingsView: View {
             get: { Double(inventory.progress.graceSeconds) },
             set: { inventory.updateGraceSeconds(Int($0)) }
         )
+    }
+
+    private func unlockHardcore() async {
+        isPurchasing = true
+        defer { isPurchasing = false }
+
+        if store.product(id: StoreProductID.hardcore) == nil {
+            await store.refresh()
+        }
+
+        if let product = store.product(id: StoreProductID.hardcore) {
+            _ = await store.purchase(product)
+        } else {
+            showPaywall = true
+        }
     }
 }

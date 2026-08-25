@@ -19,7 +19,12 @@ struct TrailMapView: View {
                         weekdaySeconds: inventory.progress.weekdayFocusSeconds,
                         avatar: inventory.progress.selectedAvatar,
                         todayIndex: UserProgress.mondayFirstWeekdayIndex(from: Date()),
-                        peakIndex: inventory.progress.peakWeekdayIndex
+                        peakIndex: inventory.progress.peakWeekdayIndex,
+                        totalSessions: inventory.progress.totalSessions,
+                        successfulSessions: inventory.progress.successfulSessions,
+                        currentStreak: inventory.progress.currentStreak,
+                        weekOfYear: inventory.progress.weekOfYear,
+                        weeklyFocusSeconds: inventory.progress.weeklyFocusSeconds
                     )
 
                     weekdayList
