@@ -76,8 +76,7 @@ struct OnboardingView: View {
                                 selectedAvatarID = avatar.id
                             } label: {
                                 VStack(spacing: 8) {
-                                    Text(avatar.emoji)
-                                        .font(.system(size: 40))
+                                    MedievalAvatarFaceView(avatar: avatar, size: 72)
                                     Text(avatar.name)
                                         .font(.headline)
                                     Text(avatar.title)

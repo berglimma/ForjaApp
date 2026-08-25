@@ -34,8 +34,12 @@ struct StreakWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(entry.snapshot.avatarEmoji)
-                    .font(.title)
+                Image(entry.snapshot.avatarImageName)
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFill()
+                    .frame(width: 36, height: 36)
+                    .clipShape(Circle())
                 Spacer()
                 Label("\(entry.snapshot.currentStreak)", systemImage: "flame.fill")
                     .font(.headline.bold())

@@ -86,7 +86,7 @@ enum MedievalFocusCopy {
 
     static func forgeIdleSubtitle(avatar: MedievalAvatar, challengeName: String) -> String {
         let lines = [
-            "\(avatar.emoji) \(avatar.name) na \(challengeName.lowercased()). Mantenha o foco e forje.",
+            "\(avatar.name) na \(challengeName.lowercased()). Mantenha o foco e forje.",
             "A estrada de areia espera \(avatar.name). Acenda o forno.",
             "\(avatar.title): o pântano não perdoa ferreiro distraído.",
             "Bigorna pronta. \(avatar.name), o minério só nasce de foco."
@@ -106,15 +106,27 @@ enum MedievalFocusCopy {
     }
 
     static func liveActivityTitle(avatar: MedievalAvatar) -> String {
-        "\(avatar.emoji) \(avatar.name) na forja"
+        "\(avatar.name) na forja"
+    }
+
+    static func practiceActivityTitle(avatar: MedievalAvatar) -> String {
+        "\(avatar.name) em treino"
     }
 
     static func successTitle(avatar: MedievalAvatar) -> String {
         "\(avatar.name) concluiu a forja"
     }
 
+    static func practiceSuccessTitle(avatar: MedievalAvatar) -> String {
+        "Treino de \(avatar.name)"
+    }
+
     static func successMessage(avatar: MedievalAvatar, bars: Int) -> String {
         "O minério está na bolsa. \(avatar.title) atravessou a estrada de areia e o pântano sem apagar o fogo. +\(bars) ao ofício."
+    }
+
+    static func practiceSuccessMessage(avatar: MedievalAvatar, bars: Int) -> String {
+        "Foco cumprido. \(avatar.name) ganha \(bars) minério, mas a sessão curta não entra no desafio da estrada nem no ofício das 100 mil barras."
     }
 
     static func failureTitle(reason: ForgeFailureReason) -> String {

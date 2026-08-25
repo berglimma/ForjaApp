@@ -32,6 +32,8 @@
 		A10000000000000000000017 /* SparkParticlesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* SparkParticlesView.swift */; };
 		A10000000000000000000018 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* ButtonStyles.swift */; };
 		A10000000000000000000019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* Assets.xcassets */; };
+		A10000000000000000000026 /* Avatars.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* Avatars.xcassets */; };
+		C10000000000000000000008 /* Avatars.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* Avatars.xcassets */; };
 		A1000000000000000000001A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = A50000000000000000000002 /* FirebaseAuth */; };
 		A1000000000000000000001B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = A50000000000000000000003 /* FirebaseFirestore */; };
 		A1000000000000000000001C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001C /* GoogleService-Info.plist */; };
@@ -65,6 +67,8 @@
 		B10000000000000000000013 /* OreChallengeLadder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000015 /* OreChallengeLadder.swift */; };
 		B10000000000000000000014 /* MedievalBackdropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000016 /* MedievalBackdropView.swift */; };
 		B10000000000000000000015 /* MedievalFocusCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000017 /* MedievalFocusCopy.swift */; };
+		B10000000000000000000016 /* MedievalYearlyQuotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000018 /* MedievalYearlyQuotes.swift */; };
+		B10000000000000000000017 /* SocialStoryShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000019 /* SocialStoryShare.swift */; };
 		C10000000000000000000001 /* ForjaWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* ForjaWidgetsBundle.swift */; };
 		C10000000000000000000002 /* StreakWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* StreakWidget.swift */; };
 		C10000000000000000000003 /* ForgeLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* ForgeLiveActivity.swift */; };
@@ -156,6 +160,8 @@
 		B20000000000000000000015 /* OreChallengeLadder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OreChallengeLadder.swift; sourceTree = "<group>"; };
 		B20000000000000000000016 /* MedievalBackdropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedievalBackdropView.swift; sourceTree = "<group>"; };
 		B20000000000000000000017 /* MedievalFocusCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedievalFocusCopy.swift; sourceTree = "<group>"; };
+		B20000000000000000000018 /* MedievalYearlyQuotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedievalYearlyQuotes.swift; sourceTree = "<group>"; };
+		B20000000000000000000019 /* SocialStoryShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialStoryShare.swift; sourceTree = "<group>"; };
 		B20000000000000000000013 /* ForjaApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ForjaApp.entitlements; sourceTree = "<group>"; };
 		B20000000000000000000014 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
 		C20000000000000000000001 /* ForjaWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForjaWidgetsBundle.swift; sourceTree = "<group>"; };
@@ -164,6 +170,7 @@
 		C20000000000000000000004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C20000000000000000000005 /* ForjaWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ForjaWidgets.entitlements; sourceTree = "<group>"; };
 		C20000000000000000000006 /* ForjaWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ForjaWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C20000000000000000000008 /* Avatars.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Avatars.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,6 +199,7 @@
 			children = (
 				A40000000000000000000002 /* ForjaApp */,
 				C40000000000000000000002 /* ForjaWidgets */,
+				C20000000000000000000008 /* Avatars.xcassets */,
 				A40000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -238,6 +246,7 @@
 				B20000000000000000000004 /* SocialModels.swift */,
 				B20000000000000000000015 /* OreChallengeLadder.swift */,
 				B20000000000000000000017 /* MedievalFocusCopy.swift */,
+				B20000000000000000000018 /* MedievalYearlyQuotes.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -258,6 +267,7 @@
 				B2000000000000000000000A /* LiveActivityController.swift */,
 				B2000000000000000000000B /* AchievementShareRenderer.swift */,
 				B2000000000000000000000C /* SocialService.swift */,
+				B20000000000000000000019 /* SocialStoryShare.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -430,6 +440,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000019 /* Assets.xcassets in Resources */,
+				A10000000000000000000026 /* Avatars.xcassets in Resources */,
 				A1000000000000000000001C /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -438,6 +449,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C10000000000000000000008 /* Avatars.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,6 +513,8 @@
 				B10000000000000000000013 /* OreChallengeLadder.swift in Sources */,
 				B10000000000000000000014 /* MedievalBackdropView.swift in Sources */,
 				B10000000000000000000015 /* MedievalFocusCopy.swift in Sources */,
+				B10000000000000000000016 /* MedievalYearlyQuotes.swift in Sources */,
+				B10000000000000000000017 /* SocialStoryShare.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

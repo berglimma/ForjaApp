@@ -16,7 +16,7 @@ struct WidgetSnapshot: Codable, Equatable {
     var dailyFocusSeconds: Int
     var dailyGoalSeconds: Int
     var displayName: String
-    var avatarEmoji: String
+    var avatarImageName: String
     var lifetimeBars: Int
     var isDailyGoalMet: Bool
 
@@ -26,7 +26,7 @@ struct WidgetSnapshot: Codable, Equatable {
         dailyFocusSeconds: 0,
         dailyGoalSeconds: 3600,
         displayName: "Ferreiro",
-        avatarEmoji: "⚒️",
+        avatarImageName: "Avatar_smith",
         lifetimeBars: 0,
         isDailyGoalMet: false
     )
@@ -45,6 +45,43 @@ struct WidgetSnapshot: Codable, Equatable {
             return "\(hours)h \(minutes)min restantes"
         }
         return "\(minutes) min restantes"
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case currentStreak, bestStreak, dailyFocusSeconds, dailyGoalSeconds
+        case displayName, avatarImageName, lifetimeBars, isDailyGoalMet
+    }
+
+    init(
+        currentStreak: Int,
+        bestStreak: Int,
+        dailyFocusSeconds: Int,
+        dailyGoalSeconds: Int,
+        displayName: String,
+        avatarImageName: String,
+        lifetimeBars: Int,
+        isDailyGoalMet: Bool
+    ) {
+        self.currentStreak = currentStreak
+        self.bestStreak = bestStreak
+        self.dailyFocusSeconds = dailyFocusSeconds
+        self.dailyGoalSeconds = dailyGoalSeconds
+        self.displayName = displayName
+        self.avatarImageName = avatarImageName
+        self.lifetimeBars = lifetimeBars
+        self.isDailyGoalMet = isDailyGoalMet
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        currentStreak = try container.decode(Int.self, forKey: .currentStreak)
+        bestStreak = try container.decode(Int.self, forKey: .bestStreak)
+        dailyFocusSeconds = try container.decode(Int.self, forKey: .dailyFocusSeconds)
+        dailyGoalSeconds = try container.decode(Int.self, forKey: .dailyGoalSeconds)
+        displayName = try container.decode(String.self, forKey: .displayName)
+        avatarImageName = try container.decodeIfPresent(String.self, forKey: .avatarImageName) ?? "Avatar_smith"
+        lifetimeBars = try container.decode(Int.self, forKey: .lifetimeBars)
+        isDailyGoalMet = try container.decode(Bool.self, forKey: .isDailyGoalMet)
     }
 }
 

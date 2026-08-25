@@ -40,7 +40,7 @@ struct TimerSetupView: View {
                     .contentTransition(.numericText())
                     .animation(.snappy, value: formattedDuration)
 
-                Text("Recompensa: +\(estimatedBars) 🧱")
+                Text("Recompensa: \(rewardCaption)")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
             }
@@ -54,7 +54,7 @@ struct TimerSetupView: View {
                             Text(option.label)
                                 .font(.subheadline.bold())
                                 .monospacedDigit()
-                            Text("+\(reward(for: option)) 🧱")
+                            Text(presetRewardLabel(for: option))
                                 .font(.caption2)
                                 .opacity(0.8)
                         }
@@ -79,8 +79,7 @@ struct TimerSetupView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .disabled(isDisabled || option.minutes < challenge.minFocusMinutes)
-                    .opacity(option.minutes < challenge.minFocusMinutes ? 0.4 : 1)
+                    .disabled(isDisabled)
                 }
             }
 
@@ -116,16 +115,16 @@ struct TimerSetupView: View {
                     .font(.caption.bold())
                     .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
                 Spacer()
-                Text("\(lifetimeBars)/100.000")
+                Text("\(OreChallengeLadder.formatOre(lifetimeBars)) / \(OreChallengeLadder.formatOre(challenge.oreGate))")
                     .font(.caption2.monospacedDigit())
                     .foregroundStyle(.white.opacity(0.7))
             }
             ProgressView(
-                value: Double(min(lifetimeBars, OreChallengeLadder.cap)),
-                total: Double(OreChallengeLadder.cap)
+                value: Double(min(lifetimeBars, challenge.oreGate)),
+                total: Double(max(challenge.oreGate, 1))
             )
             .tint(Color(hex: "#C4A574") ?? .yellow)
-            Text("Mínimo \(challenge.minFocusMinutes) min · recomendado \(challenge.recommendedMinutes) min · graça \(challenge.graceCap)s")
+            Text("Abaixo de 15 min: +1, sem desafio. 15:00 +2 · 25:00 +3 · 45:00 +3 · 60:00 +4 · acima de 60 +5. \(challenge.name) conta a partir de \(challenge.minFocusMinutes) min.")
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.65))
         }
@@ -133,12 +132,23 @@ struct TimerSetupView: View {
         .background(Color.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private func reward(for option: ForgeDurationOption) -> Int {
-        OreChallengeLadder.adjustedReward(
-            base: option.rewardBars,
-            durationSeconds: option.totalSeconds,
-            lifetimeBars: lifetimeBars
-        )
+    private var rewardCaption: String {
+        if countsTowardChallenge {
+            return "+\(estimatedBars) 🧱"
+        }
+        return "+\(estimatedBars) 🧱 · não soma no desafio"
+    }
+
+    private func presetRewardLabel(for option: ForgeDurationOption) -> String {
+        let label = "+\(option.rewardBars) 🧱"
+        if option.totalSeconds < challenge.minFocusMinutes * 60 {
+            return "\(label) · —"
+        }
+        return label
+    }
+
+    private var countsTowardChallenge: Bool {
+        selectedMinutes * 60 + selectedSeconds >= challenge.minFocusMinutes * 60
     }
 
     private var formattedDuration: String {

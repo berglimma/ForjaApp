@@ -13,6 +13,8 @@ struct MedievalAvatar: Identifiable, Hashable, Codable {
     let lore: String
     let accentHex: String
 
+    var imageName: String { "Avatar_\(id)" }
+
     static let catalog: [MedievalAvatar] = [
         MedievalAvatar(
             id: "smith",

@@ -17,6 +17,13 @@ Forja é o Pomodoro RPG para quem gosta de fantasia, fornalha e progressão de v
 
 Você liga o forno, mantém o foco enquanto o minério aquece na bigorna e ganha recompensas. Sair do app apaga o fogo — a menos que você esteja no modo tolerante.
 
+Assinatura Mestre Ferreiro — preços Brasil (App Store Connect)
+• Mensal: R$ 12,90 · Product ID `com.forja.subscription.monthly` · período P1M · trial 7 dias (intro offer grátis P1W)
+• Anual: R$ 99,90 · Product ID `com.forja.subscription.yearly` · período P1Y · trial 7 dias (intro offer grátis P1W)
+• Grupo: Mestre Ferreiro (mesmo subscription group)
+• Localização: pt_BR · loja Brasil (BRL)
+• No scheme do Xcode, use ForjaApp/Products.storekit para testar esses valores
+
 Por que Forja não é mais um timer genérico
 • Estética de ferreiro medieval, não planilha
 • Minério ganho por foco e Gemas compradas: lojas separadas, sem corromper colecionáveis raros
@@ -25,7 +32,7 @@ Por que Forja não é mais um timer genérico
 • Live Activity e Dynamic Island com o cronômetro da forja
 • Widget de streak e meta diária
 
-Assinatura Mestre Ferreiro (mensal/anual, 7 dias grátis no onboarding)
+Assinatura Mestre Ferreiro (mensal R$ 12,90 / anual R$ 99,90, 7 dias grátis no onboarding)
 • Skins de bigorna e fornalha
 • Estatísticas avançadas
 • Temas de loja exclusivos

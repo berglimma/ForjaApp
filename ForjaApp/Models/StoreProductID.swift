@@ -15,6 +15,9 @@ enum StoreProductID {
     static let packNatal = "com.forja.pack.natal"
     static let hardcore = "com.forja.unlock.hardcore"
 
+    static let monthlyListPriceBRL = "R$ 12,90"
+    static let yearlyListPriceBRL = "R$ 99,90"
+
     static let subscriptionIDs: Set<String> = [monthly, yearly]
     static let gemIDs: Set<String> = [gemsSmall, gemsMedium, gemsLarge]
     static let seasonalIDs: Set<String> = [packHalloween, packNatal]

@@ -28,11 +28,13 @@ final class InventoryManager: ObservableObject {
     var ore: Int { progress.forgedBars }
     var gems: Int { progress.gems }
 
-    func completeForge(barsEarned: Int, focusSeconds: Int) {
+    func completeForge(barsEarned: Int, focusSeconds: Int, countsTowardChallenge: Bool = true) {
         progress.rollPeriodsIfNeeded()
         progress.forgedBars += barsEarned
-        progress.lifetimeBars += barsEarned
-        progress.weeklyBars += barsEarned
+        if countsTowardChallenge {
+            progress.lifetimeBars += barsEarned
+            progress.weeklyBars += barsEarned
+        }
         progress.sessionsToday += 1
         progress.totalSessions += 1
         progress.successfulSessions += 1
@@ -218,7 +220,7 @@ final class InventoryManager: ObservableObject {
                 dailyFocusSeconds: progress.dailyFocusSeconds,
                 dailyGoalSeconds: progress.dailyGoalSeconds,
                 displayName: progress.displayName,
-                avatarEmoji: progress.selectedAvatar.emoji,
+                avatarImageName: progress.selectedAvatar.imageName,
                 lifetimeBars: progress.lifetimeBars,
                 isDailyGoalMet: progress.isDailyGoalMet
             )

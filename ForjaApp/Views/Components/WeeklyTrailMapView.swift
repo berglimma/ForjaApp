@@ -525,13 +525,9 @@ struct WeeklyTrailMapView: View {
         .opacity(0.95)
     }
 
-    private func walkingHero(at point: CGPoint, points: [CGPoint]) -> some View {
-        let nextIndex = min(Int(walkAlong) + 1, points.count - 1)
-        let facingLeft = points[nextIndex].x < point.x
-        return VStack(spacing: 0) {
-            Text(avatar.emoji)
-                .font(.system(size: 36))
-                .scaleEffect(x: facingLeft ? -1 : 1, y: 1)
+    private func walkingHero(at point: CGPoint, points _: [CGPoint]) -> some View {
+        VStack(spacing: 0) {
+            MedievalAvatarFaceView(avatar: avatar, size: 44, lineWidth: 1.5)
                 .offset(y: bobbing ? -7 : 1)
                 .shadow(color: .black.opacity(0.55), radius: 4, y: 3)
             Capsule()

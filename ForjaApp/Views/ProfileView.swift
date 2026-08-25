@@ -12,6 +12,8 @@ struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @StateObject private var entitlements = EntitlementStore.shared
     @State private var shareImage: IdentifiableImage?
+    @State private var shareFile: IdentifiableURL?
+    @State private var shareError: String?
     @State private var showAvatarPicker = false
 
     var body: some View {
@@ -49,6 +51,17 @@ struct ProfileView: View {
             .sheet(item: $shareImage) { wrapper in
                 ShareSheet(items: [wrapper.image])
             }
+            .sheet(item: $shareFile) { wrapper in
+                ShareSheet(items: [wrapper.url])
+            }
+            .alert("Não foi possível postar", isPresented: Binding(
+                get: { shareError != nil },
+                set: { if !$0 { shareError = nil } }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(shareError ?? "")
+            }
             .sheet(isPresented: $showAvatarPicker) {
                 AvatarPickerSheet(selectedID: inventory.progress.selectedAvatarID) { avatar in
                     inventory.selectAvatar(avatar)
@@ -62,46 +75,97 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Card para redes")
                 .font(.headline)
-            Text("Gera um pergaminho do ferreiro para postar no Instagram, WhatsApp ou Stories.")
+            Text("Pergaminho medieval com tempo de foco, barras, forjas e a crônica do dia — uma frase nova para cada dia do ano.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             ProfileSocialPreview(
                 displayName: inventory.progress.displayName,
-                avatarEmoji: inventory.progress.selectedAvatar.emoji,
+                avatarImageName: inventory.progress.selectedAvatar.imageName,
                 photo: inventory.progress.usesAvatarAsProfilePhoto ? nil : viewModel.profileImage,
                 lifetimeBars: inventory.progress.lifetimeBars,
+                successfulForges: inventory.progress.successfulSessions,
                 streak: inventory.progress.currentStreak,
-                focusText: UserProgress.formatDuration(seconds: inventory.progress.totalFocusSeconds)
+                focusText: UserProgress.formatDuration(seconds: inventory.progress.totalFocusSeconds),
+                challengeName: OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars).name
             )
-            .frame(height: 220)
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
             Button {
-                shareProfileCard()
+                shareProfileCard(to: .system)
             } label: {
-                Label("Gerar e compartilhar", systemImage: "square.and.arrow.up")
+                Label("Compartilhar", systemImage: "square.and.arrow.up")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
             }
             .buttonStyle(ForgePrimaryButtonStyle())
+
+            HStack(spacing: 10) {
+                Button {
+                    shareProfileCard(to: .instagramStories)
+                } label: {
+                    Label("Stories", systemImage: "camera.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(ForgeSecondaryButtonStyle())
+
+                Button {
+                    shareProfileCard(to: .whatsAppStatus)
+                } label: {
+                    Label("Status", systemImage: "message.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(ForgeSecondaryButtonStyle())
+            }
+
+            Text("Stories abre o Instagram. Status abre o WhatsApp — escolha Status na lista.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
-    private func shareProfileCard() {
-        if let image = AchievementShareRenderer.renderProfileCard(
+    private func shareProfileCard(to destination: SocialStoryShare.Destination) {
+        guard let image = AchievementShareRenderer.renderProfileCard(
             displayName: inventory.progress.displayName,
-            avatarEmoji: inventory.progress.selectedAvatar.emoji,
+            avatarImageName: inventory.progress.selectedAvatar.imageName,
             photo: inventory.progress.usesAvatarAsProfilePhoto ? nil : viewModel.profileImage,
             lifetimeBars: inventory.progress.lifetimeBars,
+            successfulForges: inventory.progress.successfulSessions,
             currentStreak: inventory.progress.currentStreak,
             focusSeconds: inventory.progress.totalFocusSeconds,
             challengeName: OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars).name
-        ) {
+        ) else {
+            shareError = SocialStoryShare.ShareError.imageFailed.localizedDescription
+            return
+        }
+
+        switch destination {
+        case .system:
             shareImage = IdentifiableImage(image: image)
+        case .instagramStories:
+            do {
+                try SocialStoryShare.shareToInstagramStories(image)
+            } catch {
+                shareError = error.localizedDescription
+            }
+        case .whatsAppStatus:
+            guard SocialStoryShare.canOpenWhatsApp else {
+                shareError = SocialStoryShare.ShareError.whatsAppMissing.localizedDescription
+                return
+            }
+            do {
+                let url = try SocialStoryShare.temporaryJPEGURL(for: image)
+                shareFile = IdentifiableURL(url: url)
+            } catch {
+                shareError = error.localizedDescription
+            }
         }
     }
 
@@ -158,7 +222,7 @@ struct ProfileView: View {
                 ProfileAvatarView(
                     image: viewModel.profileImage,
                     placeholderSystemName: accountIconName,
-                    avatarEmoji: inventory.progress.selectedAvatar.emoji,
+                    avatarImageName: inventory.progress.selectedAvatar.imageName,
                     usesAvatar: inventory.progress.usesAvatarAsProfilePhoto,
                     onImageDataSelected: { data in
                         viewModel.updateProfilePhoto(data: data)
@@ -179,8 +243,8 @@ struct ProfileView: View {
                     Button {
                         showAvatarPicker = true
                     } label: {
-                        HStack(spacing: 4) {
-                            Text(inventory.progress.selectedAvatar.emoji)
+                        HStack(spacing: 6) {
+                            MedievalAvatarFaceView(avatar: inventory.progress.selectedAvatar, size: 22, lineWidth: 1)
                             Text(inventory.progress.selectedAvatar.name)
                                 .font(.caption.bold())
                             Image(systemName: "chevron.down")
@@ -533,7 +597,7 @@ struct SubscriptionBanner: View {
                             .font(.caption)
                             .foregroundStyle(Color(hex: "#F6E05E") ?? .yellow)
                     } else {
-                        Text("Skins, stats avançadas, sessões ilimitadas")
+                        Text("\(StoreProductID.monthlyListPriceBRL)/mês · \(StoreProductID.yearlyListPriceBRL)/ano")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

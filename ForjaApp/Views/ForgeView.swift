@@ -44,6 +44,7 @@ struct ForgeView: View {
                         state: viewModel.sessionState,
                         barsEarned: viewModel.barsEarnedOnSuccess,
                         avatar: inventory.progress.selectedAvatar,
+                        countsTowardChallenge: viewModel.countsTowardChallenge,
                         onDismiss: { viewModel.dismissResult() }
                     )
                     .transition(.opacity.combined(with: .scale(scale: 0.92)))
@@ -53,7 +54,6 @@ struct ForgeView: View {
             .navigationBarHidden(true)
             .onAppear {
                 viewModel.configure(inventoryManager: inventory)
-                viewModel.alignDurationToChallenge()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 viewModel.handleScenePhase(newPhase)
@@ -145,13 +145,7 @@ struct ForgeView: View {
     private var headerBar: some View {
         HStack(spacing: 12) {
             Button { showAvatarPicker = true } label: {
-                Text(inventory.progress.selectedAvatar.emoji)
-                    .font(.system(size: 34))
-                    .frame(width: 52, height: 52)
-                    .background(Color.white.opacity(0.08), in: Circle())
-                    .overlay {
-                        Circle().stroke(Color(hex: inventory.progress.selectedAvatar.accentHex) ?? .orange, lineWidth: 2)
-                    }
+                MedievalAvatarFaceView(avatar: inventory.progress.selectedAvatar, size: 52)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Trocar avatar")

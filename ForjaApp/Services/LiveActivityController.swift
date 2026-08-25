@@ -14,7 +14,7 @@ final class LiveActivityController {
 
     private init() {}
 
-    func start(totalSeconds: Int, displayName: String, avatarEmoji: String, sessionTitle: String = "Forja em andamento") {
+    func start(totalSeconds: Int, displayName: String, avatarImageName: String, sessionTitle: String = "Forja em andamento") {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
 
         end()
@@ -24,7 +24,7 @@ final class LiveActivityController {
             remainingSeconds: totalSeconds,
             totalSeconds: totalSeconds,
             displayName: displayName,
-            avatarEmoji: avatarEmoji
+            avatarImageName: avatarImageName
         )
 
         do {
@@ -38,13 +38,13 @@ final class LiveActivityController {
         }
     }
 
-    func update(remainingSeconds: Int, totalSeconds: Int, displayName: String, avatarEmoji: String) {
+    func update(remainingSeconds: Int, totalSeconds: Int, displayName: String, avatarImageName: String) {
         guard let activity else { return }
         let state = ForgeActivityAttributes.ContentState(
             remainingSeconds: remainingSeconds,
             totalSeconds: totalSeconds,
             displayName: displayName,
-            avatarEmoji: avatarEmoji
+            avatarImageName: avatarImageName
         )
         Task {
             await activity.update(.init(state: state, staleDate: nil))

@@ -7,6 +7,7 @@ import Foundation
 
 struct OreChallenge: Identifiable, Equatable {
     let rank: Int
+    let oreGate: Int
     let name: String
     let lore: String
     let creature: String
@@ -14,78 +15,131 @@ struct OreChallenge: Identifiable, Equatable {
     let minFocusMinutes: Int
     let recommendedMinutes: Int
     let graceCap: Int
-    let rewardMultiplier: Double
     let isSwamp: Bool
 
     var id: Int { rank }
-    var oreGate: Int { rank * OreChallengeLadder.step }
-    var isFinal: Bool { rank >= OreChallengeLadder.maxRank }
+    var isFinal: Bool { oreGate >= OreChallengeLadder.cap }
 }
 
 enum OreChallengeLadder {
-    static let step = 100
     static let cap = 100_000
-    static var maxRank: Int { cap / step }
+
+    static let milestones: [OreChallenge] = [
+        named(
+            rank: 1, gate: 100, minutes: 15, grace: 8, swamp: false,
+            name: "Jornada da Areia",
+            creature: "Lodoento", emoji: "🐸",
+            lore: "Os primeiros 100 minérios abrem a estrada de areia. Forje 15 min para o reino reconhecer o ofício."
+        ),
+        named(
+            rank: 2, gate: 1_000, minutes: 20, grace: 6, swamp: false,
+            name: "Prova do Barro",
+            creature: "Basilisco-Cinza", emoji: "🦎",
+            lore: "Mil minérios no barro da forja. Sessões de 20 min firmam o passo até o pântano."
+        ),
+        named(
+            rank: 3, gate: 10_000, minutes: 25, grace: 5, swamp: true,
+            name: "Cerco do Pântano Sombrio",
+            creature: "Grifo-do-Charco", emoji: "🦅",
+            lore: "Dez mil minérios no charco. O Grifo-do-Charco só respeita forjas de 25 min."
+        ),
+        named(
+            rank: 4, gate: 20_000, minutes: 25, grace: 4, swamp: true,
+            name: "Guerra do Charco",
+            creature: "Wyrm-de-Brejo", emoji: "🐉",
+            lore: "Vinte mil. O Wyrm desperta no brejo — mantenha 25 min ou o lodo vence."
+        ),
+        named(
+            rank: 5, gate: 30_000, minutes: 30, grace: 4, swamp: false,
+            name: "Marcha do Cervo-Brasão",
+            creature: "Cervo-Brasão", emoji: "🦌",
+            lore: "Trinta mil na clareira. A marcha pede 30 min de brasa contínua."
+        ),
+        named(
+            rank: 6, gate: 40_000, minutes: 35, grace: 3, swamp: false,
+            name: "Vigília do Corvo-de-Ferro",
+            creature: "Corvo-de-Ferro", emoji: "🐦‍⬛",
+            lore: "Quarenta mil sob a névoa. O corvo marca quem forja 35 min sem olhar para o lado."
+        ),
+        named(
+            rank: 7, gate: 50_000, minutes: 40, grace: 3, swamp: true,
+            name: "Hidra das Cinco Correntes",
+            creature: "Hidra-do-Lodo", emoji: "🐍",
+            lore: "Meio caminho das cem mil. A Hidra cobra 40 min — uma cabeça para cada desculpa."
+        ),
+        named(
+            rank: 8, gate: 60_000, minutes: 45, grace: 2, swamp: false,
+            name: "Caçada do Umbrawolf",
+            creature: "Umbrawolf", emoji: "🐺",
+            lore: "Sessenta mil. O lobo do pântano só recua diante de 45 min de ofício."
+        ),
+        named(
+            rank: 9, gate: 70_000, minutes: 45, grace: 2, swamp: true,
+            name: "Serpe de Musgo",
+            creature: "Serpe-Musgo", emoji: "🐲",
+            lore: "Setenta mil enrolados no musgo. 45 min ou a serpe aperta o foco."
+        ),
+        named(
+            rank: 10, gate: 80_000, minutes: 50, grace: 1, swamp: true,
+            name: "Coração do Drake-Pântano",
+            creature: "Drake-Pântano", emoji: "🐊",
+            lore: "Oitenta mil. O drake pulsa lento: só 50 min aquecem o coração."
+        ),
+        named(
+            rank: 11, gate: 90_000, minutes: 55, grace: 1, swamp: false,
+            name: "Grito da Mandrágora-Vigia",
+            creature: "Mandrágora-Vigia", emoji: "🌿",
+            lore: "Noventa mil. A mandrágora grita se a forja for menor que 55 min."
+        ),
+        named(
+            rank: 12, gate: 100_000, minutes: 60, grace: 0, swamp: false,
+            name: "Coroa das Cem Mil Barras",
+            creature: "Fagulhento", emoji: "🌟",
+            lore: "O desafio final. Sessenta minutos de aço puro até a estrela das cem mil."
+        )
+    ]
+
+    static var maxRank: Int { milestones.count }
+
+    static func active(lifetimeBars: Int) -> OreChallenge {
+        if lifetimeBars >= cap { return milestones[milestones.count - 1] }
+        return milestones.first { lifetimeBars < $0.oreGate } ?? milestones[milestones.count - 1]
+    }
 
     static func rank(lifetimeBars: Int) -> Int {
-        min(maxRank, max(0, lifetimeBars / step))
+        active(lifetimeBars: lifetimeBars).rank
     }
 
     static func nextOreGate(lifetimeBars: Int) -> Int {
-        min(cap, (rank(lifetimeBars: lifetimeBars) + 1) * step)
+        active(lifetimeBars: lifetimeBars).oreGate
     }
 
-    static func active(lifetimeBars: Int) -> OreChallenge {
-        challenge(rank: max(1, rank(lifetimeBars: lifetimeBars)))
+    static func formatOre(_ value: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = Locale(identifier: "pt_BR")
+        return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
     static func challenge(rank: Int) -> OreChallenge {
         let clamped = min(maxRank, max(1, rank))
-        let minMinutes = min(90, 15 + clamped / 12)
-        let recommended = min(120, minMinutes + 10 + clamped / 40)
-        let grace = max(0, 8 - clamped / 80)
-        let multiplier = max(0.35, 1.0 - Double(clamped) / 1_400.0)
-        let swamp = clamped.isMultiple(of: 3) || clamped % 7 == 0
-
-        return OreChallenge(
-            rank: clamped,
-            name: title(for: clamped),
-            lore: lore(for: clamped, swamp: swamp),
-            creature: creature(for: clamped).name,
-            creatureEmoji: creature(for: clamped).emoji,
-            minFocusMinutes: minMinutes,
-            recommendedMinutes: recommended,
-            graceCap: grace,
-            rewardMultiplier: multiplier,
-            isSwamp: swamp
-        )
-    }
-
-    static func adjustedReward(base: Int, durationSeconds: Int, lifetimeBars: Int) -> Int {
-        let challenge = active(lifetimeBars: lifetimeBars)
-        let minutes = durationSeconds / 60
-        guard minutes >= challenge.minFocusMinutes else { return 0 }
-        var value = Double(base) * challenge.rewardMultiplier
-        if minutes < challenge.recommendedMinutes {
-            value *= 0.55
-        }
-        return max(1, Int(value.rounded(.down)))
+        return milestones[clamped - 1]
     }
 
     static func relic(rank: Int) -> ShopItem {
         let challenge = challenge(rank: rank)
         let rarity: ItemRarity
         switch challenge.oreGate {
-        case ..<500: rarity = .comum
-        case ..<2_500: rarity = .raro
-        case ..<15_000: rarity = .epico
+        case ..<1_000: rarity = .comum
+        case ..<10_000: rarity = .raro
+        case ..<50_000: rarity = .epico
         default: rarity = .lendario
         }
 
         return ShopItem(
-            id: relicID(rank: rank),
-            name: "\(challenge.creature) · Marco \(challenge.oreGate)",
-            description: "Selo do desafio \(challenge.name). Exige \(challenge.minFocusMinutes) min de forja.",
+            id: relicID(oreGate: challenge.oreGate),
+            name: "\(challenge.name)",
+            description: "\(challenge.creatureEmoji) \(challenge.creature). \(challenge.lore)",
             emoji: challenge.creatureEmoji,
             price: challenge.oreGate,
             rarity: rarity,
@@ -95,77 +149,47 @@ enum OreChallengeLadder {
         )
     }
 
-    static func relicID(rank: Int) -> String {
-        "ore_mark_\(rank * step)"
+    static func relicID(oreGate: Int) -> String {
+        "ore_mark_\(oreGate)"
     }
 
     static func relic(forItemID id: String) -> ShopItem? {
         guard id.hasPrefix("ore_mark_"),
               let ore = Int(id.replacingOccurrences(of: "ore_mark_", with: "")),
-              ore.isMultiple(of: step),
-              ore > 0,
-              ore <= cap
+              milestones.contains(where: { $0.oreGate == ore })
         else { return nil }
-        return relic(rank: ore / step)
+        guard let challenge = milestones.first(where: { $0.oreGate == ore }) else { return nil }
+        return relic(rank: challenge.rank)
     }
 
     static func visibleRelics(lifetimeBars: Int, ownedIDs: Set<String>) -> [ShopItem] {
-        let start = max(1, rank(lifetimeBars: lifetimeBars))
-        var relics: [ShopItem] = []
-        var current = start
-        while relics.count < 8 && current <= maxRank {
-            let item = relic(rank: current)
-            if !ownedIDs.contains(item.id) {
-                relics.append(item)
-            }
-            current += 1
-        }
-        return relics
+        milestones
+            .map { relic(rank: $0.rank) }
+            .filter { !ownedIDs.contains($0.id) }
     }
 
-    private static let titles = [
-        "Estrada de Areia",
-        "Barro da Forja",
-        "Pântano Sombrio",
-        "Charco do Lodoento",
-        "Trilha do Grifo",
-        "Brejo do Wyrm",
-        "Clareira do Cervo-Brasão",
-        "Névoa do Corvo-de-Ferro",
-        "Lodaçal da Hidra",
-        "Caminho do Umbrawolf",
-        "Serpe de Musgo",
-        "Fagulha do Drake-Pântano"
-    ]
-
-    private static let creatures: [(name: String, emoji: String)] = [
-        ("Lodoento", "🐸"),
-        ("Basilisco-Cinza", "🦎"),
-        ("Grifo-do-Charco", "🦅"),
-        ("Wyrm-de-Brejo", "🐉"),
-        ("Cervo-Brasão", "🦌"),
-        ("Corvo-de-Ferro", "🐦‍⬛"),
-        ("Hidra-do-Lodo", "🐍"),
-        ("Umbrawolf", "🐺"),
-        ("Serpe-Musgo", "🐲"),
-        ("Mandrágora-Vigia", "🌿"),
-        ("Drake-Pântano", "🐊"),
-        ("Fagulhento", "🔥")
-    ]
-
-    private static func title(for rank: Int) -> String {
-        titles[(rank - 1) % titles.count]
-    }
-
-    private static func creature(for rank: Int) -> (name: String, emoji: String) {
-        creatures[(rank - 1) % creatures.count]
-    }
-
-    private static func lore(for rank: Int, swamp: Bool) -> String {
-        let minMinutes = min(90, 15 + rank / 12)
-        if swamp {
-            return "O pântano sombrio engole o desatento. Forje pelo menos \(minMinutes) min ou o lodo apaga a fornalha."
-        }
-        return "A estrada de areia e barro exige ofício firme. Cada 100 minérios endurece o reino até 100.000."
+    private static func named(
+        rank: Int,
+        gate: Int,
+        minutes: Int,
+        grace: Int,
+        swamp: Bool,
+        name: String,
+        creature: String,
+        emoji: String,
+        lore: String
+    ) -> OreChallenge {
+        OreChallenge(
+            rank: rank,
+            oreGate: gate,
+            name: name,
+            lore: lore,
+            creature: creature,
+            creatureEmoji: emoji,
+            minFocusMinutes: minutes,
+            recommendedMinutes: min(90, minutes + 15),
+            graceCap: grace,
+            isSwamp: swamp
+        )
     }
 }

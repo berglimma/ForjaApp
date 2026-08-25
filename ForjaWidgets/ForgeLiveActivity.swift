@@ -16,8 +16,7 @@ struct ForgeLiveActivityWidget: Widget {
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Text(context.state.avatarEmoji)
-                        .font(.title)
+                    liveAvatar(context.state.avatarImageName, size: 44)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Text(context.state.formattedRemaining)
@@ -34,21 +33,20 @@ struct ForgeLiveActivityWidget: Widget {
                         .tint(Color(hex: "#ED8936") ?? .orange)
                 }
             } compactLeading: {
-                Text(context.state.avatarEmoji)
+                liveAvatar(context.state.avatarImageName, size: 20)
             } compactTrailing: {
                 Text(context.state.formattedRemaining)
                     .font(.caption.monospacedDigit().bold())
                     .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
             } minimal: {
-                Text(context.state.avatarEmoji)
+                liveAvatar(context.state.avatarImageName, size: 18)
             }
         }
     }
 
     private func lockScreen(context: ActivityViewContext<ForgeActivityAttributes>) -> some View {
         HStack(spacing: 14) {
-            Text(context.state.avatarEmoji)
-                .font(.largeTitle)
+            liveAvatar(context.state.avatarImageName, size: 48)
             VStack(alignment: .leading, spacing: 6) {
                 Text(context.attributes.sessionTitle)
                     .font(.caption)
@@ -64,5 +62,14 @@ struct ForgeLiveActivityWidget: Widget {
                 .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
         }
         .padding()
+    }
+
+    private func liveAvatar(_ imageName: String, size: CGFloat) -> some View {
+        Image(imageName)
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFill()
+            .frame(width: size, height: size)
+            .clipShape(Circle())
     }
 }

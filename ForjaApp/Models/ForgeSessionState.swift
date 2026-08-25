@@ -59,6 +59,7 @@ struct ForgeDurationOption: Identifiable, Hashable {
     }
 
     static let presets: [ForgeDurationOption] = [
+        ForgeDurationOption(minutes: 5, seconds: 0),
         ForgeDurationOption(minutes: 15, seconds: 0),
         ForgeDurationOption(minutes: 25, seconds: 0),
         ForgeDurationOption(minutes: 45, seconds: 0),
@@ -66,11 +67,10 @@ struct ForgeDurationOption: Identifiable, Hashable {
     ]
 
     static func rewardBars(for totalSeconds: Int) -> Int {
-        switch totalSeconds {
-        case ..<(16 * 60): return 1
-        case ..<(26 * 60): return 2
-        case ..<(46 * 60): return 3
-        default: return 4
-        }
+        if totalSeconds < 15 * 60 { return 1 }
+        if totalSeconds < 25 * 60 { return 2 }
+        if totalSeconds < 60 * 60 { return 3 }
+        if totalSeconds == 60 * 60 { return 4 }
+        return 5
     }
 }

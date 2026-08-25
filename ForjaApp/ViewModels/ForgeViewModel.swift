@@ -51,11 +51,14 @@ final class ForgeViewModel: ObservableObject {
     }
 
     var estimatedRewardBars: Int {
-        OreChallengeLadder.adjustedReward(
-            base: ForgeDurationOption.rewardBars(for: totalDurationSeconds),
-            durationSeconds: totalDurationSeconds,
+        ForgeDurationOption.rewardBars(for: totalDurationSeconds)
+    }
+
+    var countsTowardChallenge: Bool {
+        let minSeconds = OreChallengeLadder.active(
             lifetimeBars: inventoryManager?.progress.lifetimeBars ?? 0
-        )
+        ).minFocusMinutes * 60
+        return totalDurationSeconds >= minSeconds
     }
 
     var remainingGraceSeconds: Int {
@@ -69,14 +72,6 @@ final class ForgeViewModel: ObservableObject {
 
     func matchesPreset(_ preset: ForgeDurationOption) -> Bool {
         selectedMinutes == preset.minutes && selectedSeconds == preset.seconds
-    }
-
-    func alignDurationToChallenge() {
-        let minMinutes = OreChallengeLadder.active(lifetimeBars: inventoryManager?.progress.lifetimeBars ?? 0).minFocusMinutes
-        if selectedMinutes < minMinutes {
-            selectedMinutes = minMinutes
-            selectedSeconds = 0
-        }
     }
 
     func configure(inventoryManager: InventoryManager) {
@@ -107,13 +102,7 @@ final class ForgeViewModel: ObservableObject {
         }
 
         let challenge = OreChallengeLadder.active(lifetimeBars: progress.lifetimeBars)
-        if totalDurationSeconds < challenge.minFocusMinutes * 60 {
-            sessionBlockedMessage = MedievalFocusCopy.blockedTooShort(
-                challengeName: challenge.name,
-                minutes: challenge.minFocusMinutes
-            )
-            return
-        }
+        let isPractice = !countsTowardChallenge
 
         timerService.configure(totalSeconds: totalDurationSeconds)
         sessionStartedTotalSeconds = totalDurationSeconds
@@ -121,7 +110,7 @@ final class ForgeViewModel: ObservableObject {
         showResultOverlay = false
         sessionBlockedMessage = nil
         let challengeGrace = min(progress.graceSeconds, challenge.graceCap)
-        focusMonitor.graceSeconds = progress.isHardcoreEnabled ? 0 : challengeGrace
+        focusMonitor.graceSeconds = progress.isHardcoreEnabled ? 0 : (isPractice ? progress.graceSeconds : challengeGrace)
         focusMonitor.startMonitoring()
         UIApplication.shared.isIdleTimerDisabled = true
 
@@ -133,8 +122,10 @@ final class ForgeViewModel: ObservableObject {
             LiveActivityController.shared.start(
                 totalSeconds: totalSeconds,
                 displayName: displayName,
-                avatarEmoji: avatar.emoji,
-                sessionTitle: MedievalFocusCopy.liveActivityTitle(avatar: avatar)
+                avatarImageName: avatar.imageName,
+                sessionTitle: isPractice
+                    ? MedievalFocusCopy.practiceActivityTitle(avatar: avatar)
+                    : MedievalFocusCopy.liveActivityTitle(avatar: avatar)
             )
         }
 
@@ -155,7 +146,7 @@ final class ForgeViewModel: ObservableObject {
                     remainingSeconds: remaining,
                     totalSeconds: self.sessionStartedTotalSeconds,
                     displayName: displayName,
-                    avatarEmoji: avatar.emoji
+                    avatarImageName: avatar.imageName
                 )
             }
 
@@ -205,7 +196,11 @@ final class ForgeViewModel: ObservableObject {
         let bars = estimatedRewardBars
         barsEarnedOnSuccess = bars
         endSession()
-        inventoryManager?.completeForge(barsEarned: bars, focusSeconds: sessionStartedTotalSeconds)
+        inventoryManager?.completeForge(
+            barsEarned: bars,
+            focusSeconds: sessionStartedTotalSeconds,
+            countsTowardChallenge: countsTowardChallenge
+        )
         sessionState = .success
         showResultOverlay = true
     }

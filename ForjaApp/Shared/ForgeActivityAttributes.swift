@@ -11,7 +11,7 @@ struct ForgeActivityAttributes: ActivityAttributes {
         var remainingSeconds: Int
         var totalSeconds: Int
         var displayName: String
-        var avatarEmoji: String
+        var avatarImageName: String
 
         var progress: Double {
             guard totalSeconds > 0 else { return 0 }

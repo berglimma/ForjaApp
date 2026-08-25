@@ -20,7 +20,7 @@ struct SubscriptionPaywallView: View {
                         .font(.system(size: 56))
                     Text("Mestre Ferreiro")
                         .font(.largeTitle.bold())
-                    Text("Assinatura mensal ou anual. Trial de 7 dias no onboarding.")
+                    Text("Assinatura Mestre Ferreiro: \(StoreProductID.monthlyListPriceBRL)/mês ou \(StoreProductID.yearlyListPriceBRL)/ano. Trial de 7 dias no onboarding.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -51,34 +51,42 @@ struct SubscriptionPaywallView: View {
                         Button {
                             Task { _ = await store.purchase(yearly) }
                         } label: {
-                            VStack {
+                            VStack(spacing: 4) {
                                 Text("Anual · \(yearly.displayPrice)")
                                     .font(.headline)
-                                Text("Melhor valor")
+                                Text("Melhor valor · lista \(StoreProductID.yearlyListPriceBRL)/ano")
                                     .font(.caption)
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                         }
                         .buttonStyle(ForgePrimaryButtonStyle())
+                    } else {
+                        pricePlaceholder(
+                            title: "Anual · \(StoreProductID.yearlyListPriceBRL)",
+                            subtitle: "Publique o IAP com.forja.subscription.yearly na App Store"
+                        )
                     }
 
                     if let monthly = store.monthlyProduct {
                         Button {
                             Task { _ = await store.purchase(monthly) }
                         } label: {
-                            Text("Mensal · \(monthly.displayPrice)")
-                                .font(.headline)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
+                            VStack(spacing: 4) {
+                                Text("Mensal · \(monthly.displayPrice)")
+                                    .font(.headline)
+                                Text("Lista \(StoreProductID.monthlyListPriceBRL)/mês")
+                                    .font(.caption)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
                         }
                         .buttonStyle(ForgeSecondaryButtonStyle())
-                    }
-
-                    if store.monthlyProduct == nil && store.yearlyProduct == nil {
-                        Text("Produtos ainda não carregados. Configure o arquivo Products.storekit no scheme do Xcode ou publique os IAPs no App Store Connect.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    } else {
+                        pricePlaceholder(
+                            title: "Mensal · \(StoreProductID.monthlyListPriceBRL)",
+                            subtitle: "Publique o IAP com.forja.subscription.monthly na App Store"
+                        )
                     }
 
                     Button("Restaurar compras") {
@@ -105,6 +113,20 @@ struct SubscriptionPaywallView: View {
             }
             .task { await store.refresh() }
         }
+    }
+
+    private func pricePlaceholder(title: String, subtitle: String) -> some View {
+        VStack(spacing: 4) {
+            Text(title)
+                .font(.headline)
+            Text(subtitle)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func perk(_ text: String) -> some View {

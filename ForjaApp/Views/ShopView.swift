@@ -134,8 +134,8 @@ struct ShopView: View {
     }
 
     private var challengeBoard: some View {
-        let challenge = OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars)
-        let nextGate = OreChallengeLadder.nextOreGate(lifetimeBars: inventory.progress.lifetimeBars)
+        let lifetime = inventory.progress.lifetimeBars
+        let challenge = OreChallengeLadder.active(lifetimeBars: lifetime)
         return VStack(alignment: .leading, spacing: 10) {
             Text("Trilha dos 100 mil")
                 .font(.headline)
@@ -143,22 +143,37 @@ struct ShopView: View {
                 Text("\(challenge.creatureEmoji) \(challenge.name)")
                     .font(.subheadline.bold())
                 Spacer()
-                Text("Marco \(challenge.oreGate)")
-                    .font(.caption)
+                Text("\(OreChallengeLadder.formatOre(lifetime)) / \(OreChallengeLadder.formatOre(challenge.oreGate))")
+                    .font(.caption.monospacedDigit())
                     .foregroundStyle(Color(hex: "#C4A574") ?? .yellow)
             }
             Text(challenge.lore)
                 .font(.caption)
                 .foregroundStyle(.secondary)
             ProgressView(
-                value: Double(min(inventory.progress.lifetimeBars, OreChallengeLadder.cap)),
-                total: Double(OreChallengeLadder.cap)
+                value: Double(min(lifetime, challenge.oreGate)),
+                total: Double(max(challenge.oreGate, 1))
             )
             .tint(Color(hex: "#C05621") ?? .orange)
-            Text("\(inventory.progress.lifetimeBars) / 100.000 minérios no ofício · próximo marco \(nextGate)")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-            Text("A cada 100 minérios o reino cobra forjas mais longas, menos graça e menos minério por sessão.")
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(OreChallengeLadder.milestones) { milestone in
+                    let done = lifetime >= milestone.oreGate
+                    let current = milestone.rank == challenge.rank && lifetime < OreChallengeLadder.cap
+                    HStack(spacing: 8) {
+                        Text(done ? "✓" : milestone.creatureEmoji)
+                            .frame(width: 18)
+                        Text(milestone.name)
+                            .fontWeight(current ? .semibold : .regular)
+                        Spacer()
+                        Text(OreChallengeLadder.formatOre(milestone.oreGate))
+                            .monospacedDigit()
+                    }
+                    .font(.caption2)
+                    .foregroundStyle(done ? .secondary : (current ? Color(hex: "#C05621") ?? .orange : .primary))
+                }
+            }
+            .padding(.top, 4)
+            Text("Sessões abaixo de 15 min: +1 minério, sem somar no desafio. 15:00 +2 · 25:00 +3 · 45:00 +3 · 60:00 +4 · acima de 60 +5.")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
@@ -502,6 +517,11 @@ private struct PurchaseAlert: Identifiable {
 struct IdentifiableImage: Identifiable {
     let id = UUID()
     let image: UIImage
+}
+
+struct IdentifiableURL: Identifiable {
+    let id = UUID()
+    let url: URL
 }
 
 struct ShareSheet: UIViewControllerRepresentable {

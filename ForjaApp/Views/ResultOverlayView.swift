@@ -10,6 +10,7 @@ struct ResultOverlayView: View {
     let state: ForgeSessionState
     let barsEarned: Int
     var avatar: MedievalAvatar = .default
+    var countsTowardChallenge: Bool = true
     let onDismiss: () -> Void
 
     @State private var appear = false
@@ -21,8 +22,7 @@ struct ResultOverlayView: View {
                 .onTapGesture { }
 
             VStack(spacing: 20) {
-                Text(emoji)
-                    .font(.system(size: 64))
+                resultEmblem
                     .scaleEffect(appear ? 1 : 0.3)
                     .animation(.spring(response: 0.5, dampingFraction: 0.6), value: appear)
 
@@ -37,10 +37,17 @@ struct ResultOverlayView: View {
                     .padding(.horizontal)
 
                 if case .success = state {
-                    HStack(spacing: 8) {
-                        Text("🪨")
-                        Text("+\(barsEarned) Minério")
-                            .font(.headline)
+                    VStack(spacing: 6) {
+                        HStack(spacing: 8) {
+                            Text("🪨")
+                            Text("+\(barsEarned) Minério")
+                                .font(.headline)
+                        }
+                        if !countsTowardChallenge {
+                            Text("Não soma no desafio da estrada")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 12)
@@ -79,22 +86,28 @@ struct ResultOverlayView: View {
         }
     }
 
+    @ViewBuilder
+    private var resultEmblem: some View {
+        switch state {
+        case .failed(let reason):
+            Text(reason.emoji)
+                .font(.system(size: 64))
+        default:
+            MedievalAvatarFaceView(avatar: avatar, size: 88)
+        }
+    }
+
     private var isSuccess: Bool {
         if case .success = state { return true }
         return false
     }
 
-    private var emoji: String {
-        switch state {
-        case .success: return avatar.emoji
-        case .failed(let reason): return reason.emoji
-        default: return avatar.emoji
-        }
-    }
-
     private var title: String {
         switch state {
-        case .success: return MedievalFocusCopy.successTitle(avatar: avatar)
+        case .success:
+            return countsTowardChallenge
+                ? MedievalFocusCopy.successTitle(avatar: avatar)
+                : MedievalFocusCopy.practiceSuccessTitle(avatar: avatar)
         case .failed(let reason): return MedievalFocusCopy.failureTitle(reason: reason)
         default: return ""
         }
@@ -103,7 +116,9 @@ struct ResultOverlayView: View {
     private var message: String {
         switch state {
         case .success:
-            return MedievalFocusCopy.successMessage(avatar: avatar, bars: barsEarned)
+            return countsTowardChallenge
+                ? MedievalFocusCopy.successMessage(avatar: avatar, bars: barsEarned)
+                : MedievalFocusCopy.practiceSuccessMessage(avatar: avatar, bars: barsEarned)
         case .failed(let reason):
             return MedievalFocusCopy.failureMessage(avatar: avatar, reason: reason)
         default:

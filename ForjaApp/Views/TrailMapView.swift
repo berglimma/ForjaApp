@@ -53,10 +53,7 @@ struct TrailMapView: View {
     private var heroCard: some View {
         HStack(spacing: 14) {
             Button { showAvatarPicker = true } label: {
-                Text(inventory.progress.selectedAvatar.emoji)
-                    .font(.system(size: 52))
-                    .padding(8)
-                    .background(Color.white.opacity(0.08), in: Circle())
+                MedievalAvatarFaceView(avatar: inventory.progress.selectedAvatar, size: 64, lineWidth: 2)
             }
             .buttonStyle(.plain)
 
@@ -132,7 +129,7 @@ struct AvatarPickerSheet: View {
                     ForEach(MedievalAvatar.catalog) { avatar in
                         Button { onSelect(avatar) } label: {
                             VStack(spacing: 8) {
-                                Text(avatar.emoji).font(.system(size: 40))
+                                MedievalAvatarFaceView(avatar: avatar, size: 72)
                                 Text(avatar.name).font(.headline)
                                 Text(avatar.lore)
                                     .font(.caption2)

@@ -8,10 +8,46 @@ import PhotosUI
 import SwiftUI
 import UIKit
 
+struct MedievalAvatarFaceView: View {
+    let imageName: String
+    var size: CGFloat = 52
+    var lineWidth: CGFloat = 2
+    var accentHex: String? = nil
+
+    init(avatar: MedievalAvatar, size: CGFloat = 52, lineWidth: CGFloat = 2) {
+        self.imageName = avatar.imageName
+        self.size = size
+        self.lineWidth = lineWidth
+        self.accentHex = avatar.accentHex
+    }
+
+    init(imageName: String, size: CGFloat = 52, lineWidth: CGFloat = 2, accentHex: String? = nil) {
+        self.imageName = imageName
+        self.size = size
+        self.lineWidth = lineWidth
+        self.accentHex = accentHex
+    }
+
+    var body: some View {
+        Image(imageName)
+            .resizable()
+            .renderingMode(.original)
+            .scaledToFill()
+            .frame(width: size, height: size)
+            .clipped()
+            .clipShape(Circle())
+            .overlay {
+                if let accentHex {
+                    Circle().stroke(Color(hex: accentHex) ?? .orange, lineWidth: lineWidth)
+                }
+            }
+    }
+}
+
 struct ProfileAvatarView: View {
     let image: UIImage?
     let placeholderSystemName: String
-    let avatarEmoji: String
+    let avatarImageName: String
     let usesAvatar: Bool
     let onImageDataSelected: (Data) -> Void
     let onUseAvatar: () -> Void
@@ -77,10 +113,10 @@ struct ProfileAvatarView: View {
     private var avatarContent: some View {
         Group {
             if usesAvatar {
-                Text(avatarEmoji)
-                    .font(.system(size: 34))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.white.opacity(0.08))
+                Image(avatarImageName)
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFill()
             } else if let image {
                 Image(uiImage: image)
                     .resizable()
@@ -148,7 +184,7 @@ struct CameraPicker: UIViewControllerRepresentable {
     ProfileAvatarView(
         image: nil,
         placeholderSystemName: "person.crop.circle.fill",
-        avatarEmoji: "⚒️",
+        avatarImageName: "Avatar_smith",
         usesAvatar: true,
         onImageDataSelected: { _ in },
         onUseAvatar: {},
