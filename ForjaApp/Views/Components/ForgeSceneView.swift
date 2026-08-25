@@ -74,53 +74,161 @@ struct ForgeSceneView: View {
 struct HammerStrikeView: View {
     var body: some View {
         PhaseAnimator([false, true]) { striking in
-            ZStack {
-                if striking {
-                    strikeSparks
+            ZStack(alignment: .top) {
+                if !striking {
+                    swingTrail
                 }
+
                 MedievalHammerShape()
-                    .frame(width: 78, height: 92)
-                    .rotationEffect(.degrees(striking ? 32 : -52), anchor: .bottom)
-                    .offset(y: striking ? 8 : -16)
-                    .shadow(
-                        color: Color(hex: "#ED8936")?.opacity(striking ? 0.55 : 0.15) ?? .orange.opacity(0.3),
-                        radius: striking ? 10 : 4,
-                        y: 2
+                    .frame(width: 40, height: 76)
+                    .rotationEffect(
+                        .degrees(striking ? -65 : 34),
+                        anchor: UnitPoint(x: 0.5, y: 0.96)
                     )
+                    .offset(x: striking ? 36 : 38, y: striking ? -28 : -62)
+
+                if striking {
+                    impactSparks
+                        .offset(x: -28, y: -4)
+                }
             }
+            .frame(width: 150, height: 110, alignment: .top)
         } animation: { striking in
             striking
-                ? .easeIn(duration: 0.14)
-                : .easeOut(duration: 0.32)
+                ? .easeIn(duration: 0.55)
+                : .easeOut(duration: 0.9)
         }
     }
 
-    private var strikeSparks: some View {
+    private var swingTrail: some View {
         ZStack {
-            ForEach(0..<5, id: \.self) { index in
+            ForEach(0..<3, id: \.self) { index in
                 Capsule()
-                    .fill(Color(hex: "#F6E05E") ?? .yellow)
-                    .frame(width: 3, height: 10)
-                    .offset(
-                        x: CGFloat([-14, -6, 2, 10, 16][index]),
-                        y: CGFloat([10, 16, 8, 14, 12][index])
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(hex: "#ED8936")?.opacity(0.55 - Double(index) * 0.14) ?? .orange.opacity(0.4),
+                                .clear
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     )
-                    .rotationEffect(.degrees([-28, -8, 6, 22, 38][index]))
-                    .opacity(0.85)
+                    .frame(width: CGFloat(42 - index * 8), height: 7)
+                    .rotationEffect(.degrees(28 - Double(index) * 14))
+                    .offset(x: CGFloat(28 + index * 16), y: CGFloat(-14 - index * 12))
             }
         }
-        .offset(y: 18)
+        .allowsHitTesting(false)
+    }
+
+    private var impactSparks: some View {
+        ZStack {
+            Ellipse()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Color(hex: "#FBD38D")?.opacity(0.8) ?? .yellow.opacity(0.65),
+                            .clear
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 18
+                    )
+                )
+                .frame(width: 34, height: 16)
+
+            ForEach(0..<7, id: \.self) { index in
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(hex: "#FFFAF0") ?? .white,
+                                Color(hex: "#F6E05E") ?? .yellow,
+                                Color(hex: "#DD6B20") ?? .orange
+                            ],
+                            startPoint: .bottom,
+                            endPoint: .top
+                        )
+                    )
+                    .frame(width: 2.5, height: CGFloat([9, 13, 11, 16, 10, 14, 8][index]))
+                    .offset(
+                        x: CGFloat([-16, -10, -4, 2, 8, 14, 20][index]),
+                        y: CGFloat([-8, -16, -11, -20, -10, -17, -7][index])
+                    )
+                    .rotationEffect(.degrees([-38, -22, -8, 4, 16, 30, 46][index]))
+            }
+        }
+        .allowsHitTesting(false)
     }
 }
 
 struct MedievalHammerShape: View {
     var body: some View {
-        ZStack {
-            haft
-            leatherWrap
-            pommel
+        VStack(spacing: 0) {
             head
+            leatherWrap
+            haft
+            pommel
         }
+    }
+
+    private var head: some View {
+        RoundedRectangle(cornerRadius: 3, style: .continuous)
+            .fill(
+                LinearGradient(
+                    colors: [
+                        Color(hex: "#E2E8F0") ?? .white,
+                        Color(hex: "#718096") ?? .gray,
+                        Color(hex: "#2D3748") ?? .gray,
+                        Color(hex: "#1A202C") ?? .black
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.5),
+                                Color(hex: "#4A5568") ?? .gray
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 1.2
+                    )
+            }
+            .overlay(alignment: .top) {
+                Capsule()
+                    .fill(Color.white.opacity(0.32))
+                    .frame(width: 18, height: 3)
+                    .padding(.top, 3)
+            }
+            .frame(width: 30, height: 20)
+            .shadow(color: .black.opacity(0.45), radius: 2, y: 1)
+    }
+
+    private var leatherWrap: some View {
+        VStack(spacing: 3) {
+            ForEach(0..<2, id: \.self) { _ in
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(hex: "#6B3A2A") ?? .brown,
+                                Color(hex: "#3E1F16") ?? .brown
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: 12, height: 4)
+            }
+        }
+        .padding(.top, 1)
     }
 
     private var haft: some View {
@@ -140,28 +248,7 @@ struct MedievalHammerShape: View {
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
                     .strokeBorder(Color(hex: "#3E2723")?.opacity(0.55) ?? .black.opacity(0.4), lineWidth: 1)
             }
-            .frame(width: 11, height: 64)
-            .offset(y: 12)
-    }
-
-    private var leatherWrap: some View {
-        VStack(spacing: 6) {
-            ForEach(0..<4, id: \.self) { _ in
-                Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color(hex: "#6B3A2A") ?? .brown,
-                                Color(hex: "#3E1F16") ?? .brown
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(width: 15, height: 5)
-            }
-        }
-        .offset(y: 18)
+            .frame(width: 8, height: 38)
     }
 
     private var pommel: some View {
@@ -177,75 +264,11 @@ struct MedievalHammerShape: View {
                     endPoint: .bottomTrailing
                 )
             )
-            .frame(width: 16, height: 8)
+            .frame(width: 13, height: 7)
             .overlay {
                 Capsule().strokeBorder(Color.white.opacity(0.25), lineWidth: 0.6)
             }
-            .offset(y: 42)
-    }
-
-    private var head: some View {
-        ZStack {
-            HammerHeadSilhouette()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color(hex: "#E2E8F0") ?? .white,
-                            Color(hex: "#718096") ?? .gray,
-                            Color(hex: "#2D3748") ?? .gray,
-                            Color(hex: "#1A202C") ?? .black
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay {
-                    HammerHeadSilhouette()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.45),
-                                    Color(hex: "#4A5568") ?? .gray
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ),
-                            lineWidth: 1.2
-                        )
-                }
-                .frame(width: 64, height: 28)
-                .shadow(color: .black.opacity(0.45), radius: 2, y: 1)
-
-            Capsule()
-                .fill(Color.white.opacity(0.28))
-                .frame(width: 18, height: 4)
-                .offset(x: 14, y: -6)
-        }
-        .offset(y: -28)
-    }
-}
-
-private struct HammerHeadSilhouette: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let w = rect.width
-        let h = rect.height
-
-        path.move(to: CGPoint(x: w * 0.18, y: h * 0.12))
-        path.addLine(to: CGPoint(x: w * 0.78, y: h * 0.12))
-        path.addQuadCurve(
-            to: CGPoint(x: w * 0.98, y: h * 0.5),
-            control: CGPoint(x: w * 1.02, y: h * 0.18)
-        )
-        path.addQuadCurve(
-            to: CGPoint(x: w * 0.78, y: h * 0.88),
-            control: CGPoint(x: w * 1.02, y: h * 0.82)
-        )
-        path.addLine(to: CGPoint(x: w * 0.18, y: h * 0.88))
-        path.addLine(to: CGPoint(x: w * 0.02, y: h * 0.62))
-        path.addLine(to: CGPoint(x: w * 0.02, y: h * 0.38))
-        path.closeSubpath()
-        return path
+            .padding(.top, 1)
     }
 }
 

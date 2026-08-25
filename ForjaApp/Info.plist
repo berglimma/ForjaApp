@@ -49,6 +49,8 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Permite escolher uma foto para seu perfil de ferreiro.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Permite tirar uma foto para o perfil de ferreiro.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

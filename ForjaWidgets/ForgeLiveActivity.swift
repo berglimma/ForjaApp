@@ -34,13 +34,13 @@ struct ForgeLiveActivityWidget: Widget {
                         .tint(Color(hex: "#ED8936") ?? .orange)
                 }
             } compactLeading: {
-                Text("🔥")
+                Text(context.state.avatarEmoji)
             } compactTrailing: {
                 Text(context.state.formattedRemaining)
                     .font(.caption.monospacedDigit().bold())
                     .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
             } minimal: {
-                Text("🔥")
+                Text(context.state.avatarEmoji)
             }
         }
     }

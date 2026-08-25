@@ -35,7 +35,9 @@ struct InventoryView: View {
                 }
                 .padding()
             }
-            .background((Color(hex: "#0D1117") ?? .black).ignoresSafeArea())
+            .background {
+                MedievalBackdropView()
+            }
             .navigationTitle("Inventário")
     }
 
@@ -76,7 +78,7 @@ struct InventoryView: View {
 
     private var notificationSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Toggle("Lembretes da fornalha", isOn: Binding(
+            Toggle("Arautos da forja", isOn: Binding(
                 get: { inventory.progress.notificationsEnabled },
                 set: { enabled in
                     Task {
@@ -89,7 +91,7 @@ struct InventoryView: View {
                     }
                 }
             ))
-            Text("Avisa quando a fornalha esfria e no seu horário de pico histórico.")
+            Text("O reino chama \(inventory.progress.selectedAvatar.name) ao amanhecer, no pântano, na estrada de areia e quando a fornalha esfria.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

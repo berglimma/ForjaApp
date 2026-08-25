@@ -33,7 +33,7 @@ enum StoreProductID {
 }
 
 enum EntitlementLimits {
-    static let freeDailySessions = 3
+    static let freeDailySessions = 8
     static let freeMaxGraceSeconds = 5
     static let subscriberMaxGraceSeconds = 20
     static let trialDurationDays = 7

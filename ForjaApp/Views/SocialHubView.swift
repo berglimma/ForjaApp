@@ -25,7 +25,9 @@ struct SocialHubView: View {
                 }
                 .padding()
             }
-            .background((Color(hex: "#0D1117") ?? .black).ignoresSafeArea())
+            .background {
+                MedievalBackdropView()
+            }
             .navigationTitle("Guilda")
             .task { await social.refresh() }
             .refreshable { await social.refresh() }

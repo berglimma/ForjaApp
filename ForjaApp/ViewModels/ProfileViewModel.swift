@@ -53,13 +53,20 @@ final class ProfileViewModel: ObservableObject {
 
         ProfileImageStore.shared.save(image)
         profileImage = ProfileImageStore.shared.load()
+        inventoryManager.setUsesAvatarAsProfilePhoto(false)
         authMessage = "Foto de perfil atualizada."
+    }
+
+    func useAvatarAsProfilePhoto() {
+        inventoryManager.setUsesAvatarAsProfilePhoto(true)
+        authMessage = "Avatar medieval no perfil."
     }
 
     func removeProfilePhoto() {
         ProfileImageStore.shared.delete()
         profileImage = nil
-        authMessage = "Foto de perfil removida."
+        inventoryManager.setUsesAvatarAsProfilePhoto(true)
+        authMessage = "Foto de perfil removida. O avatar voltou ao perfil."
     }
 
     func refreshLeaderboard() async {

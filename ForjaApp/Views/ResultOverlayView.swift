@@ -9,6 +9,7 @@ import SwiftUI
 struct ResultOverlayView: View {
     let state: ForgeSessionState
     let barsEarned: Int
+    var avatar: MedievalAvatar = .default
     let onDismiss: () -> Void
 
     @State private var appear = false
@@ -85,16 +86,16 @@ struct ResultOverlayView: View {
 
     private var emoji: String {
         switch state {
-        case .success: return "✨"
+        case .success: return avatar.emoji
         case .failed(let reason): return reason.emoji
-        default: return "🔥"
+        default: return avatar.emoji
         }
     }
 
     private var title: String {
         switch state {
-        case .success: return "Forja concluída!"
-        case .failed(let reason): return reason.title
+        case .success: return MedievalFocusCopy.successTitle(avatar: avatar)
+        case .failed(let reason): return MedievalFocusCopy.failureTitle(reason: reason)
         default: return ""
         }
     }
@@ -102,9 +103,9 @@ struct ResultOverlayView: View {
     private var message: String {
         switch state {
         case .success:
-            return "Você manteve o foco. O minério está na bolsa — a barra forjada entra no seu recorde de ofício."
+            return MedievalFocusCopy.successMessage(avatar: avatar, bars: barsEarned)
         case .failed(let reason):
-            return reason.message
+            return MedievalFocusCopy.failureMessage(avatar: avatar, reason: reason)
         default:
             return ""
         }

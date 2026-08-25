@@ -42,6 +42,7 @@ struct UserProgress: Codable, Equatable {
     var trialStartedAt: Date?
     var hasUnlockedHardcore: Bool
     var notificationsEnabled: Bool
+    var usesAvatarAsProfilePhoto: Bool
 
     static let empty = UserProgress(
         forgedBars: 0,
@@ -82,7 +83,8 @@ struct UserProgress: Codable, Equatable {
         onboardingCompleted: false,
         trialStartedAt: nil,
         hasUnlockedHardcore: false,
-        notificationsEnabled: false
+        notificationsEnabled: false,
+        usesAvatarAsProfilePhoto: true
     )
 
     var ore: Int { forgedBars }
@@ -270,6 +272,7 @@ struct UserProgress: Codable, Equatable {
         case selectedAvatarID, equippedAnvilSkinID, equippedFurnaceSkinID, equippedShopThemeID
         case ownedCosmeticIDs, weekdayFocusSeconds, hourlySessionCounts
         case onboardingCompleted, trialStartedAt, hasUnlockedHardcore, notificationsEnabled
+        case usesAvatarAsProfilePhoto
     }
 
     init(
@@ -307,7 +310,8 @@ struct UserProgress: Codable, Equatable {
         onboardingCompleted: Bool,
         trialStartedAt: Date?,
         hasUnlockedHardcore: Bool,
-        notificationsEnabled: Bool
+        notificationsEnabled: Bool,
+        usesAvatarAsProfilePhoto: Bool
     ) {
         self.forgedBars = forgedBars
         self.ownedCollectibles = ownedCollectibles
@@ -344,6 +348,7 @@ struct UserProgress: Codable, Equatable {
         self.trialStartedAt = trialStartedAt
         self.hasUnlockedHardcore = hasUnlockedHardcore
         self.notificationsEnabled = notificationsEnabled
+        self.usesAvatarAsProfilePhoto = usesAvatarAsProfilePhoto
     }
 
     init(from decoder: Decoder) throws {
@@ -388,6 +393,7 @@ struct UserProgress: Codable, Equatable {
         trialStartedAt = try container.decodeIfPresent(Date.self, forKey: .trialStartedAt)
         hasUnlockedHardcore = try container.decodeIfPresent(Bool.self, forKey: .hasUnlockedHardcore) ?? false
         notificationsEnabled = try container.decodeIfPresent(Bool.self, forKey: .notificationsEnabled) ?? false
+        usesAvatarAsProfilePhoto = try container.decodeIfPresent(Bool.self, forKey: .usesAvatarAsProfilePhoto) ?? false
     }
 
     private static func padded(_ values: [Int], count: Int) -> [Int] {

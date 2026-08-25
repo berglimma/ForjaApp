@@ -14,6 +14,8 @@ enum TrailBiome: Equatable {
     case riverside
     case moonlit
     case castleRoad
+    case sandClay
+    case darkSwamp
 
     var ground: [Color] {
         switch self {
@@ -33,19 +35,30 @@ enum TrailBiome: Equatable {
             return [Color(hex: "#1A365D") ?? .blue, Color(hex: "#2C5282") ?? .blue]
         case .castleRoad:
             return [Color(hex: "#4A5568") ?? .gray, Color(hex: "#D69E2E") ?? .yellow]
+        case .sandClay:
+            return [Color(hex: "#8B5A2B") ?? .brown, Color(hex: "#D4A574") ?? .yellow]
+        case .darkSwamp:
+            return [Color(hex: "#0B1A12") ?? .black, Color(hex: "#1C3A2A") ?? .green]
         }
     }
 
     var path: Color {
         switch self {
-        case .tenebrous, .hauntedWood: return Color(hex: "#1A202C") ?? .black
-        case .emberGlade: return Color(hex: "#C05621") ?? .orange
-        case .greenWood: return Color(hex: "#D69E2E") ?? .yellow
-        case .autumn: return Color(hex: "#F6AD55") ?? .orange
-        case .riverside: return Color(hex: "#90CDF4") ?? .cyan
-        case .moonlit: return Color(hex: "#9F7AEA") ?? .purple
-        case .castleRoad: return Color(hex: "#F6E05E") ?? .yellow
+        case .darkSwamp, .tenebrous, .hauntedWood:
+            return Color(hex: "#3F2E1F") ?? .brown
+        case .sandClay, .emberGlade, .autumn:
+            return Color(hex: "#C4A574") ?? .yellow
+        case .greenWood, .riverside:
+            return Color(hex: "#B08968") ?? .brown
+        case .moonlit:
+            return Color(hex: "#A67C52") ?? .brown
+        case .castleRoad:
+            return Color(hex: "#D2B48C") ?? .yellow
         }
+    }
+
+    var clayRut: Color {
+        Color(hex: "#6B3F1F") ?? .brown
     }
 
     var treeEmoji: String {
@@ -57,11 +70,32 @@ enum TrailBiome: Equatable {
         case .riverside: return "🌿"
         case .moonlit: return "🌙"
         case .castleRoad: return "🏰"
+        case .sandClay: return "🌾"
+        case .darkSwamp: return "🪵"
         }
     }
 
     var isDark: Bool {
-        self == .tenebrous || self == .hauntedWood
+        self == .tenebrous || self == .hauntedWood || self == .darkSwamp
+    }
+
+    var isSwamp: Bool {
+        self == .darkSwamp
+    }
+
+    var creature: (emoji: String, name: String) {
+        switch self {
+        case .darkSwamp: return ("🐸", "Lodoento")
+        case .tenebrous: return ("🐺", "Umbrawolf")
+        case .hauntedWood: return ("🐦‍⬛", "Corvo-de-Ferro")
+        case .emberGlade: return ("🦌", "Cervo-Brasão")
+        case .greenWood: return ("🦅", "Grifo-do-Charco")
+        case .autumn: return ("🦎", "Basilisco-Cinza")
+        case .riverside: return ("🐍", "Hidra-do-Lodo")
+        case .moonlit: return ("🐲", "Serpe-Musgo")
+        case .castleRoad: return ("🐉", "Wyrm-de-Brejo")
+        case .sandClay: return ("🐊", "Drake-Pântano")
+        }
     }
 }
 
@@ -165,24 +199,28 @@ struct WeeklyTrailMapView: View {
 
     private var loreCaption: String {
         if hasNeverForged {
-            return "\(avatar.name) atravessa bosques tenebrosos. Acenda a forja para abrir o caminho até o castelo."
+            return "\(avatar.name) segue a estrada de areia e barro. Pântanos sombrios escondem Lodoentos e Umbrawolves — acenda a forja para abrir o caminho."
         }
         if isFrequent {
-            return "O reino reconhece o ofício: clareiras, rio e estrada real se revezam a cada semana. \(avatar.name) marcha rumo ao castelo."
+            return "A estrada de areia se firma. Grifos-do-charco e cervos-brasão vigiam o reino enquanto \(avatar.name) marcha ao castelo."
         }
-        return "Cada dia forjado ilumina a trilha. Dias vazios permanecem na névoa da floresta negra."
+        return "Areia, barro e trechos de pântano sombrio. Cada dia forjado ilumina a trilha; o lodo guarda criaturas do reino."
     }
 
     private func biome(for index: Int) -> TrailBiome {
         let seconds = weekdaySeconds.indices.contains(index) ? weekdaySeconds[index] : 0
+        let swampSlots = index == 1 || index == 4 || (index + weekOfYear).isMultiple(of: 5)
+        if swampSlots {
+            return .darkSwamp
+        }
         if seconds <= 0 {
             return index.isMultiple(of: 2) ? .tenebrous : .hauntedWood
         }
         if isFrequent {
-            let cycle: [TrailBiome] = [.emberGlade, .greenWood, .riverside, .autumn, .moonlit, .greenWood, .castleRoad]
+            let cycle: [TrailBiome] = [.sandClay, .emberGlade, .greenWood, .riverside, .autumn, .moonlit, .castleRoad]
             return cycle[(index + weekOfYear) % cycle.count]
         }
-        return index == 6 ? .castleRoad : .emberGlade
+        return index == 6 ? .castleRoad : .sandClay
     }
 
     private func startAnimations() {
@@ -267,30 +305,46 @@ struct WeeklyTrailMapView: View {
         ZStack {
             TrailPathShape(points: points)
                 .stroke(
-                    Color.black.opacity(0.45),
-                    style: StrokeStyle(lineWidth: 18, lineCap: .round, lineJoin: .round)
+                    Color(hex: "#3E2723")?.opacity(0.7) ?? .brown.opacity(0.7),
+                    style: StrokeStyle(lineWidth: 22, lineCap: .round, lineJoin: .round)
                 )
-                .offset(y: 6)
+                .offset(y: 5)
+
+            TrailPathShape(points: points)
+                .stroke(
+                    Color(hex: "#6B3F1F") ?? .brown,
+                    style: StrokeStyle(lineWidth: 16, lineCap: .round, lineJoin: .round)
+                )
+                .offset(y: 3)
 
             ForEach(0..<6, id: \.self) { index in
                 let a = points[index]
                 let b = points[index + 1]
+                let sand = biome(for: index).isSwamp
+                    ? (Color(hex: "#3F2E1F") ?? .brown)
+                    : (Color(hex: "#D4A574") ?? .yellow)
                 Path { path in
                     path.move(to: a)
                     path.addQuadCurve(to: b, control: controlPoint(from: a, to: b))
                 }
                 .stroke(
-                    biome(for: index).path,
+                    sand,
                     style: StrokeStyle(lineWidth: 11, lineCap: .round, lineJoin: .round)
                 )
-                .opacity(weekdaySeconds[index] > 0 || weekdaySeconds[index + 1] > 0 ? 1 : 0.28)
-                .shadow(color: biome(for: index).path.opacity(0.5), radius: weekdaySeconds[index] > 0 ? 6 : 0)
+                .opacity(weekdaySeconds[index] > 0 || weekdaySeconds[index + 1] > 0 ? 1 : 0.4)
             }
 
             TrailPathShape(points: points)
                 .stroke(
-                    Color.white.opacity(0.18),
-                    style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [5, 8])
+                    Color(hex: "#5C3317")?.opacity(0.55) ?? .brown.opacity(0.5),
+                    style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [10, 14])
+                )
+                .offset(y: 1)
+
+            TrailPathShape(points: points)
+                .stroke(
+                    Color(hex: "#F5E6C8")?.opacity(0.22) ?? .white.opacity(0.2),
+                    style: StrokeStyle(lineWidth: 1.5, lineCap: .round, dash: [4, 10])
                 )
                 .offset(y: -3)
         }
@@ -302,19 +356,34 @@ struct WeeklyTrailMapView: View {
                 let point = points[index]
                 let biome = biome(for: index)
                 Group {
+                    if biome.isSwamp {
+                        swampPatch
+                            .position(x: point.x, y: point.y + 8)
+                    }
+
                     treeCluster(biome: biome, lit: weekdaySeconds[index] > 0)
                         .position(x: point.x - 36, y: point.y - 28)
                     treeCluster(biome: biome, lit: weekdaySeconds[index] > 0)
                         .scaleEffect(0.78)
                         .position(x: point.x + 40, y: point.y - 18)
 
-                    if biome.isDark {
+                    Text(biome.creature.emoji)
+                        .font(biome.isSwamp ? .title3 : .body)
+                        .offset(
+                            x: fogDrift ? 8 : -6,
+                            y: (bobbing ? -4 : 2) + (biome.isSwamp ? 12 : -22)
+                        )
+                        .shadow(color: .black.opacity(0.55), radius: 3, y: 2)
+                        .position(point)
+                        .opacity(0.9)
+
+                    if biome.isDark && !biome.isSwamp {
                         Text("🦇")
                             .font(.caption)
                             .offset(x: fogDrift ? 10 : -8, y: fogDrift ? -6 : 4)
-                            .position(point)
+                            .position(x: point.x - 18, y: point.y - 36)
                             .opacity(0.7)
-                    } else if weekdaySeconds[index] > 0 {
+                    } else if weekdaySeconds[index] > 0 && !biome.isSwamp {
                         Circle()
                             .fill(Color(hex: "#F6E05E")?.opacity(torchPulse ? 0.55 : 0.2) ?? .yellow.opacity(0.3))
                             .frame(width: 18, height: 18)
@@ -327,13 +396,40 @@ struct WeeklyTrailMapView: View {
                 }
             }
 
-            if hasNeverForged {
-                Text("🦅")
-                    .font(.title3)
-                    .offset(x: crowOffset * (size.width - 40) - 20, y: 28 + (fogDrift ? 8 : 0))
-                    .opacity(0.8)
-            }
+            Text("🦅")
+                .font(.title3)
+                .offset(x: crowOffset * (size.width - 40) - 20, y: 28 + (fogDrift ? 8 : 0))
+                .opacity(0.75)
         }
+    }
+
+    private var swampPatch: some View {
+        ZStack {
+            Ellipse()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            Color(hex: "#0B1A12") ?? .black,
+                            Color(hex: "#1C3A2A")?.opacity(0.85) ?? .green.opacity(0.8),
+                            Color(hex: "#0D1117")?.opacity(0.2) ?? .clear
+                        ],
+                        center: .center,
+                        startRadius: 4,
+                        endRadius: 46
+                    )
+                )
+                .frame(width: 92, height: 44)
+            Ellipse()
+                .fill(Color(hex: "#68D391")?.opacity(fogDrift ? 0.18 : 0.08) ?? .green.opacity(0.1))
+                .frame(width: 36, height: 12)
+                .blur(radius: 3)
+                .offset(x: fogDrift ? 8 : -6, y: -4)
+            Text("🫧")
+                .font(.caption2)
+                .offset(x: fogDrift ? 12 : -10, y: fogDrift ? -6 : 2)
+                .opacity(0.7)
+        }
+        .allowsHitTesting(false)
     }
 
     private func treeCluster(biome: TrailBiome, lit: Bool) -> some View {

@@ -17,32 +17,30 @@ struct AnvilView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Image("Anvil")
-                .resizable()
-                .renderingMode(.original)
-                .interpolation(.high)
-                .antialiased(true)
-                .scaledToFit()
-                .frame(width: isProminent ? 220 : 180, height: isProminent ? 96 : 72)
-                .opacity(isFailed ? 0.45 : 1)
-                .saturation(isFailed ? 0.2 : 1)
-                .colorMultiply(anvilTint)
-                .shadow(
-                    color: showForgeEffects
-                        ? (Color(hex: "#ED8936")?.opacity(0.35) ?? .orange.opacity(0.35))
-                        : .clear,
-                    radius: showForgeEffects ? 12 : 0,
-                    y: showForgeEffects ? 4 : 0
-                )
-                .animation(.easeInOut(duration: 0.35), value: isProminent)
-
-            if showForgeEffects {
-                HammerStrikeView()
-                    .offset(x: isProminent ? 70 : 58, y: -32)
+        Image("Anvil")
+            .resizable()
+            .renderingMode(.original)
+            .interpolation(.high)
+            .antialiased(true)
+            .scaledToFit()
+            .frame(width: isProminent ? 220 : 180, height: isProminent ? 96 : 72)
+            .opacity(isFailed ? 0.45 : 1)
+            .saturation(isFailed ? 0.2 : 1)
+            .colorMultiply(anvilTint)
+            .shadow(
+                color: showForgeEffects
+                    ? (Color(hex: "#ED8936")?.opacity(0.35) ?? .orange.opacity(0.35))
+                    : .clear,
+                radius: showForgeEffects ? 12 : 0,
+                y: showForgeEffects ? 4 : 0
+            )
+            .animation(.easeInOut(duration: 0.35), value: isProminent)
+            .overlay(alignment: .top) {
+                if showForgeEffects {
+                    HammerStrikeView()
+                        .offset(x: isProminent ? 58 : 50, y: isProminent ? -18 : -16)
+                }
             }
-        }
-        .background(Color.clear)
     }
 
     private var anvilTint: Color {

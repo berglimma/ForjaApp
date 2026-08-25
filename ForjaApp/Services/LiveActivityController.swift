@@ -14,11 +14,12 @@ final class LiveActivityController {
 
     private init() {}
 
-    func start(totalSeconds: Int, displayName: String, avatarEmoji: String) {
+    func start(totalSeconds: Int, displayName: String, avatarEmoji: String, sessionTitle: String = "Forja em andamento") {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+
         end()
 
-        let attributes = ForgeActivityAttributes(sessionTitle: "Forja em andamento")
+        let attributes = ForgeActivityAttributes(sessionTitle: sessionTitle)
         let state = ForgeActivityAttributes.ContentState(
             remainingSeconds: totalSeconds,
             totalSeconds: totalSeconds,

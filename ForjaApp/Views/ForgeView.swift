@@ -10,6 +10,7 @@ struct ForgeView: View {
     @EnvironmentObject private var inventory: InventoryManager
     @StateObject private var viewModel = ForgeViewModel()
     @Environment(\.scenePhase) private var scenePhase
+    @State private var showAvatarPicker = false
 
     private var isSetupState: Bool {
         viewModel.sessionState == .idle || viewModel.sessionState == .ready
@@ -22,6 +23,9 @@ struct ForgeView: View {
                     isActive: viewModel.sessionState == .forging,
                     isFailed: isFailedState
                 )
+                MedievalBackdropView(torchlit: viewModel.sessionState == .forging)
+                    .opacity(0.55)
+                    .allowsHitTesting(false)
 
                 VStack(spacing: 0) {
                     headerBar
@@ -39,6 +43,7 @@ struct ForgeView: View {
                     ResultOverlayView(
                         state: viewModel.sessionState,
                         barsEarned: viewModel.barsEarnedOnSuccess,
+                        avatar: inventory.progress.selectedAvatar,
                         onDismiss: { viewModel.dismissResult() }
                     )
                     .transition(.opacity.combined(with: .scale(scale: 0.92)))
@@ -48,9 +53,16 @@ struct ForgeView: View {
             .navigationBarHidden(true)
             .onAppear {
                 viewModel.configure(inventoryManager: inventory)
+                viewModel.alignDurationToChallenge()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 viewModel.handleScenePhase(newPhase)
+            }
+            .sheet(isPresented: $showAvatarPicker) {
+                AvatarPickerSheet(selectedID: inventory.progress.selectedAvatarID) { avatar in
+                    inventory.selectAvatar(avatar)
+                    showAvatarPicker = false
+                }
             }
         }
     }
@@ -72,6 +84,7 @@ struct ForgeView: View {
                     selectedMinutes: $viewModel.selectedMinutes,
                     selectedSeconds: $viewModel.selectedSeconds,
                     estimatedBars: viewModel.estimatedRewardBars,
+                    lifetimeBars: inventory.progress.lifetimeBars,
                     matchesPreset: viewModel.matchesPreset,
                     onSelectPreset: viewModel.applyPreset,
                     isDisabled: false
@@ -130,7 +143,19 @@ struct ForgeView: View {
     }
 
     private var headerBar: some View {
-        HStack {
+        HStack(spacing: 12) {
+            Button { showAvatarPicker = true } label: {
+                Text(inventory.progress.selectedAvatar.emoji)
+                    .font(.system(size: 34))
+                    .frame(width: 52, height: 52)
+                    .background(Color.white.opacity(0.08), in: Circle())
+                    .overlay {
+                        Circle().stroke(Color(hex: inventory.progress.selectedAvatar.accentHex) ?? .orange, lineWidth: 2)
+                    }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Trocar avatar")
+
             VStack(alignment: .leading, spacing: 4) {
                 Text("FORJA")
                     .font(.system(size: 28, weight: .black, design: .rounded))
@@ -141,9 +166,17 @@ struct ForgeView: View {
                             endPoint: .trailing
                         )
                     )
-                Text("Mantenha o foco. Forje minério.")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.65))
+                Text(
+                    viewModel.sessionState == .forging
+                        ? MedievalFocusCopy.forgingLine(avatar: inventory.progress.selectedAvatar)
+                        : MedievalFocusCopy.forgeIdleSubtitle(
+                            avatar: inventory.progress.selectedAvatar,
+                            challengeName: OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars).name
+                        )
+                )
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.65))
+                .lineLimit(2)
             }
 
             Spacer()
@@ -220,25 +253,32 @@ struct ForgeView: View {
     @ViewBuilder
     private var setupControlButton: some View {
         Button {
-            if viewModel.sessionState == .idle {
-                viewModel.prepareSession()
-            }
-            viewModel.igniteForge()
+            viewModel.startForge()
         } label: {
             Label("Ligar o Forno", systemImage: "flame.fill")
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
+                .contentShape(Rectangle())
         }
         .buttonStyle(ForgePrimaryButtonStyle())
         .disabled(!viewModel.canStartForge)
-
-        if let blocked = viewModel.sessionBlockedMessage {
-            Text(blocked)
-                .font(.caption)
-                .foregroundStyle(.red.opacity(0.9))
-                .multilineTextAlignment(.center)
+        .alert("Fornalha em pausa", isPresented: blockedAlertBinding) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel.sessionBlockedMessage ?? "")
         }
+    }
+
+    private var blockedAlertBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.sessionBlockedMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    viewModel.sessionBlockedMessage = nil
+                }
+            }
+        )
     }
 }
 

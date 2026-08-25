@@ -124,6 +124,12 @@ final class InventoryManager: ObservableObject {
     func selectAvatar(_ avatar: MedievalAvatar) {
         progress.selectedAvatarID = avatar.id
         persist()
+        NotificationScheduler.reschedule(for: progress)
+    }
+
+    func setUsesAvatarAsProfilePhoto(_ enabled: Bool) {
+        progress.usesAvatarAsProfilePhoto = enabled
+        persist()
     }
 
     func updateGraceSeconds(_ seconds: Int) {

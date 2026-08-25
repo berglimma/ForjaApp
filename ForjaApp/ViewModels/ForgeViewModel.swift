@@ -51,7 +51,11 @@ final class ForgeViewModel: ObservableObject {
     }
 
     var estimatedRewardBars: Int {
-        ForgeDurationOption.rewardBars(for: totalDurationSeconds)
+        OreChallengeLadder.adjustedReward(
+            base: ForgeDurationOption.rewardBars(for: totalDurationSeconds),
+            durationSeconds: totalDurationSeconds,
+            lifetimeBars: inventoryManager?.progress.lifetimeBars ?? 0
+        )
     }
 
     var remainingGraceSeconds: Int {
@@ -67,6 +71,14 @@ final class ForgeViewModel: ObservableObject {
         selectedMinutes == preset.minutes && selectedSeconds == preset.seconds
     }
 
+    func alignDurationToChallenge() {
+        let minMinutes = OreChallengeLadder.active(lifetimeBars: inventoryManager?.progress.lifetimeBars ?? 0).minFocusMinutes
+        if selectedMinutes < minMinutes {
+            selectedMinutes = minMinutes
+            selectedSeconds = 0
+        }
+    }
+
     func configure(inventoryManager: InventoryManager) {
         self.inventoryManager = inventoryManager
     }
@@ -79,7 +91,11 @@ final class ForgeViewModel: ObservableObject {
         focusMonitor.reset()
     }
 
-    func igniteForge() {
+    func startForge() {
+        if inventoryManager == nil {
+            inventoryManager = InventoryManager.shared
+        }
+
         guard sessionState == .ready || sessionState == .idle else { return }
         guard canStartForge else { return }
 
@@ -90,23 +106,39 @@ final class ForgeViewModel: ObservableObject {
             return
         }
 
+        let challenge = OreChallengeLadder.active(lifetimeBars: progress.lifetimeBars)
+        if totalDurationSeconds < challenge.minFocusMinutes * 60 {
+            sessionBlockedMessage = MedievalFocusCopy.blockedTooShort(
+                challengeName: challenge.name,
+                minutes: challenge.minFocusMinutes
+            )
+            return
+        }
+
         timerService.configure(totalSeconds: totalDurationSeconds)
         sessionStartedTotalSeconds = totalDurationSeconds
         sessionState = .forging
         showResultOverlay = false
         sessionBlockedMessage = nil
-        focusMonitor.graceSeconds = progress.isHardcoreEnabled ? 0 : progress.graceSeconds
+        let challengeGrace = min(progress.graceSeconds, challenge.graceCap)
+        focusMonitor.graceSeconds = progress.isHardcoreEnabled ? 0 : challengeGrace
         focusMonitor.startMonitoring()
         UIApplication.shared.isIdleTimerDisabled = true
 
         let displayName = progress.displayName
-        let avatar = progress.selectedAvatar.emoji
-        LiveActivityController.shared.start(
-            totalSeconds: totalDurationSeconds,
-            displayName: displayName,
-            avatarEmoji: avatar
-        )
+        let avatar = progress.selectedAvatar
+        let totalSeconds = totalDurationSeconds
 
+        Task { @MainActor in
+            LiveActivityController.shared.start(
+                totalSeconds: totalSeconds,
+                displayName: displayName,
+                avatarEmoji: avatar.emoji,
+                sessionTitle: MedievalFocusCopy.liveActivityTitle(avatar: avatar)
+            )
+        }
+
+        focusCancellable?.cancel()
         focusCancellable = focusMonitor.$didLoseFocus
             .dropFirst()
             .filter { $0 }
@@ -114,20 +146,26 @@ final class ForgeViewModel: ObservableObject {
                 self?.handleFocusLost()
             }
 
+        timerTickCancellable?.cancel()
         timerTickCancellable = timerService.$remainingSeconds
+            .dropFirst()
             .sink { [weak self] remaining in
                 guard let self, self.sessionState == .forging else { return }
                 LiveActivityController.shared.update(
                     remainingSeconds: remaining,
                     totalSeconds: self.sessionStartedTotalSeconds,
                     displayName: displayName,
-                    avatarEmoji: avatar
+                    avatarEmoji: avatar.emoji
                 )
             }
 
         timerService.start { [weak self] in
             self?.handleForgeComplete()
         }
+    }
+
+    func igniteForge() {
+        startForge()
     }
 
     func cancelForge() {

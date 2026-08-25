@@ -24,11 +24,11 @@ struct FocusModeSettingsView: View {
             .pickerStyle(.segmented)
 
             if inventory.progress.isHardcoreEnabled {
-                Text("Zero segundos de graça. Sair do app apaga o fogo na hora. Distintivo de ferreiro implacável.")
+                Text("Zero segundos de graça. Sair do reino apaga o fogo na hora. Distintivo de ferreiro implacável.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                Text("Segundos de graça antes da sessão falhar: \(inventory.progress.graceSeconds)s")
+                Text("Segundos de graça antes da sessão falhar: \(inventory.progress.graceSeconds)s. Depois disso, o pântano cobre a brasa.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
@@ -71,6 +71,23 @@ struct FocusModeSettingsView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
+
+            Toggle("Arautos do reino", isOn: Binding(
+                get: { inventory.progress.notificationsEnabled },
+                set: { enabled in
+                    Task {
+                        if enabled {
+                            let granted = await NotificationScheduler.requestPermission()
+                            inventory.setNotificationsEnabled(granted)
+                        } else {
+                            inventory.setNotificationsEnabled(false)
+                        }
+                    }
+                }
+            ))
+            Text("\(inventory.progress.selectedAvatar.name) recebe chamados na alvorada, na estrada de areia, no pântano e quando a fornalha esfria.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
         }
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))

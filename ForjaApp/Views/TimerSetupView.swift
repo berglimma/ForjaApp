@@ -10,6 +10,7 @@ struct TimerSetupView: View {
     @Binding var selectedMinutes: Int
     @Binding var selectedSeconds: Int
     let estimatedBars: Int
+    let lifetimeBars: Int
     let matchesPreset: (ForgeDurationOption) -> Bool
     let onSelectPreset: (ForgeDurationOption) -> Void
     let isDisabled: Bool
@@ -19,8 +20,14 @@ struct TimerSetupView: View {
         GridItem(.flexible(), spacing: 10)
     ]
 
+    private var challenge: OreChallenge {
+        OreChallengeLadder.active(lifetimeBars: lifetimeBars)
+    }
+
     var body: some View {
         VStack(spacing: 14) {
+            challengeBanner
+
             VStack(spacing: 6) {
                 Text("Tempo de foco")
                     .font(.subheadline.weight(.medium))
@@ -47,7 +54,7 @@ struct TimerSetupView: View {
                             Text(option.label)
                                 .font(.subheadline.bold())
                                 .monospacedDigit()
-                            Text("+\(option.rewardBars) 🧱")
+                            Text("+\(reward(for: option)) 🧱")
                                 .font(.caption2)
                                 .opacity(0.8)
                         }
@@ -72,7 +79,8 @@ struct TimerSetupView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .disabled(isDisabled)
+                    .disabled(isDisabled || option.minutes < challenge.minFocusMinutes)
+                    .opacity(option.minutes < challenge.minFocusMinutes ? 0.4 : 1)
                 }
             }
 
@@ -99,6 +107,38 @@ struct TimerSetupView: View {
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .disabled(isDisabled)
         }
+    }
+
+    private var challengeBanner: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("\(challenge.creatureEmoji) \(challenge.name)")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
+                Spacer()
+                Text("\(lifetimeBars)/100.000")
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.7))
+            }
+            ProgressView(
+                value: Double(min(lifetimeBars, OreChallengeLadder.cap)),
+                total: Double(OreChallengeLadder.cap)
+            )
+            .tint(Color(hex: "#C4A574") ?? .yellow)
+            Text("Mínimo \(challenge.minFocusMinutes) min · recomendado \(challenge.recommendedMinutes) min · graça \(challenge.graceCap)s")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.65))
+        }
+        .padding(10)
+        .background(Color.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func reward(for option: ForgeDurationOption) -> Int {
+        OreChallengeLadder.adjustedReward(
+            base: option.rewardBars,
+            durationSeconds: option.totalSeconds,
+            lifetimeBars: lifetimeBars
+        )
     }
 
     private var formattedDuration: String {
@@ -129,6 +169,7 @@ struct TimerSetupView: View {
         selectedMinutes: .constant(25),
         selectedSeconds: .constant(30),
         estimatedBars: 2,
+        lifetimeBars: 0,
         matchesPreset: { _ in false },
         onSelectPreset: { _ in },
         isDisabled: false

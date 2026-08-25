@@ -193,6 +193,7 @@ final class FirebaseManager: ObservableObject {
             "onboardingCompleted": progress.onboardingCompleted,
             "hasUnlockedHardcore": progress.hasUnlockedHardcore,
             "notificationsEnabled": progress.notificationsEnabled,
+            "usesAvatarAsProfilePhoto": progress.usesAvatarAsProfilePhoto,
             "ownedCollectibles": progress.ownedCollectibles.map {
                 [
                     "id": $0.id,
@@ -325,7 +326,8 @@ final class FirebaseManager: ObservableObject {
             onboardingCompleted: data["onboardingCompleted"] as? Bool ?? false,
             trialStartedAt: trialStartedAt,
             hasUnlockedHardcore: data["hasUnlockedHardcore"] as? Bool ?? false,
-            notificationsEnabled: data["notificationsEnabled"] as? Bool ?? false
+            notificationsEnabled: data["notificationsEnabled"] as? Bool ?? false,
+            usesAvatarAsProfilePhoto: data["usesAvatarAsProfilePhoto"] as? Bool ?? false
         )
     }
 
@@ -391,7 +393,8 @@ final class FirebaseManager: ObservableObject {
             onboardingCompleted: local.onboardingCompleted || remote.onboardingCompleted,
             trialStartedAt: [local.trialStartedAt, remote.trialStartedAt].compactMap { $0 }.min(),
             hasUnlockedHardcore: local.hasUnlockedHardcore || remote.hasUnlockedHardcore,
-            notificationsEnabled: local.notificationsEnabled || remote.notificationsEnabled
+            notificationsEnabled: local.notificationsEnabled || remote.notificationsEnabled,
+            usesAvatarAsProfilePhoto: local.usesAvatarAsProfilePhoto
         )
         merged.rollPeriodsIfNeeded()
         return merged

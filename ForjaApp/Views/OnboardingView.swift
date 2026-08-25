@@ -12,15 +12,7 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [
-                    Color(hex: "#0D1117") ?? .black,
-                    Color(hex: "#2D2416") ?? .brown
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            MedievalBackdropView()
 
             VStack(spacing: 24) {
                 TabView(selection: $page) {
@@ -141,6 +133,7 @@ struct OnboardingView: View {
 
             Button {
                 inventory.selectAvatar(MedievalAvatar.avatar(for: selectedAvatarID))
+                inventory.setUsesAvatarAsProfilePhoto(true)
                 inventory.startTrialIfNeeded()
             } label: {
                 Text("Começar trial grátis")
@@ -152,6 +145,7 @@ struct OnboardingView: View {
 
             Button("Continuar no modo livre") {
                 inventory.selectAvatar(MedievalAvatar.avatar(for: selectedAvatarID))
+                inventory.setUsesAvatarAsProfilePhoto(true)
                 inventory.completeOnboarding()
             }
             .font(.subheadline)

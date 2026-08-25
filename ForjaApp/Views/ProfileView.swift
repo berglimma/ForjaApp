@@ -11,12 +11,15 @@ struct ProfileView: View {
     @EnvironmentObject private var firebase: FirebaseManager
     @StateObject private var viewModel = ProfileViewModel()
     @StateObject private var entitlements = EntitlementStore.shared
+    @State private var shareImage: IdentifiableImage?
+    @State private var showAvatarPicker = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     accountSection
+                    socialShareCard
                     subscriptionBanner
                     FocusModeSettingsView()
                     statsSection
@@ -32,7 +35,9 @@ struct ProfileView: View {
                 }
                 .padding()
             }
-            .background((Color(hex: "#0D1117") ?? .black).ignoresSafeArea())
+            .background {
+                MedievalBackdropView()
+            }
             .navigationTitle("Perfil")
             .refreshable {
                 await viewModel.refreshLeaderboard()
@@ -41,6 +46,62 @@ struct ProfileView: View {
             .sheet(isPresented: $viewModel.showAuthForm) {
                 authSheet
             }
+            .sheet(item: $shareImage) { wrapper in
+                ShareSheet(items: [wrapper.image])
+            }
+            .sheet(isPresented: $showAvatarPicker) {
+                AvatarPickerSheet(selectedID: inventory.progress.selectedAvatarID) { avatar in
+                    inventory.selectAvatar(avatar)
+                    showAvatarPicker = false
+                }
+            }
+        }
+    }
+
+    private var socialShareCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Card para redes")
+                .font(.headline)
+            Text("Gera um pergaminho do ferreiro para postar no Instagram, WhatsApp ou Stories.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ProfileSocialPreview(
+                displayName: inventory.progress.displayName,
+                avatarEmoji: inventory.progress.selectedAvatar.emoji,
+                photo: inventory.progress.usesAvatarAsProfilePhoto ? nil : viewModel.profileImage,
+                lifetimeBars: inventory.progress.lifetimeBars,
+                streak: inventory.progress.currentStreak,
+                focusText: UserProgress.formatDuration(seconds: inventory.progress.totalFocusSeconds)
+            )
+            .frame(height: 220)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+
+            Button {
+                shareProfileCard()
+            } label: {
+                Label("Gerar e compartilhar", systemImage: "square.and.arrow.up")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+            }
+            .buttonStyle(ForgePrimaryButtonStyle())
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private func shareProfileCard() {
+        if let image = AchievementShareRenderer.renderProfileCard(
+            displayName: inventory.progress.displayName,
+            avatarEmoji: inventory.progress.selectedAvatar.emoji,
+            photo: inventory.progress.usesAvatarAsProfilePhoto ? nil : viewModel.profileImage,
+            lifetimeBars: inventory.progress.lifetimeBars,
+            currentStreak: inventory.progress.currentStreak,
+            focusSeconds: inventory.progress.totalFocusSeconds,
+            challengeName: OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars).name
+        ) {
+            shareImage = IdentifiableImage(image: image)
         }
     }
 
@@ -97,8 +158,13 @@ struct ProfileView: View {
                 ProfileAvatarView(
                     image: viewModel.profileImage,
                     placeholderSystemName: accountIconName,
+                    avatarEmoji: inventory.progress.selectedAvatar.emoji,
+                    usesAvatar: inventory.progress.usesAvatarAsProfilePhoto,
                     onImageDataSelected: { data in
                         viewModel.updateProfilePhoto(data: data)
+                    },
+                    onUseAvatar: {
+                        viewModel.useAvatarAsProfilePhoto()
                     },
                     onRemove: {
                         viewModel.removeProfilePhoto()
@@ -109,6 +175,20 @@ struct ProfileView: View {
                     Text(inventory.progress.displayName)
                         .font(.subheadline.bold())
                         .lineLimit(2)
+
+                    Button {
+                        showAvatarPicker = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(inventory.progress.selectedAvatar.emoji)
+                            Text(inventory.progress.selectedAvatar.name)
+                                .font(.caption.bold())
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .foregroundStyle(Color(hex: inventory.progress.selectedAvatar.accentHex) ?? .orange)
+                    }
+                    .buttonStyle(.plain)
 
                     if viewModel.isLoggedInWithAccount {
                         if let email = viewModel.currentUser?.email {

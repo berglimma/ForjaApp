@@ -6,18 +6,25 @@
 
 import PhotosUI
 import SwiftUI
+import UIKit
 
 struct ProfileAvatarView: View {
     let image: UIImage?
     let placeholderSystemName: String
+    let avatarEmoji: String
+    let usesAvatar: Bool
     let onImageDataSelected: (Data) -> Void
+    let onUseAvatar: () -> Void
     let onRemove: () -> Void
 
     @State private var selectedItem: PhotosPickerItem?
+    @State private var showSourceDialog = false
+    @State private var showCamera = false
+    @State private var showPhotosPicker = false
 
     var body: some View {
         VStack(spacing: 6) {
-            PhotosPicker(selection: $selectedItem, matching: .images) {
+            Button { showSourceDialog = true } label: {
                 ZStack(alignment: .bottomTrailing) {
                     avatarContent
 
@@ -32,17 +39,22 @@ struct ProfileAvatarView: View {
             }
             .buttonStyle(.plain)
 
-            if image != nil {
-                Button("Remover foto", role: .destructive) {
-                    onRemove()
-                }
+            Text(usesAvatar ? "Avatar medieval" : (image == nil ? "Adicionar foto" : "Foto da galeria"))
                 .font(.caption2)
-            } else {
-                Text("Adicionar foto")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+                .foregroundStyle(.secondary)
         }
+        .confirmationDialog("Foto de perfil", isPresented: $showSourceDialog, titleVisibility: .visible) {
+            Button("Usar avatar medieval") { onUseAvatar() }
+            Button("Escolher da galeria") { showPhotosPicker = true }
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                Button("Tirar foto") { showCamera = true }
+            }
+            if image != nil && !usesAvatar {
+                Button("Remover foto", role: .destructive) { onRemove() }
+            }
+            Button("Cancelar", role: .cancel) {}
+        }
+        .photosPicker(isPresented: $showPhotosPicker, selection: $selectedItem, matching: .images)
         .onChange(of: selectedItem) { _, newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self) {
@@ -51,12 +63,25 @@ struct ProfileAvatarView: View {
                 selectedItem = nil
             }
         }
+        .sheet(isPresented: $showCamera) {
+            CameraPicker { image in
+                if let data = image.jpegData(compressionQuality: 0.85) {
+                    onImageDataSelected(data)
+                }
+            }
+            .ignoresSafeArea()
+        }
     }
 
     @ViewBuilder
     private var avatarContent: some View {
         Group {
-            if let image {
+            if usesAvatar {
+                Text(avatarEmoji)
+                    .font(.system(size: 34))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.white.opacity(0.08))
+            } else if let image {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
@@ -77,11 +102,56 @@ struct ProfileAvatarView: View {
     }
 }
 
+struct CameraPicker: UIViewControllerRepresentable {
+    let onImage: (UIImage) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: CameraPicker
+
+        init(parent: CameraPicker) {
+            self.parent = parent
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
+        }
+
+        func imagePickerController(
+            _ picker: UIImagePickerController,
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+        ) {
+            let image = (info[.editedImage] as? UIImage) ?? (info[.originalImage] as? UIImage)
+            if let image {
+                parent.onImage(image)
+            }
+            parent.dismiss()
+        }
+    }
+}
+
 #Preview {
     ProfileAvatarView(
         image: nil,
         placeholderSystemName: "person.crop.circle.fill",
+        avatarEmoji: "⚒️",
+        usesAvatar: true,
         onImageDataSelected: { _ in },
+        onUseAvatar: {},
         onRemove: {}
     )
     .padding()

@@ -37,6 +37,7 @@ struct ShopView: View {
 
                     switch selectedTab {
                     case .oficina:
+                        challengeBoard
                         oficinaSection
                     case .tesouro:
                         tesouroSection
@@ -46,7 +47,9 @@ struct ShopView: View {
                 }
                 .padding()
             }
-            .background((Color(hex: theme.backgroundHex) ?? .black).ignoresSafeArea())
+            .background {
+                MedievalBackdropView()
+            }
             .navigationTitle("Loja do Ferreiro")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -113,7 +116,10 @@ struct ShopView: View {
 
     private var oficinaSection: some View {
         VStack(spacing: 12) {
-            ForEach(ShopCatalog.items) { item in
+            ForEach(ShopCatalog.oficinaItems(
+                lifetimeBars: inventory.progress.lifetimeBars,
+                ownedIDs: Set(inventory.progress.ownedCollectibles.map(\.itemID))
+            )) { item in
                 ShopItemRow(
                     item: item,
                     ownedCount: inventory.progress.ownedCount(for: item.id),
@@ -125,6 +131,39 @@ struct ShopView: View {
                 )
             }
         }
+    }
+
+    private var challengeBoard: some View {
+        let challenge = OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars)
+        let nextGate = OreChallengeLadder.nextOreGate(lifetimeBars: inventory.progress.lifetimeBars)
+        return VStack(alignment: .leading, spacing: 10) {
+            Text("Trilha dos 100 mil")
+                .font(.headline)
+            HStack {
+                Text("\(challenge.creatureEmoji) \(challenge.name)")
+                    .font(.subheadline.bold())
+                Spacer()
+                Text("Marco \(challenge.oreGate)")
+                    .font(.caption)
+                    .foregroundStyle(Color(hex: "#C4A574") ?? .yellow)
+            }
+            Text(challenge.lore)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            ProgressView(
+                value: Double(min(inventory.progress.lifetimeBars, OreChallengeLadder.cap)),
+                total: Double(OreChallengeLadder.cap)
+            )
+            .tint(Color(hex: "#C05621") ?? .orange)
+            Text("\(inventory.progress.lifetimeBars) / 100.000 minérios no ofício · próximo marco \(nextGate)")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Text("A cada 100 minérios o reino cobra forjas mais longas, menos graça e menos minério por sessão.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
     private var tesouroSection: some View {

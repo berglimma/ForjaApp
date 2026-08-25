@@ -37,7 +37,9 @@ struct TrailMapView: View {
                 }
                 .padding()
             }
-            .background((Color(hex: "#0D1117") ?? .black).ignoresSafeArea())
+            .background {
+                MedievalBackdropView()
+            }
             .navigationTitle("Trilha")
             .sheet(isPresented: $showAvatarPicker) {
                 AvatarPickerSheet(selectedID: inventory.progress.selectedAvatarID) { avatar in
