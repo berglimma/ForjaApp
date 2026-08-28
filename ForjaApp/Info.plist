@@ -20,6 +20,8 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
@@ -39,7 +41,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.190869005799-d09hql95akaflbovhk1pis86r87f0os5</string>
+				<string>com.googleusercontent.apps.190869005799-dh2h6svsn11n7jkevtlst9amjkahr4i6</string>
 			</array>
 		</dict>
 	</array>

@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>190869005799-d09hql95akaflbovhk1pis86r87f0os5.apps.googleusercontent.com</string>
+	<string>190869005799-dh2h6svsn11n7jkevtlst9amjkahr4i6.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.190869005799-d09hql95akaflbovhk1pis86r87f0os5</string>
+	<string>com.googleusercontent.apps.190869005799-dh2h6svsn11n7jkevtlst9amjkahr4i6</string>
 	<key>API_KEY</key>
 	<string>AIzaSyC1ziEnqZAtTBrQmgaIgoIzyTIYFeXbl2s</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.forja.app</string>
+	<string>com.lindenbergbrito.forja</string>
 	<key>PROJECT_ID</key>
 	<string>applist-62e94</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:190869005799:ios:9f6d5221953f58fb784942</string>
+	<string>1:190869005799:ios:fd67dfc8234de81d784942</string>
 </dict>
 </plist>

@@ -5,6 +5,7 @@
 //  Created by Berg Limma on 20/06/26.
 
 import SwiftUI
+import AuthenticationServices
 
 struct ProfileView: View {
     @EnvironmentObject private var inventory: InventoryManager
@@ -15,6 +16,7 @@ struct ProfileView: View {
     @State private var shareFile: IdentifiableURL?
     @State private var shareError: String?
     @State private var showAvatarPicker = false
+    @State private var showDeleteAccount = false
 
     var body: some View {
         NavigationStack {
@@ -61,6 +63,18 @@ struct ProfileView: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(shareError ?? "")
+            }
+            .confirmationDialog(
+                "Excluir conta?",
+                isPresented: $showDeleteAccount,
+                titleVisibility: .visible
+            ) {
+                Button("Excluir conta e dados", role: .destructive) {
+                    Task { await viewModel.deleteAccount() }
+                }
+                Button("Cancelar", role: .cancel) {}
+            } message: {
+                Text("Apaga o login, o ranking na nuvem e o progresso salvo nesta conta. Não dá para desfazer. Compras da App Store continuam na sua conta Apple — use Restaurar compras se entrar de novo.")
             }
             .sheet(isPresented: $showAvatarPicker) {
                 AvatarPickerSheet(selectedID: inventory.progress.selectedAvatarID) { avatar in
@@ -289,7 +303,26 @@ struct ProfileView: View {
                 }
             }
 
+            if viewModel.isLoggedInWithAccount {
+                Button("Excluir conta") {
+                    showDeleteAccount = true
+                }
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.red.opacity(0.9))
+                .disabled(viewModel.isLoading)
+            }
+
             if !viewModel.isLoggedInWithAccount {
+                SignInWithAppleButton(.signIn) { request in
+                    AppleSignInService.prepare(request)
+                } onCompletion: { result in
+                    Task { await viewModel.signInWithApple(result) }
+                }
+                .signInWithAppleButtonStyle(.white)
+                .frame(height: 44)
+                .disabled(viewModel.isLoading)
+                .accessibilityLabel("Entrar com Apple")
+
                 Button {
                     Task { await viewModel.signInWithGoogle() }
                 } label: {
@@ -343,6 +376,7 @@ struct ProfileView: View {
     private var accountIconName: String {
         switch viewModel.currentUser?.provider {
         case .google: return "g.circle.fill"
+        case .apple: return "apple.logo"
         case .email: return "envelope.circle.fill"
         default: return "person.crop.circle.fill"
         }
@@ -351,6 +385,7 @@ struct ProfileView: View {
     private var accountProviderLabel: String {
         switch viewModel.currentUser?.provider {
         case .google: return "Conectado via Google"
+        case .apple: return "Conectado com Apple"
         case .email: return "Conectado via e-mail"
         default: return "Conta ativa"
         }
@@ -592,12 +627,8 @@ struct SubscriptionBanner: View {
                         Text("Assinatura ativa")
                             .font(.caption)
                             .foregroundStyle(.green)
-                    } else if entitlements.isTrialActive {
-                        Text("Trial · \(entitlements.trialDaysRemaining) dia(s)")
-                            .font(.caption)
-                            .foregroundStyle(Color(hex: "#F6E05E") ?? .yellow)
                     } else {
-                        Text("\(StoreProductID.monthlyListPriceBRL)/mês · \(StoreProductID.yearlyListPriceBRL)/ano")
+                        Text("\(StoreProductID.monthlyListPriceBRL)/mês · \(StoreProductID.yearlyListPriceBRL)/ano · \(EntitlementLimits.trialDurationDays) dias grátis na App Store")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

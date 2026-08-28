@@ -151,17 +151,16 @@ final class InventoryManager: ObservableObject {
         persist()
     }
 
-    func startTrialIfNeeded() {
-        if progress.trialStartedAt == nil {
-            progress.trialStartedAt = Date()
-        }
+    func completeOnboarding() {
         progress.onboardingCompleted = true
         persist()
     }
 
-    func completeOnboarding() {
+    func clearAccountData() {
+        progress = .empty
         progress.onboardingCompleted = true
         persist()
+        ProfileImageStore.shared.delete()
     }
 
     func setNotificationsEnabled(_ enabled: Bool) {

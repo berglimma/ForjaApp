@@ -53,7 +53,7 @@ enum SocialStoryShare {
             options: [.expirationDate: Date().addingTimeInterval(60 * 5)]
         )
 
-        let appID = Bundle.main.bundleIdentifier ?? "com.forja.app"
+        let appID = Bundle.main.bundleIdentifier ?? "com.lindenbergbrito.forja"
         guard let url = URL(string: "instagram-stories://share?source_application=\(appID)") else {
             throw ShareError.imageFailed
         }

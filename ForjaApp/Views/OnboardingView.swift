@@ -26,7 +26,7 @@ struct OnboardingView: View {
                     Button {
                         withAnimation { page += 1 }
                     } label: {
-                        Text(page == 0 ? "Escolher avatar" : "Ver trial")
+                        Text(page == 0 ? "Escolher avatar" : "Ver assinatura")
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
@@ -113,10 +113,10 @@ struct OnboardingView: View {
 
     private var trialPage: some View {
         VStack(spacing: 18) {
-            Text("7 dias de Mestre Ferreiro")
+            Text("Mestre Ferreiro")
                 .font(.title.bold())
                 .multilineTextAlignment(.center)
-            Text("Skins de bigorna, estatísticas avançadas, temas exclusivos, sessões ilimitadas e backup na nuvem.")
+            Text("Assine pela App Store quando quiser. Os \(EntitlementLimits.trialDurationDays) dias grátis são a oferta introdutória da Apple, na primeira assinatura — não um trial fora da loja.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -131,11 +131,9 @@ struct OnboardingView: View {
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
 
             Button {
-                inventory.selectAvatar(MedievalAvatar.avatar(for: selectedAvatarID))
-                inventory.setUsesAvatarAsProfilePhoto(true)
-                inventory.startTrialIfNeeded()
+                finishOnboarding()
             } label: {
-                Text("Começar trial grátis")
+                Text("Começar")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -143,14 +141,18 @@ struct OnboardingView: View {
             .buttonStyle(ForgePrimaryButtonStyle())
 
             Button("Continuar no modo livre") {
-                inventory.selectAvatar(MedievalAvatar.avatar(for: selectedAvatarID))
-                inventory.setUsesAvatarAsProfilePhoto(true)
-                inventory.completeOnboarding()
+                finishOnboarding()
             }
             .font(.subheadline)
             .foregroundStyle(.secondary)
         }
         .padding(24)
+    }
+
+    private func finishOnboarding() {
+        inventory.selectAvatar(MedievalAvatar.avatar(for: selectedAvatarID))
+        inventory.setUsesAvatarAsProfilePhoto(true)
+        inventory.completeOnboarding()
     }
 
     private func trialRow(_ text: String) -> some View {

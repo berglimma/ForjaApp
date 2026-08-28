@@ -6,7 +6,7 @@
 import Foundation
 
 enum AppGroupID {
-    static let suite = "group.com.forja.app"
+    static let suite = "group.com.lindenbergbrito.forja"
     static let snapshotKey = "forja.widget.snapshot"
 }
 

@@ -113,6 +113,37 @@ final class FirebaseManager: ObservableObject {
         #endif
     }
 
+    func deleteAccount() async throws {
+        #if canImport(FirebaseAuth)
+        guard isConfigured else { throw AuthFlowError.firebaseNotConfigured }
+        guard let user = Auth.auth().currentUser, !user.isAnonymous else {
+            throw AuthFlowError.notLoggedIn
+        }
+
+        let uid = user.uid
+        #if canImport(FirebaseFirestore)
+        try await Firestore.firestore().collection("users").document(uid).delete()
+        #endif
+
+        GoogleSignInService.signOutIfNeeded()
+        do {
+            try await user.delete()
+        } catch {
+            let nsError = error as NSError
+            if nsError.domain == AuthErrorDomain, nsError.code == AuthErrorCode.requiresRecentLogin.rawValue {
+                throw AuthFlowError.requiresRecentLogin
+            }
+            throw error
+        }
+
+        InventoryManager.shared.clearAccountData()
+        _ = try await Auth.auth().signInAnonymously()
+        updateCurrentUser(from: Auth.auth().currentUser)
+        #else
+        throw AuthFlowError.firebaseNotConfigured
+        #endif
+    }
+
     func syncProgressAfterAuth() async {
         let progress = InventoryManager.shared.progress
         await syncProgress(progress)
@@ -262,6 +293,9 @@ final class FirebaseManager: ObservableObject {
         if user.providerData.contains(where: { $0.providerID == "google.com" }) {
             return .google
         }
+        if user.providerData.contains(where: { $0.providerID == "apple.com" }) {
+            return .apple
+        }
         return .email
     }
     #endif
@@ -406,6 +440,10 @@ enum AuthFlowError: LocalizedError {
     case invalidInput
     case googlePresentationFailed
     case googleTokenMissing
+    case appleTokenMissing
+    case canceled
+    case requiresRecentLogin
+    case notLoggedIn
 
     var errorDescription: String? {
         switch self {
@@ -417,6 +455,14 @@ enum AuthFlowError: LocalizedError {
             return "Não foi possível abrir a tela de login do Google."
         case .googleTokenMissing:
             return "Não foi possível obter o token do Google."
+        case .appleTokenMissing:
+            return "Não foi possível concluir o login com a Apple."
+        case .canceled:
+            return nil
+        case .requiresRecentLogin:
+            return "Entre de novo na conta e tente excluir em seguida. A Apple exige uma sessão recente."
+        case .notLoggedIn:
+            return "Entre na conta para poder excluí-la."
         }
     }
 }

@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId)
+        || (isSignedIn() && resource.data.totalFocusSeconds is int);
+      allow write: if isOwner(userId);
+
+      match /profiles/{profileId} {
+        allow read, write: if isOwner(userId);
+
+        match /myList/{document=**} {
+          allow read, write: if isOwner(userId);
+        }
+
+        match /watchProgress/{document=**} {
+          allow read, write: if isOwner(userId);
+        }
+      }
+    }
+
+    match /catalog/{document=**} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    match /guilds/{guildId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn();
+    }
+
+    match /challenges/{challengeId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn();
+    }
+  }
+}

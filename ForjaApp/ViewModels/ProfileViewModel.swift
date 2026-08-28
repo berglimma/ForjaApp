@@ -7,6 +7,7 @@
 import Combine
 import Foundation
 import UIKit
+import AuthenticationServices
 
 @MainActor
 final class ProfileViewModel: ObservableObject {
@@ -124,6 +125,22 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
+    func signInWithApple(_ result: Result<ASAuthorization, Error>) async {
+        authMessage = nil
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await AppleSignInService.handle(result)
+            authMessage = "Login com Apple realizado!"
+            await refreshLeaderboard()
+        } catch AuthFlowError.canceled {
+            return
+        } catch {
+            authMessage = error.localizedDescription
+        }
+    }
+
     func signOut() async {
         isLoading = true
         defer { isLoading = false }
@@ -131,6 +148,20 @@ final class ProfileViewModel: ObservableObject {
         do {
             try await firebaseManager.signOut()
             authMessage = "Você saiu da conta."
+        } catch {
+            authMessage = error.localizedDescription
+        }
+    }
+
+    func deleteAccount() async {
+        authMessage = nil
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await firebaseManager.deleteAccount()
+            profileImage = nil
+            authMessage = "Conta e dados associados foram excluídos."
         } catch {
             authMessage = error.localizedDescription
         }

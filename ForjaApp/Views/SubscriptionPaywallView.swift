@@ -20,16 +20,12 @@ struct SubscriptionPaywallView: View {
                         .font(.system(size: 56))
                     Text("Mestre Ferreiro")
                         .font(.largeTitle.bold())
-                    Text("Assinatura Mestre Ferreiro: \(StoreProductID.monthlyListPriceBRL)/mês ou \(StoreProductID.yearlyListPriceBRL)/ano. Trial de 7 dias no onboarding.")
+                    Text("Assinatura auto-renovável: \(StoreProductID.monthlyListPriceBRL)/mês ou \(StoreProductID.yearlyListPriceBRL)/ano. Os \(EntitlementLimits.trialDurationDays) dias grátis são a oferta introdutória da App Store, na primeira assinatura.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
 
-                    if entitlements.isTrialActive {
-                        Text("Trial ativo · \(entitlements.trialDaysRemaining) dia(s) restantes")
-                            .font(.caption.bold())
-                            .foregroundStyle(Color(hex: "#F6E05E") ?? .yellow)
-                    } else if entitlements.isStoreKitSubscribed {
+                    if entitlements.isStoreKitSubscribed {
                         Text("Assinatura ativa")
                             .font(.caption.bold())
                             .foregroundStyle(.green)
@@ -94,6 +90,20 @@ struct SubscriptionPaywallView: View {
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                    Text("O pagamento é cobrado na conta Apple. A assinatura se renova automaticamente, salvo cancelamento até 24 horas antes do fim do período. Gerencie ou cancele em Ajustes → Assinaturas.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    HStack(spacing: 16) {
+                        NavigationLink("Política de privacidade") {
+                            PrivacyPolicyView()
+                        }
+                        Link("Termos de uso", destination: ForjaLegal.appleStandardEULA)
+                    }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
 
                     if let error = store.lastError {
                         Text(error)

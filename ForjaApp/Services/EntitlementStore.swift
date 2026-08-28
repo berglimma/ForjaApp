@@ -23,20 +23,8 @@ final class EntitlementStore: ObservableObject {
         }
     }
 
-    var isTrialActive: Bool {
-        guard let start = InventoryManager.shared.progress.trialStartedAt else { return false }
-        let end = Calendar.current.date(byAdding: .day, value: EntitlementLimits.trialDurationDays, to: start) ?? start
-        return Date() < end
-    }
-
-    var trialDaysRemaining: Int {
-        guard let start = InventoryManager.shared.progress.trialStartedAt else { return 0 }
-        let end = Calendar.current.date(byAdding: .day, value: EntitlementLimits.trialDurationDays, to: start) ?? start
-        return max(0, Calendar.current.dateComponents([.day], from: Date(), to: end).day ?? 0)
-    }
-
     var isPremium: Bool {
-        isStoreKitSubscribed || isTrialActive
+        isStoreKitSubscribed
     }
 
     var canUseUnlimitedSessions: Bool { isPremium }

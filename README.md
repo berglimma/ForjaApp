@@ -61,7 +61,7 @@ Sem configurar o Firebase, o app funciona normalmente com persistência local (`
 ### 1. Projeto e app iOS
 
 1. Crie um projeto em [Firebase Console](https://console.firebase.google.com)
-2. Adicione um app **iOS** com bundle ID `com.forja.app`
+2. Adicione um app **iOS** com bundle ID `com.lindenbergbrito.forja`
 3. Baixe o `GoogleService-Info.plist`
 4. Copie para `ForjaApp/GoogleService-Info.plist`  
    (use `ForjaApp/GoogleService-Info.plist.example` como referência de estrutura)

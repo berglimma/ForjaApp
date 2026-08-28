@@ -17,6 +17,7 @@ struct AuthUserProfile: Equatable {
         case anonymous
         case email
         case google
+        case apple
     }
 }
 
