@@ -129,8 +129,69 @@ final class InventoryManager: ObservableObject {
         NotificationScheduler.reschedule(for: progress)
     }
 
+    func updateAvatarLook(_ look: AvatarLook) {
+        progress.customAvatarLook = look
+        progress.usesCustomAvatar = true
+        persist()
+    }
+
+    func setUsesCustomAvatar(_ enabled: Bool) {
+        progress.usesCustomAvatar = enabled
+        persist()
+    }
+
     func setUsesAvatarAsProfilePhoto(_ enabled: Bool) {
         progress.usesAvatarAsProfilePhoto = enabled
+        persist()
+    }
+
+    func redeemFullAccessVoucher(_ raw: String) async throws {
+        let code = VoucherCatalog.normalize(raw)
+        guard VoucherCatalog.isFullAccess(code) else {
+            throw VoucherRedeemError.invalid
+        }
+        if progress.hasVoucherPremium {
+            throw VoucherRedeemError.alreadyUnlocked
+        }
+
+        do {
+            try await firebaseManager.claimFullAccessVoucher(code)
+        } catch let error as VoucherRedeemError {
+            throw error
+        } catch {
+            let nsError = error as NSError
+            if nsError.domain == "ForjaVoucher" || nsError.localizedDescription == VoucherRedeemError.alreadyUsed.localizedDescription {
+                throw VoucherRedeemError.alreadyUsed
+            }
+            throw error
+        }
+
+        grantFullAccess(from: code)
+        EntitlementStore.shared.refreshVoucherAccess()
+    }
+
+    private func grantFullAccess(from code: String) {
+        progress.hasVoucherPremium = true
+        progress.redeemedVoucherCode = code
+        progress.hasUnlockedHardcore = true
+        progress.gems = max(progress.gems, 300)
+
+        for item in CosmeticCatalog.items {
+            progress.grantCosmetic(item.id)
+            for packID in CosmeticCatalog.ownedIDs(from: item) {
+                progress.grantCosmetic(packID)
+            }
+        }
+
+        let ownedItemIDs = Set(progress.ownedCollectibles.map(\.itemID))
+        let catalogItems = ShopCatalog.items + OreChallengeLadder.milestones.map {
+            OreChallengeLadder.relic(rank: $0.rank)
+        }
+        for item in catalogItems where !ownedItemIDs.contains(item.id) {
+            progress.ownedCollectibles.append(
+                OwnedCollectible(id: UUID().uuidString, itemID: item.id, acquiredAt: Date())
+            )
+        }
         persist()
     }
 

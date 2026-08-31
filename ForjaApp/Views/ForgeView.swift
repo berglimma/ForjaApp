@@ -44,6 +44,8 @@ struct ForgeView: View {
                         state: viewModel.sessionState,
                         barsEarned: viewModel.barsEarnedOnSuccess,
                         avatar: inventory.progress.selectedAvatar,
+                        look: inventory.progress.customAvatarLook,
+                        usesCustomLook: inventory.progress.usesCustomAvatar,
                         countsTowardChallenge: viewModel.countsTowardChallenge,
                         onDismiss: { viewModel.dismissResult() }
                     )
@@ -63,6 +65,7 @@ struct ForgeView: View {
                     inventory.selectAvatar(avatar)
                     showAvatarPicker = false
                 }
+                .environmentObject(inventory)
             }
         }
     }
@@ -145,7 +148,12 @@ struct ForgeView: View {
     private var headerBar: some View {
         HStack(spacing: 12) {
             Button { showAvatarPicker = true } label: {
-                MedievalAvatarFaceView(avatar: inventory.progress.selectedAvatar, size: 52)
+                MedievalAvatarFaceView(
+                    avatar: inventory.progress.selectedAvatar,
+                    size: 52,
+                    look: inventory.progress.customAvatarLook,
+                    usesCustomLook: inventory.progress.usesCustomAvatar
+                )
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Trocar avatar")

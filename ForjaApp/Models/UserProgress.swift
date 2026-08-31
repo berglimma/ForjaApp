@@ -43,6 +43,10 @@ struct UserProgress: Codable, Equatable {
     var hasUnlockedHardcore: Bool
     var notificationsEnabled: Bool
     var usesAvatarAsProfilePhoto: Bool
+    var customAvatarLook: AvatarLook
+    var usesCustomAvatar: Bool
+    var hasVoucherPremium: Bool
+    var redeemedVoucherCode: String?
 
     static let empty = UserProgress(
         forgedBars: 0,
@@ -84,7 +88,11 @@ struct UserProgress: Codable, Equatable {
         trialStartedAt: nil,
         hasUnlockedHardcore: false,
         notificationsEnabled: false,
-        usesAvatarAsProfilePhoto: true
+        usesAvatarAsProfilePhoto: true,
+        customAvatarLook: .default,
+        usesCustomAvatar: false,
+        hasVoucherPremium: false,
+        redeemedVoucherCode: nil
     )
 
     var ore: Int { forgedBars }
@@ -272,7 +280,8 @@ struct UserProgress: Codable, Equatable {
         case selectedAvatarID, equippedAnvilSkinID, equippedFurnaceSkinID, equippedShopThemeID
         case ownedCosmeticIDs, weekdayFocusSeconds, hourlySessionCounts
         case onboardingCompleted, trialStartedAt, hasUnlockedHardcore, notificationsEnabled
-        case usesAvatarAsProfilePhoto
+        case usesAvatarAsProfilePhoto, customAvatarLook, usesCustomAvatar
+        case hasVoucherPremium, redeemedVoucherCode
     }
 
     init(
@@ -311,7 +320,11 @@ struct UserProgress: Codable, Equatable {
         trialStartedAt: Date?,
         hasUnlockedHardcore: Bool,
         notificationsEnabled: Bool,
-        usesAvatarAsProfilePhoto: Bool
+        usesAvatarAsProfilePhoto: Bool,
+        customAvatarLook: AvatarLook = .default,
+        usesCustomAvatar: Bool = false,
+        hasVoucherPremium: Bool = false,
+        redeemedVoucherCode: String? = nil
     ) {
         self.forgedBars = forgedBars
         self.ownedCollectibles = ownedCollectibles
@@ -349,6 +362,10 @@ struct UserProgress: Codable, Equatable {
         self.hasUnlockedHardcore = hasUnlockedHardcore
         self.notificationsEnabled = notificationsEnabled
         self.usesAvatarAsProfilePhoto = usesAvatarAsProfilePhoto
+        self.customAvatarLook = customAvatarLook
+        self.usesCustomAvatar = usesCustomAvatar
+        self.hasVoucherPremium = hasVoucherPremium
+        self.redeemedVoucherCode = redeemedVoucherCode
     }
 
     init(from decoder: Decoder) throws {
@@ -394,6 +411,10 @@ struct UserProgress: Codable, Equatable {
         hasUnlockedHardcore = try container.decodeIfPresent(Bool.self, forKey: .hasUnlockedHardcore) ?? false
         notificationsEnabled = try container.decodeIfPresent(Bool.self, forKey: .notificationsEnabled) ?? false
         usesAvatarAsProfilePhoto = try container.decodeIfPresent(Bool.self, forKey: .usesAvatarAsProfilePhoto) ?? false
+        customAvatarLook = try container.decodeIfPresent(AvatarLook.self, forKey: .customAvatarLook) ?? .default
+        usesCustomAvatar = try container.decodeIfPresent(Bool.self, forKey: .usesCustomAvatar) ?? false
+        hasVoucherPremium = try container.decodeIfPresent(Bool.self, forKey: .hasVoucherPremium) ?? false
+        redeemedVoucherCode = try container.decodeIfPresent(String.self, forKey: .redeemedVoucherCode)
     }
 
     private static func padded(_ values: [Int], count: Int) -> [Int] {

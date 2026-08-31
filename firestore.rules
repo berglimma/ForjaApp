@@ -35,12 +35,21 @@ service cloud.firestore {
 
     match /guilds/{guildId} {
       allow read: if isSignedIn();
-      allow create, update: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
     }
 
     match /challenges/{challengeId} {
       allow read: if isSignedIn();
-      allow create, update: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /vouchers/{code} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.redeemedBy == request.auth.uid;
+      allow update: if isSignedIn()
+        && resource.data.redeemedBy == request.auth.uid
+        && request.resource.data.redeemedBy == request.auth.uid;
     }
   }
 }

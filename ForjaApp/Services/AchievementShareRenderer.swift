@@ -36,7 +36,9 @@ enum AchievementShareRenderer {
         currentStreak: Int,
         focusSeconds: Int,
         challengeName: String,
-        dayOfYear: Int = MedievalYearlyQuotes.dayOfYear()
+        dayOfYear: Int = MedievalYearlyQuotes.dayOfYear(),
+        look: AvatarLook? = nil,
+        usesCustomLook: Bool = false
     ) -> UIImage? {
         let card = ProfileShareCard(
             displayName: displayName,
@@ -47,7 +49,9 @@ enum AchievementShareRenderer {
             currentStreak: currentStreak,
             focusText: UserProgress.formatDuration(seconds: focusSeconds),
             challengeName: challengeName,
-            dayOfYear: dayOfYear
+            dayOfYear: dayOfYear,
+            look: look,
+            usesCustomLook: usesCustomLook
         )
         let renderer = ImageRenderer(content: card)
         renderer.scale = 3
@@ -124,6 +128,8 @@ struct ProfileShareCard: View {
     let focusText: String
     let challengeName: String
     var dayOfYear: Int = MedievalYearlyQuotes.dayOfYear()
+    var look: AvatarLook? = nil
+    var usesCustomLook: Bool = false
 
     var body: some View {
         ZStack {
@@ -242,6 +248,9 @@ struct ProfileShareCard: View {
             Image(uiImage: photo)
                 .resizable()
                 .scaledToFill()
+        } else if usesCustomLook, let look {
+            AssembledAvatarView(look: look, style: .bust)
+                .scaledToFill()
         } else {
             Image(avatarImageName)
                 .resizable()
@@ -254,115 +263,25 @@ struct ProfileShareCard: View {
 struct MedievalShareBackdrop: View {
     var body: some View {
         ZStack {
+            Image("TrailCardCastle")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFill()
+                .frame(width: 1080, height: 1920)
+                .clipped()
+
             LinearGradient(
                 colors: [
-                    Color(hex: "#0B0610") ?? .black,
-                    Color(hex: "#1A1208") ?? .black,
-                    Color(hex: "#3E2723") ?? .brown,
-                    Color(hex: "#140E0A") ?? .black
+                    Color.black.opacity(0.45),
+                    Color.black.opacity(0.22),
+                    Color.black.opacity(0.62)
                 ],
                 startPoint: .top,
                 endPoint: .bottom
             )
-
-            RadialGradient(
-                colors: [Color(hex: "#1A365D")?.opacity(0.35) ?? .blue.opacity(0.3), .clear],
-                center: .top,
-                startRadius: 20,
-                endRadius: 520
-            )
-
-            ForEach(0..<18, id: \.self) { index in
-                Circle()
-                    .fill(Color.white.opacity(index.isMultiple(of: 3) ? 0.35 : 0.16))
-                    .frame(width: index.isMultiple(of: 4) ? 5 : 3)
-                    .offset(
-                        x: CGFloat([-460, -380, -290, -200, -90, 40, 140, 240, 330, 410, 470, -420, -150, 80, 300, -50, 190, -250][index]),
-                        y: CGFloat([-820, -760, -800, -700, -840, -780, -720, -810, -750, -830, -690, -640, -600, -560, -620, -880, -660, -580][index])
-                    )
-            }
-
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [Color(hex: "#FAF089") ?? .yellow, Color(hex: "#D69E2E")?.opacity(0.2) ?? .yellow.opacity(0.2)],
-                        center: .center,
-                        startRadius: 4,
-                        endRadius: 70
-                    )
-                )
-                .frame(width: 90, height: 90)
-                .offset(x: 380, y: -780)
-
-            castleSkyline
-                .offset(y: -420)
-
-            Image("Anvil")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 520)
-                .opacity(0.28)
-                .offset(y: 620)
-
-            HStack {
-                torch
-                Spacer()
-                torch
-            }
-            .padding(.horizontal, 48)
-            .offset(y: 120)
-
-            LinearGradient(
-                colors: [.black.opacity(0.25), .clear, .black.opacity(0.55)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
         }
+        .frame(width: 1080, height: 1920)
         .allowsHitTesting(false)
-    }
-
-    private var castleSkyline: some View {
-        HStack(alignment: .bottom, spacing: 10) {
-            tower(height: 120)
-            tower(height: 200)
-            tower(height: 160)
-            tower(height: 240)
-            tower(height: 150)
-            tower(height: 190)
-        }
-        .foregroundStyle(Color(hex: "#1A1208") ?? .black)
-        .opacity(0.85)
-        .overlay(alignment: .top) {
-            Text("🏰")
-                .font(.system(size: 64))
-                .offset(y: -28)
-        }
-    }
-
-    private func tower(height: CGFloat) -> some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 4) {
-                ForEach(0..<3, id: \.self) { _ in
-                    Rectangle().frame(width: 10, height: 14)
-                }
-            }
-            Rectangle()
-                .frame(width: 64, height: height)
-        }
-    }
-
-    private var torch: some View {
-        VStack(spacing: -6) {
-            Circle()
-                .fill(Color(hex: "#ED8936")?.opacity(0.55) ?? .orange.opacity(0.5))
-                .frame(width: 70, height: 70)
-                .blur(radius: 18)
-            Text("🔥")
-                .font(.system(size: 44))
-            Rectangle()
-                .fill(Color(hex: "#5C3317") ?? .brown)
-                .frame(width: 10, height: 90)
-        }
     }
 }
 
@@ -376,6 +295,8 @@ struct ProfileSocialPreview: View {
     let focusText: String
     let challengeName: String
     var dayOfYear: Int = MedievalYearlyQuotes.dayOfYear()
+    var look: AvatarLook? = nil
+    var usesCustomLook: Bool = false
 
     var body: some View {
         GeometryReader { geo in
@@ -389,7 +310,9 @@ struct ProfileSocialPreview: View {
                 currentStreak: streak,
                 focusText: focusText,
                 challengeName: challengeName,
-                dayOfYear: dayOfYear
+                dayOfYear: dayOfYear,
+                look: look,
+                usesCustomLook: usesCustomLook
             )
             .frame(width: 1080, height: 1920)
             .scaleEffect(scale, anchor: .top)

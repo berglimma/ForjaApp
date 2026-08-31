@@ -225,6 +225,20 @@ final class FirebaseManager: ObservableObject {
             "hasUnlockedHardcore": progress.hasUnlockedHardcore,
             "notificationsEnabled": progress.notificationsEnabled,
             "usesAvatarAsProfilePhoto": progress.usesAvatarAsProfilePhoto,
+            "usesCustomAvatar": progress.usesCustomAvatar,
+            "hasVoucherPremium": progress.hasVoucherPremium,
+            "customAvatarLook": [
+                "physiqueID": progress.customAvatarLook.physiqueID,
+                "skinID": progress.customAvatarLook.skinID,
+                "hairID": progress.customAvatarLook.hairID,
+                "hairColorID": progress.customAvatarLook.hairColorID,
+                "beardID": progress.customAvatarLook.beardID,
+                "chestID": progress.customAvatarLook.chestID,
+                "legsID": progress.customAvatarLook.legsID,
+                "cloakID": progress.customAvatarLook.cloakID,
+                "headwearID": progress.customAvatarLook.headwearID,
+                "bootsID": progress.customAvatarLook.bootsID
+            ],
             "ownedCollectibles": progress.ownedCollectibles.map {
                 [
                     "id": $0.id,
@@ -236,6 +250,9 @@ final class FirebaseManager: ObservableObject {
         ]
         if let trialStartedAt = progress.trialStartedAt {
             data["trialStartedAt"] = Timestamp(date: trialStartedAt)
+        }
+        if let voucher = progress.redeemedVoucherCode {
+            data["redeemedVoucherCode"] = voucher
         }
 
         do {
@@ -361,8 +378,28 @@ final class FirebaseManager: ObservableObject {
             trialStartedAt: trialStartedAt,
             hasUnlockedHardcore: data["hasUnlockedHardcore"] as? Bool ?? false,
             notificationsEnabled: data["notificationsEnabled"] as? Bool ?? false,
-            usesAvatarAsProfilePhoto: data["usesAvatarAsProfilePhoto"] as? Bool ?? false
+            usesAvatarAsProfilePhoto: data["usesAvatarAsProfilePhoto"] as? Bool ?? false,
+            customAvatarLook: parseAvatarLook(data["customAvatarLook"]),
+            usesCustomAvatar: data["usesCustomAvatar"] as? Bool ?? false,
+            hasVoucherPremium: data["hasVoucherPremium"] as? Bool ?? false,
+            redeemedVoucherCode: data["redeemedVoucherCode"] as? String
         )
+    }
+
+    private func parseAvatarLook(_ raw: Any?) -> AvatarLook {
+        guard let data = raw as? [String: Any] else { return .default }
+        var look = AvatarLook.default
+        if let value = data["physiqueID"] as? String { look.physiqueID = value }
+        if let value = data["skinID"] as? String { look.skinID = value }
+        if let value = data["hairID"] as? String { look.hairID = value }
+        if let value = data["hairColorID"] as? String { look.hairColorID = value }
+        if let value = data["beardID"] as? String { look.beardID = value }
+        if let value = data["chestID"] as? String { look.chestID = value }
+        if let value = data["legsID"] as? String { look.legsID = value }
+        if let value = data["cloakID"] as? String { look.cloakID = value }
+        if let value = data["headwearID"] as? String { look.headwearID = value }
+        if let value = data["bootsID"] as? String { look.bootsID = value }
+        return look
     }
 
     private func paddedIntArray(_ raw: Any?, count: Int) -> [Int] {
@@ -428,10 +465,55 @@ final class FirebaseManager: ObservableObject {
             trialStartedAt: [local.trialStartedAt, remote.trialStartedAt].compactMap { $0 }.min(),
             hasUnlockedHardcore: local.hasUnlockedHardcore || remote.hasUnlockedHardcore,
             notificationsEnabled: local.notificationsEnabled || remote.notificationsEnabled,
-            usesAvatarAsProfilePhoto: local.usesAvatarAsProfilePhoto
+            usesAvatarAsProfilePhoto: local.usesAvatarAsProfilePhoto,
+            customAvatarLook: local.usesCustomAvatar ? local.customAvatarLook : remote.customAvatarLook,
+            usesCustomAvatar: local.usesCustomAvatar || remote.usesCustomAvatar
         )
+        merged.hasVoucherPremium = local.hasVoucherPremium || remote.hasVoucherPremium
+        merged.redeemedVoucherCode = local.redeemedVoucherCode ?? remote.redeemedVoucherCode
         merged.rollPeriodsIfNeeded()
         return merged
+    }
+
+    func claimFullAccessVoucher(_ code: String) async throws {
+        #if canImport(FirebaseAuth) && canImport(FirebaseFirestore)
+        guard isConfigured, let uid = Auth.auth().currentUser?.uid else { return }
+
+        let db = Firestore.firestore()
+        let ref = db.collection("vouchers").document(code)
+
+        _ = try await db.runTransaction { transaction, errorPointer -> Any? in
+            let snapshot: DocumentSnapshot
+            do {
+                snapshot = try transaction.getDocument(ref)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+
+            if snapshot.exists {
+                let redeemedBy = snapshot.data()?["redeemedBy"] as? String
+                if redeemedBy != uid {
+                    errorPointer?.pointee = NSError(
+                        domain: "ForjaVoucher",
+                        code: 409,
+                        userInfo: [NSLocalizedDescriptionKey: VoucherRedeemError.alreadyUsed.localizedDescription]
+                    )
+                }
+                return nil
+            }
+
+            transaction.setData(
+                [
+                    "redeemedBy": uid,
+                    "kind": "full",
+                    "redeemedAt": FieldValue.serverTimestamp()
+                ],
+                forDocument: ref
+            )
+            return nil
+        }
+        #endif
     }
 }
 

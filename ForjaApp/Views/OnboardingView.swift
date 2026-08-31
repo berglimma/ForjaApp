@@ -65,7 +65,7 @@ struct OnboardingView: View {
                 VStack(spacing: 16) {
                     Text("Escolha seu herói")
                         .font(.title.bold())
-                    Text("Esse avatar vai caminhar na trilha semanal de foco.")
+                    Text("Esse herói caminha na trilha. Depois você cria o corpo e as vestimentas no ateliê.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

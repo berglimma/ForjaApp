@@ -17,64 +17,6 @@ enum TrailBiome: Equatable {
     case sandClay
     case darkSwamp
 
-    var ground: [Color] {
-        switch self {
-        case .tenebrous:
-            return [Color(hex: "#1A1016") ?? .black, Color(hex: "#2D1B24") ?? .gray]
-        case .hauntedWood:
-            return [Color(hex: "#1C1420") ?? .black, Color(hex: "#32243A") ?? .purple]
-        case .emberGlade:
-            return [Color(hex: "#3D2B12") ?? .brown, Color(hex: "#744210") ?? .brown]
-        case .greenWood:
-            return [Color(hex: "#22543D") ?? .green, Color(hex: "#276749") ?? .green]
-        case .autumn:
-            return [Color(hex: "#7B341E") ?? .orange, Color(hex: "#C05621") ?? .orange]
-        case .riverside:
-            return [Color(hex: "#2A4365") ?? .blue, Color(hex: "#2F855A") ?? .green]
-        case .moonlit:
-            return [Color(hex: "#1A365D") ?? .blue, Color(hex: "#2C5282") ?? .blue]
-        case .castleRoad:
-            return [Color(hex: "#4A5568") ?? .gray, Color(hex: "#D69E2E") ?? .yellow]
-        case .sandClay:
-            return [Color(hex: "#8B5A2B") ?? .brown, Color(hex: "#D4A574") ?? .yellow]
-        case .darkSwamp:
-            return [Color(hex: "#0B1A12") ?? .black, Color(hex: "#1C3A2A") ?? .green]
-        }
-    }
-
-    var path: Color {
-        switch self {
-        case .darkSwamp, .tenebrous, .hauntedWood:
-            return Color(hex: "#3F2E1F") ?? .brown
-        case .sandClay, .emberGlade, .autumn:
-            return Color(hex: "#C4A574") ?? .yellow
-        case .greenWood, .riverside:
-            return Color(hex: "#B08968") ?? .brown
-        case .moonlit:
-            return Color(hex: "#A67C52") ?? .brown
-        case .castleRoad:
-            return Color(hex: "#D2B48C") ?? .yellow
-        }
-    }
-
-    var clayRut: Color {
-        Color(hex: "#6B3F1F") ?? .brown
-    }
-
-    var treeEmoji: String {
-        switch self {
-        case .tenebrous, .hauntedWood: return "🌲"
-        case .emberGlade: return "🌳"
-        case .greenWood: return "🌲"
-        case .autumn: return "🍂"
-        case .riverside: return "🌿"
-        case .moonlit: return "🌙"
-        case .castleRoad: return "🏰"
-        case .sandClay: return "🌾"
-        case .darkSwamp: return "🪵"
-        }
-    }
-
     var isDark: Bool {
         self == .tenebrous || self == .hauntedWood || self == .darkSwamp
     }
@@ -83,25 +25,41 @@ enum TrailBiome: Equatable {
         self == .darkSwamp
     }
 
-    var creature: (emoji: String, name: String) {
+    var creature: (image: String, name: String) {
         switch self {
-        case .darkSwamp: return ("🐸", "Lodoento")
-        case .tenebrous: return ("🐺", "Umbrawolf")
-        case .hauntedWood: return ("🐦‍⬛", "Corvo-de-Ferro")
-        case .emberGlade: return ("🦌", "Cervo-Brasão")
-        case .greenWood: return ("🦅", "Grifo-do-Charco")
-        case .autumn: return ("🦎", "Basilisco-Cinza")
-        case .riverside: return ("🐍", "Hidra-do-Lodo")
-        case .moonlit: return ("🐲", "Serpe-Musgo")
-        case .castleRoad: return ("🐉", "Wyrm-de-Brejo")
-        case .sandClay: return ("🐊", "Drake-Pântano")
+        case .darkSwamp: return ("Creature_lodoento", "Lodoento")
+        case .tenebrous: return ("Creature_umbrawolf", "Umbrawolf")
+        case .hauntedWood: return ("Creature_corvo", "Corvo-de-Ferro")
+        case .emberGlade: return ("Creature_cervo", "Cervo-Brasão")
+        case .greenWood: return ("Creature_grifo", "Grifo-do-Charco")
+        case .autumn: return ("Creature_basilisco", "Basilisco-Cinza")
+        case .riverside: return ("Creature_hidra", "Hidra-do-Lodo")
+        case .moonlit: return ("Creature_serpe", "Serpe-Musgo")
+        case .castleRoad: return ("Creature_wyrm", "Wyrm-de-Brejo")
+        case .sandClay: return ("Creature_drake", "Drake-Pântano")
         }
+    }
+
+    /// Uma criatura distinta por dia (segunda → domingo).
+    static func creature(forWeekday index: Int) -> (image: String, name: String) {
+        let week: [(String, String)] = [
+            ("Creature_umbrawolf", "Umbrawolf"),
+            ("Creature_corvo", "Corvo-de-Ferro"),
+            ("Creature_cervo", "Cervo-Brasão"),
+            ("Creature_lodoento", "Lodoento"),
+            ("Creature_drake", "Drake-Pântano"),
+            ("Creature_grifo", "Grifo-do-Charco"),
+            ("Creature_wyrm", "Wyrm-de-Brejo")
+        ]
+        return week[max(0, min(6, index))]
     }
 }
 
 struct WeeklyTrailMapView: View {
     let weekdaySeconds: [Int]
     let avatar: MedievalAvatar
+    var look: AvatarLook? = nil
+    var usesCustomLook: Bool = false
     let todayIndex: Int
     let peakIndex: Int
     var totalSessions: Int = 0
@@ -113,9 +71,13 @@ struct WeeklyTrailMapView: View {
     @State private var walkAlong: CGFloat = 0
     @State private var bobbing = false
     @State private var fogDrift = false
-    @State private var torchPulse = false
-    @State private var flagWave = false
-    @State private var crowOffset: CGFloat = 0
+    @State private var pan = CGSize.zero
+    @GestureState private var drag = CGSize.zero
+    @State private var hoveredCreature: String?
+
+    private let mapScale: CGFloat = 1.85
+    /// Quinta (3) → sexta (4) no índice segunda-primeiro.
+    private let swampFromIndex = 3
 
     private var daysUsed: Int {
         weekdaySeconds.filter { $0 > 0 }.count
@@ -129,8 +91,12 @@ struct WeeklyTrailMapView: View {
         daysUsed >= 4 || currentStreak >= 3 || successfulSessions >= 8 || weeklyFocusSeconds >= 90 * 60
     }
 
-    private var maxSeconds: Int {
-        max(weekdaySeconds.max() ?? 0, 1)
+    private var skippedToday: Bool {
+        weekdaySeconds.indices.contains(todayIndex) && weekdaySeconds[todayIndex] == 0
+    }
+
+    private var isSomber: Bool {
+        hasNeverForged || skippedToday
     }
 
     var body: some View {
@@ -146,36 +112,26 @@ struct WeeklyTrailMapView: View {
             }
 
             GeometryReader { geo in
-                let size = geo.size
-                let points = trailPoints(in: size)
+                let viewport = geo.size
+                let world = CGSize(width: viewport.width * mapScale, height: viewport.height * mapScale)
+                let points = trailPoints(in: world)
                 let avatarPoint = pointOnTrail(walkAlong, points: points)
+                let livePan = CGSize(width: pan.width + drag.width, height: pan.height + drag.height)
 
                 ZStack {
-                    mapSky(in: size)
-
-                    ZStack {
-                        terrainLayer(size: size, points: points)
-                        pathLayer(points: points)
-                        decorations(size: size, points: points)
-                        ForEach(0..<7, id: \.self) { index in
-                            dayMarker(index: index, at: points[index])
-                        }
-                        castle(at: points[6], size: size)
-                        walkingHero(at: avatarPoint, points: points)
-                        if hasNeverForged || daysUsed < 3 {
-                            mistOverlay(in: size)
-                        }
-                    }
-                    .rotation3DEffect(
-                        .degrees(18),
-                        axis: (x: 1, y: 0, z: 0),
-                        anchor: .center,
-                        perspective: 0.48
-                    )
+                    mapWorld(world: world, points: points, avatarPoint: avatarPoint)
+                        .frame(width: world.width, height: world.height)
+                        .offset(livePan)
                 }
+                .frame(width: viewport.width, height: viewport.height)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .highPriorityGesture(mapDrag(viewport: viewport, world: world))
+                .onAppear {
+                    center(on: points[min(todayIndex, 6)], viewport: viewport, world: world, animated: false)
+                }
             }
-            .frame(height: 360)
+            .frame(height: 400)
 
             Text(loreCaption)
                 .font(.caption)
@@ -184,35 +140,34 @@ struct WeeklyTrailMapView: View {
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .onAppear { startAnimations() }
-        .onChange(of: todayIndex) { _, _ in
+        .onChange(of: todayIndex) { _, newValue in
             withAnimation(.easeInOut(duration: 2.4)) {
-                walkAlong = CGFloat(todayIndex)
+                walkAlong = CGFloat(newValue)
             }
         }
     }
 
     private var statusCaption: String {
-        if hasNeverForged { return "Floresta adormecida" }
-        if isFrequent { return "Reinos alternando" }
-        return "Pico: \(UserProgress.weekdayFullLabel(index: peakIndex))"
+        if isSomber { return "Reino em sombra" }
+        if isFrequent { return "Arraste · reinos abertos" }
+        return "Arraste · pico \(UserProgress.weekdayFullLabel(index: peakIndex))"
     }
 
     private var loreCaption: String {
-        if hasNeverForged {
-            return "\(avatar.name) segue a estrada de areia e barro. Pântanos sombrios escondem Lodoentos e Umbrawolves — acenda a forja para abrir o caminho."
+        if isSomber {
+            return "A forja não acendeu hoje: o reino apaga. Passe o cursor nas criaturas para ver o nome. Entre quinta e sexta o pântano toma a estrada."
         }
         if isFrequent {
-            return "A estrada de areia se firma. Grifos-do-charco e cervos-brasão vigiam o reino enquanto \(avatar.name) marcha ao castelo."
+            return "A calçada se firma até o castelo. Passe o cursor nas criaturas. O pântano abre entre quinta e sexta."
         }
-        return "Areia, barro e trechos de pântano sombrio. Cada dia forjado ilumina a trilha; o lodo guarda criaturas do reino."
+        return "Passe o cursor nas criaturas para ler o nome. Entre quinta e sexta a estrada afunda no pântano."
     }
 
     private func biome(for index: Int) -> TrailBiome {
-        let seconds = weekdaySeconds.indices.contains(index) ? weekdaySeconds[index] : 0
-        let swampSlots = index == 1 || index == 4 || (index + weekOfYear).isMultiple(of: 5)
-        if swampSlots {
+        if index == swampFromIndex || index == swampFromIndex + 1 {
             return .darkSwamp
         }
+        let seconds = weekdaySeconds.indices.contains(index) ? weekdaySeconds[index] : 0
         if seconds <= 0 {
             return index.isMultiple(of: 2) ? .tenebrous : .hauntedWood
         }
@@ -221,6 +176,13 @@ struct WeeklyTrailMapView: View {
             return cycle[(index + weekOfYear) % cycle.count]
         }
         return index == 6 ? .castleRoad : .sandClay
+    }
+
+    private func dayWasSkipped(_ index: Int) -> Bool {
+        guard weekdaySeconds.indices.contains(index) else { return true }
+        if index < todayIndex { return weekdaySeconds[index] == 0 }
+        if index == todayIndex { return skippedToday }
+        return false
     }
 
     private func startAnimations() {
@@ -234,227 +196,216 @@ struct WeeklyTrailMapView: View {
         withAnimation(.easeInOut(duration: 4.2).repeatForever(autoreverses: true)) {
             fogDrift = true
         }
-        withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
-            torchPulse = true
-        }
-        withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
-            flagWave = true
-        }
-        withAnimation(.linear(duration: 7).repeatForever(autoreverses: false)) {
-            crowOffset = 1
+    }
+
+    private func mapDrag(viewport: CGSize, world: CGSize) -> some Gesture {
+        DragGesture(minimumDistance: 10)
+            .updating($drag) { value, state, _ in
+                state = value.translation
+            }
+            .onEnded { value in
+                pan = clampPan(
+                    CGSize(width: pan.width + value.translation.width, height: pan.height + value.translation.height),
+                    viewport: viewport,
+                    world: world
+                )
+            }
+    }
+
+    private func center(on point: CGPoint, viewport: CGSize, world: CGSize, animated: Bool) {
+        let next = clampPan(
+            CGSize(
+                width: world.width / 2 - point.x,
+                height: world.height / 2 - point.y
+            ),
+            viewport: viewport,
+            world: world
+        )
+        if animated {
+            withAnimation(.easeInOut(duration: 0.45)) { pan = next }
+        } else {
+            pan = next
         }
     }
 
-    private func mapSky(in size: CGSize) -> some View {
-        let colors: [Color]
-        if hasNeverForged {
-            colors = [
-                Color(hex: "#0B0610") ?? .black,
-                Color(hex: "#2A0F18") ?? .red.opacity(0.4),
-                Color(hex: "#1A1020") ?? .black
-            ]
-        } else if isFrequent {
-            colors = [
-                Color(hex: "#1A365D") ?? .blue,
-                Color(hex: "#9F7AEA")?.opacity(0.55) ?? .purple,
-                Color(hex: "#F6AD55")?.opacity(0.35) ?? .orange
-            ]
-        } else {
-            colors = [
-                Color(hex: "#1A202C") ?? .gray,
-                Color(hex: "#2D2416") ?? .brown,
-                Color(hex: "#22543D")?.opacity(0.5) ?? .green
-            ]
-        }
+    private func clampPan(_ value: CGSize, viewport: CGSize, world: CGSize) -> CGSize {
+        let maxX = max(0, (world.width - viewport.width) / 2)
+        let maxY = max(0, (world.height - viewport.height) / 2)
+        return CGSize(
+            width: min(max(value.width, -maxX), maxX),
+            height: min(max(value.height, -maxY), maxY)
+        )
+    }
 
-        return LinearGradient(colors: colors, startPoint: .top, endPoint: .bottom)
-            .overlay {
-                if hasNeverForged {
-                    RadialGradient(
-                        colors: [Color(hex: "#742A2A")?.opacity(0.35) ?? .red.opacity(0.3), .clear],
-                        center: .top,
-                        startRadius: 10,
-                        endRadius: 160
+    private func mapWorld(world: CGSize, points: [CGPoint], avatarPoint: CGPoint) -> some View {
+        ZStack(alignment: .topLeading) {
+            Image("TrailMap")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFill()
+                .frame(width: world.width, height: world.height)
+                .clipped()
+                .saturation(isSomber ? 0.28 : 1)
+                .brightness(isSomber ? -0.22 : 0)
+                .overlay {
+                    LinearGradient(
+                        colors: isSomber
+                            ? [
+                                Color(hex: "#050308")?.opacity(0.72) ?? .black.opacity(0.72),
+                                Color(hex: "#1A0A12")?.opacity(0.45) ?? .black.opacity(0.45),
+                                Color.black.opacity(0.55)
+                            ]
+                            : [
+                                Color.black.opacity(0.12),
+                                .clear,
+                                Color.black.opacity(0.16)
+                            ],
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
                 }
+                .allowsHitTesting(false)
+
+            ForEach(0..<7, id: \.self) { index in
+                if dayWasSkipped(index) {
+                    skippedDayGloom(at: points[index])
+                }
             }
+
+            pathLayer(points: points)
+
+            ForEach(0..<7, id: \.self) { index in
+                creatureInScene(index: index, points: points)
+            }
+
+            ForEach(0..<7, id: \.self) { index in
+                dayMarker(index: index, at: points[index])
+            }
+
+            walkingHero(at: avatarPoint)
+        }
+        .frame(width: world.width, height: world.height)
     }
 
-    private func terrainLayer(size: CGSize, points: [CGPoint]) -> some View {
-        ZStack {
-            ForEach(0..<7, id: \.self) { index in
-                let biome = biome(for: index)
-                Ellipse()
-                    .fill(
-                        RadialGradient(
-                            colors: biome.ground + [.clear],
-                            center: .center,
-                            startRadius: 4,
-                            endRadius: 70
-                        )
-                    )
-                    .frame(width: 118, height: 62)
-                    .opacity(0.92)
-                    .position(points[index])
-                    .offset(y: 10)
-            }
-        }
+    private func skippedDayGloom(at point: CGPoint) -> some View {
+        Ellipse()
+            .fill(
+                RadialGradient(
+                    colors: [
+                        Color.black.opacity(isSomber ? 0.7 : 0.45),
+                        Color(hex: "#120814")?.opacity(0.35) ?? .black.opacity(0.3),
+                        .clear
+                    ],
+                    center: .center,
+                    startRadius: 4,
+                    endRadius: 70
+                )
+            )
+            .frame(width: 130, height: 72)
+            .position(point)
+            .blendMode(.multiply)
+            .allowsHitTesting(false)
+    }
+
+    private func swampControl(from a: CGPoint, to b: CGPoint) -> CGPoint {
+        CGPoint(
+            x: (a.x + b.x) / 2 + 6,
+            y: (a.y + b.y) / 2 + 10
+        )
     }
 
     private func pathLayer(points: [CGPoint]) -> some View {
         ZStack {
-            TrailPathShape(points: points)
-                .stroke(
-                    Color(hex: "#3E2723")?.opacity(0.7) ?? .brown.opacity(0.7),
-                    style: StrokeStyle(lineWidth: 22, lineCap: .round, lineJoin: .round)
-                )
-                .offset(y: 5)
-
-            TrailPathShape(points: points)
-                .stroke(
-                    Color(hex: "#6B3F1F") ?? .brown,
-                    style: StrokeStyle(lineWidth: 16, lineCap: .round, lineJoin: .round)
-                )
-                .offset(y: 3)
-
             ForEach(0..<6, id: \.self) { index in
                 let a = points[index]
                 let b = points[index + 1]
-                let sand = biome(for: index).isSwamp
-                    ? (Color(hex: "#3F2E1F") ?? .brown)
-                    : (Color(hex: "#D4A574") ?? .yellow)
+                let swamp = index == swampFromIndex
+                let unused = dayWasSkipped(index) && dayWasSkipped(index + 1)
+                let control = swamp ? swampControl(from: a, to: b) : controlPoint(from: a, to: b)
                 Path { path in
                     path.move(to: a)
-                    path.addQuadCurve(to: b, control: controlPoint(from: a, to: b))
+                    path.addQuadCurve(to: b, control: control)
                 }
                 .stroke(
-                    sand,
-                    style: StrokeStyle(lineWidth: 11, lineCap: .round, lineJoin: .round)
+                    swamp
+                        ? (Color(hex: "#1C2418")?.opacity(0.35) ?? .green.opacity(0.35))
+                        : unused
+                            ? (Color(hex: "#1A1210") ?? .black)
+                            : (Color(hex: "#2A1810")?.opacity(0.35) ?? .brown.opacity(0.35)),
+                    style: StrokeStyle(lineWidth: swamp ? 10 : 9, lineCap: .round, lineJoin: .round)
                 )
-                .opacity(weekdaySeconds[index] > 0 || weekdaySeconds[index + 1] > 0 ? 1 : 0.4)
-            }
+                .offset(y: 2)
 
-            TrailPathShape(points: points)
-                .stroke(
-                    Color(hex: "#5C3317")?.opacity(0.55) ?? .brown.opacity(0.5),
-                    style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [10, 14])
-                )
-                .offset(y: 1)
-
-            TrailPathShape(points: points)
-                .stroke(
-                    Color(hex: "#F5E6C8")?.opacity(0.22) ?? .white.opacity(0.2),
-                    style: StrokeStyle(lineWidth: 1.5, lineCap: .round, dash: [4, 10])
-                )
-                .offset(y: -3)
-        }
-    }
-
-    private func decorations(size: CGSize, points: [CGPoint]) -> some View {
-        ZStack {
-            ForEach(0..<7, id: \.self) { index in
-                let point = points[index]
-                let biome = biome(for: index)
-                Group {
-                    if biome.isSwamp {
-                        swampPatch
-                            .position(x: point.x, y: point.y + 8)
-                    }
-
-                    treeCluster(biome: biome, lit: weekdaySeconds[index] > 0)
-                        .position(x: point.x - 36, y: point.y - 28)
-                    treeCluster(biome: biome, lit: weekdaySeconds[index] > 0)
-                        .scaleEffect(0.78)
-                        .position(x: point.x + 40, y: point.y - 18)
-
-                    Text(biome.creature.emoji)
-                        .font(biome.isSwamp ? .title3 : .body)
-                        .offset(
-                            x: fogDrift ? 8 : -6,
-                            y: (bobbing ? -4 : 2) + (biome.isSwamp ? 12 : -22)
-                        )
-                        .shadow(color: .black.opacity(0.55), radius: 3, y: 2)
-                        .position(point)
-                        .opacity(0.9)
-
-                    if biome.isDark && !biome.isSwamp {
-                        Text("🦇")
-                            .font(.caption)
-                            .offset(x: fogDrift ? 10 : -8, y: fogDrift ? -6 : 4)
-                            .position(x: point.x - 18, y: point.y - 36)
-                            .opacity(0.7)
-                    } else if weekdaySeconds[index] > 0 && !biome.isSwamp {
-                        Circle()
-                            .fill(Color(hex: "#F6E05E")?.opacity(torchPulse ? 0.55 : 0.2) ?? .yellow.opacity(0.3))
-                            .frame(width: 18, height: 18)
-                            .blur(radius: 6)
-                            .position(x: point.x + 22, y: point.y - 16)
-                        Text("🔥")
-                            .font(.caption2)
-                            .position(x: point.x + 22, y: point.y - 10)
-                    }
+                Path { path in
+                    path.move(to: a)
+                    path.addQuadCurve(to: b, control: control)
                 }
-            }
+                .stroke(
+                    swamp
+                        ? (Color(hex: "#4A5C3A")?.opacity(0.28) ?? .green.opacity(0.28))
+                        : unused
+                            ? (Color(hex: "#3A2A22")?.opacity(0.4) ?? .brown.opacity(0.4))
+                            : (Color(hex: "#C4A574")?.opacity(0.42) ?? .yellow.opacity(0.42)),
+                    style: StrokeStyle(lineWidth: swamp ? 5 : 5, lineCap: .round, lineJoin: .round)
+                )
 
-            Text("🦅")
-                .font(.title3)
-                .offset(x: crowOffset * (size.width - 40) - 20, y: 28 + (fogDrift ? 8 : 0))
-                .opacity(0.75)
-        }
-    }
-
-    private var swampPatch: some View {
-        ZStack {
-            Ellipse()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Color(hex: "#0B1A12") ?? .black,
-                            Color(hex: "#1C3A2A")?.opacity(0.85) ?? .green.opacity(0.8),
-                            Color(hex: "#0D1117")?.opacity(0.2) ?? .clear
-                        ],
-                        center: .center,
-                        startRadius: 4,
-                        endRadius: 46
+                if !swamp {
+                    Path { path in
+                        path.move(to: a)
+                        path.addQuadCurve(to: b, control: control)
+                    }
+                    .stroke(
+                        Color(hex: "#9A9588")?.opacity(unused ? 0.18 : 0.55) ?? .gray.opacity(0.5),
+                        style: StrokeStyle(lineWidth: 3.2, lineCap: .round, dash: [6, 8])
                     )
-                )
-                .frame(width: 92, height: 44)
-            Ellipse()
-                .fill(Color(hex: "#68D391")?.opacity(fogDrift ? 0.18 : 0.08) ?? .green.opacity(0.1))
-                .frame(width: 36, height: 12)
-                .blur(radius: 3)
-                .offset(x: fogDrift ? 8 : -6, y: -4)
-            Text("🫧")
-                .font(.caption2)
-                .offset(x: fogDrift ? 12 : -10, y: fogDrift ? -6 : 2)
-                .opacity(0.7)
+                }
+            }
         }
         .allowsHitTesting(false)
     }
 
-    private func treeCluster(biome: TrailBiome, lit: Bool) -> some View {
-        VStack(spacing: -6) {
-            if biome.isDark {
-                Triangle()
-                    .fill(Color(hex: "#1A202C") ?? .black)
-                    .frame(width: 22, height: 28)
-                    .overlay {
-                        Triangle()
-                            .fill(Color(hex: "#2D1B24") ?? .gray)
-                            .frame(width: 14, height: 18)
-                            .offset(y: 4)
-                    }
-                RoundedRectangle(cornerRadius: 1)
-                    .fill(Color(hex: "#171923") ?? .black)
-                    .frame(width: 5, height: 8)
-            } else {
-                Text(biome.treeEmoji)
-                    .font(.title2)
-                    .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
-                    .saturation(lit ? 1 : 0.4)
+    private func creatureInScene(index: Int, points: [CGPoint]) -> some View {
+        let creature = TrailBiome.creature(forWeekday: index)
+        let point = points[index]
+        let side: CGFloat = index.isMultiple(of: 2) ? -1 : 1
+        return creatureSprite(image: creature.image, name: creature.name, height: 72)
+            .offset(x: fogDrift ? side * 2 : 0, y: bobbing ? -2 : 2)
+            .position(x: point.x + side * 78, y: point.y - 4)
+    }
+
+    private func creatureSprite(image: String, name: String, height: CGFloat) -> some View {
+        let hovering = hoveredCreature == name
+        return VStack(spacing: 6) {
+            if hovering {
+                Text(name)
+                    .font(.caption2.bold())
+                    .foregroundStyle(Color(hex: "#F6E05E") ?? .yellow)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.black.opacity(0.72), in: Capsule())
+                    .shadow(color: .black.opacity(0.5), radius: 3)
+            }
+
+            Image(image)
+                .resizable()
+                .renderingMode(.original)
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(height: height)
+                .shadow(color: .black.opacity(0.45), radius: 5, y: 4)
+        }
+        .onHover { inside in
+            withAnimation(.easeOut(duration: 0.15)) {
+                hoveredCreature = inside ? name : (hoveredCreature == name ? nil : hoveredCreature)
             }
         }
-        .opacity(lit || biome.isDark ? 1 : 0.55)
+        .onTapGesture {
+            withAnimation(.easeOut(duration: 0.15)) {
+                hoveredCreature = hoveredCreature == name ? nil : name
+            }
+        }
+        .help(name)
+        .accessibilityLabel(name)
     }
 
     private func dayMarker(index: Int, at point: CGPoint) -> some View {
@@ -462,105 +413,70 @@ struct WeeklyTrailMapView: View {
         let used = seconds > 0
         let isToday = index == todayIndex
         let isPeak = index == peakIndex && used
+        let isCastle = index == 6
 
-        return VStack(spacing: 3) {
+        return VStack(spacing: 2) {
             ZStack {
                 Circle()
-                    .fill(used ? (isPeak ? Color(hex: "#F6E05E") ?? .yellow : Color(hex: "#ED8936") ?? .orange) : Color(hex: "#2D3748") ?? .gray)
-                    .frame(width: isToday ? 24 : 16, height: isToday ? 24 : 16)
-                    .shadow(color: used ? .orange.opacity(0.6) : .black.opacity(0.8), radius: used ? 6 : 2)
+                    .fill(used ? (isPeak || isCastle ? Color(hex: "#F6E05E") ?? .yellow : Color(hex: "#ED8936") ?? .orange) : Color(hex: "#1A202C") ?? .gray)
+                    .frame(width: isToday ? 22 : 14, height: isToday ? 22 : 14)
+                    .shadow(color: used ? .orange.opacity(0.55) : .black.opacity(0.7), radius: used ? 5 : 2)
                 if isToday {
                     Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 2)
-                        .frame(width: 28, height: 28)
+                        .stroke(Color.white.opacity(0.8), lineWidth: 2)
+                        .frame(width: 26, height: 26)
                 }
             }
 
-            Text(UserProgress.weekdayLabel(index: index))
-                .font(.caption2.bold())
+            Text(isCastle ? "Castelo" : UserProgress.weekdayLabel(index: index))
+                .font(.system(size: 9, weight: .bold))
                 .foregroundStyle(.white)
-                .shadow(radius: 2)
+                .shadow(color: .black.opacity(0.8), radius: 2)
             Text("\(seconds / 60)m")
-                .font(.system(size: 9, weight: .semibold, design: .rounded))
-                .foregroundStyle(used ? (Color(hex: "#F6E05E") ?? .yellow) : .white.opacity(0.45))
+                .font(.system(size: 8, weight: .semibold, design: .rounded))
+                .foregroundStyle(used ? (Color(hex: "#F6E05E") ?? .yellow) : .white.opacity(0.5))
         }
         .position(point)
-        .offset(y: 26)
+        .offset(y: 22)
+        .allowsHitTesting(false)
     }
 
-    private func castle(at point: CGPoint, size: CGSize) -> some View {
-        let awakened = weekdaySeconds[6] > 0 || isFrequent
-        return VStack(spacing: 0) {
-            Text("🚩")
-                .font(.caption)
-                .rotationEffect(.degrees(flagWave ? 12 : -8), anchor: .bottom)
-                .offset(x: 10, y: 4)
-            HStack(alignment: .bottom, spacing: 2) {
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(awakened ? Color(hex: "#A0AEC0") ?? .gray : Color(hex: "#1A202C") ?? .black)
-                    .frame(width: 10, height: 22)
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(awakened ? Color(hex: "#E2E8F0") ?? .white : Color(hex: "#2D3748") ?? .gray)
-                    .frame(width: 18, height: 32)
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(awakened ? Color(hex: "#A0AEC0") ?? .gray : Color(hex: "#1A202C") ?? .black)
-                    .frame(width: 10, height: 22)
-            }
-            .overlay(alignment: .top) {
-                HStack(spacing: 3) {
-                    ForEach(0..<5, id: \.self) { _ in
-                        Rectangle()
-                            .fill(awakened ? Color(hex: "#CBD5E0") ?? .gray : Color(hex: "#4A5568") ?? .gray)
-                            .frame(width: 4, height: 5)
-                    }
-                }
-                .offset(y: -4)
-            }
-            Text(awakened ? "🏰" : "🌫️")
-                .font(.caption)
-                .offset(y: -6)
-        }
-        .shadow(color: awakened ? (Color(hex: "#F6E05E")?.opacity(0.4) ?? .yellow.opacity(0.3)) : .black, radius: 8)
-        .position(x: point.x + 8, y: point.y - 48)
-        .opacity(0.95)
-    }
-
-    private func walkingHero(at point: CGPoint, points _: [CGPoint]) -> some View {
+    private func walkingHero(at point: CGPoint) -> some View {
         VStack(spacing: 0) {
-            MedievalAvatarFaceView(avatar: avatar, size: 44, lineWidth: 1.5)
-                .offset(y: bobbing ? -7 : 1)
-                .shadow(color: .black.opacity(0.55), radius: 4, y: 3)
+            if usesCustomLook, let look {
+                AssembledAvatarView(look: look, style: .fullBody)
+                    .frame(width: 52, height: 76)
+                    .offset(y: bobbing ? -6 : 1)
+                    .shadow(color: .black.opacity(0.55), radius: 4, y: 3)
+            } else {
+                MedievalAvatarFaceView(avatar: avatar, size: 40, lineWidth: 1.5)
+                    .offset(y: bobbing ? -6 : 1)
+                    .shadow(color: .black.opacity(0.55), radius: 4, y: 3)
+            }
             Capsule()
                 .fill(.black.opacity(0.35))
-                .frame(width: 18, height: 5)
+                .frame(width: 16, height: 4)
                 .offset(y: 2)
                 .scaleEffect(x: bobbing ? 0.8 : 1.1)
         }
         .position(point)
-        .offset(y: -36)
+        .offset(y: usesCustomLook ? -40 : -28)
         .animation(.easeInOut(duration: 0.35), value: bobbing)
-    }
-
-    private func mistOverlay(in size: CGSize) -> some View {
-        ZStack {
-            Ellipse()
-                .fill(Color.black.opacity(hasNeverForged ? 0.42 : 0.22))
-                .frame(width: 180, height: 50)
-                .blur(radius: 18)
-                .offset(x: fogDrift ? 30 : -24, y: 40)
-            Ellipse()
-                .fill(Color(hex: "#2D1B24")?.opacity(0.35) ?? .gray.opacity(0.3))
-                .frame(width: 220, height: 40)
-                .blur(radius: 16)
-                .offset(x: fogDrift ? -20 : 28, y: 110)
-        }
         .allowsHitTesting(false)
     }
 
+    /// Pontos colados na estrada do mapa: começa no centro-baixo e sobe em curva até o castelo à direita.
     private func trailPoints(in size: CGSize) -> [CGPoint] {
-        let xs: [CGFloat] = [0.10, 0.24, 0.38, 0.52, 0.66, 0.80, 0.90]
-        let ys: [CGFloat] = [0.78, 0.52, 0.70, 0.38, 0.60, 0.32, 0.48]
-        return zip(xs, ys).map { x, y in
+        let nodes: [(CGFloat, CGFloat)] = [
+            (0.50, 0.91),
+            (0.47, 0.78),
+            (0.49, 0.66),
+            (0.51, 0.55),
+            (0.58, 0.46),
+            (0.68, 0.36),
+            (0.78, 0.27)
+        ]
+        return nodes.map { x, y in
             CGPoint(x: x * size.width, y: y * size.height)
         }
     }
@@ -573,7 +489,7 @@ struct WeeklyTrailMapView: View {
         let t = clamped - CGFloat(index)
         let a = points[index]
         let b = points[min(index + 1, points.count - 1)]
-        let control = controlPoint(from: a, to: b)
+        let control = index == swampFromIndex ? swampControl(from: a, to: b) : controlPoint(from: a, to: b)
         let u = 1 - t
         return CGPoint(
             x: u * u * a.x + 2 * u * t * control.x + t * t * b.x,
@@ -582,38 +498,10 @@ struct WeeklyTrailMapView: View {
     }
 
     private func controlPoint(from a: CGPoint, to b: CGPoint) -> CGPoint {
-        CGPoint(x: (a.x + b.x) / 2, y: min(a.y, b.y) - 18)
-    }
-}
-
-private struct TrailPathShape: Shape {
-    let points: [CGPoint]
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        guard let first = points.first else { return path }
-        path.move(to: first)
-        for index in 1..<points.count {
-            let previous = points[index - 1]
-            let current = points[index]
-            let control = CGPoint(
-                x: (previous.x + current.x) / 2,
-                y: min(previous.y, current.y) - 18
-            )
-            path.addQuadCurve(to: current, control: control)
-        }
-        return path
-    }
-}
-
-private struct Triangle: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-        path.closeSubpath()
-        return path
+        CGPoint(
+            x: (a.x + b.x) / 2 + (b.y - a.y) * 0.12,
+            y: (a.y + b.y) / 2 - abs(b.x - a.x) * 0.10
+        )
     }
 }
 
@@ -624,6 +512,21 @@ private struct Triangle: Shape {
         todayIndex: 1,
         peakIndex: 0,
         totalSessions: 0
+    )
+    .padding()
+    .background(Color.black)
+}
+
+#Preview("Sem uso hoje") {
+    WeeklyTrailMapView(
+        weekdaySeconds: [900, 1200, 0, 0, 0, 0, 0],
+        avatar: .default,
+        todayIndex: 3,
+        peakIndex: 1,
+        totalSessions: 6,
+        successfulSessions: 4,
+        currentStreak: 0,
+        weeklyFocusSeconds: 2100
     )
     .padding()
     .background(Color.black)

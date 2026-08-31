@@ -11,6 +11,9 @@ struct SubscriptionPaywallView: View {
     @StateObject private var store = StoreManager.shared
     @StateObject private var entitlements = EntitlementStore.shared
     @Environment(\.dismiss) private var dismiss
+    @State private var voucherCode = ""
+    @State private var voucherMessage: String?
+    @State private var isRedeemingVoucher = false
 
     var body: some View {
         NavigationStack {
@@ -27,6 +30,10 @@ struct SubscriptionPaywallView: View {
 
                     if entitlements.isStoreKitSubscribed {
                         Text("Assinatura ativa")
+                            .font(.caption.bold())
+                            .foregroundStyle(.green)
+                    } else if entitlements.isPremium {
+                        Text("Voucher ativo · conteúdo completo")
                             .font(.caption.bold())
                             .foregroundStyle(.green)
                     }
@@ -91,6 +98,8 @@ struct SubscriptionPaywallView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                    voucherRedeemCard
+
                     Text("O pagamento é cobrado na conta Apple. A assinatura se renova automaticamente, salvo cancelamento até 24 horas antes do fim do período. Gerencie ou cancele em Ajustes → Assinaturas.")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -145,6 +154,51 @@ struct SubscriptionPaywallView: View {
                 .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
             Text(text)
                 .font(.subheadline)
+        }
+    }
+
+    private var voucherRedeemCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Tenho um voucher")
+                .font(.headline)
+            Text("Código de acesso completo: assinatura, skins, packs, hardcore e colecionáveis.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            TextField("FORJA-XXXX-XXXX", text: $voucherCode)
+                .textInputAutocapitalization(.characters)
+                .autocorrectionDisabled()
+                .font(.body.monospaced())
+                .padding(12)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            Button {
+                Task { await redeemVoucher() }
+            } label: {
+                Text(isRedeemingVoucher ? "Resgatando…" : "Resgatar")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+            }
+            .buttonStyle(ForgeSecondaryButtonStyle())
+            .disabled(isRedeemingVoucher || voucherCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+            if let voucherMessage {
+                Text(voucherMessage)
+                    .font(.caption)
+                    .foregroundStyle(entitlements.isPremium ? .green : .red)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private func redeemVoucher() async {
+        isRedeemingVoucher = true
+        defer { isRedeemingVoucher = false }
+        do {
+            try await inventory.redeemFullAccessVoucher(voucherCode)
+            voucherMessage = "Voucher resgatado. Todo o conteúdo está liberado."
+            voucherCode = ""
+        } catch {
+            voucherMessage = error.localizedDescription
         }
     }
 }

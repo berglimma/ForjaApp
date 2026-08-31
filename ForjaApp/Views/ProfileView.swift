@@ -16,6 +16,7 @@ struct ProfileView: View {
     @State private var shareFile: IdentifiableURL?
     @State private var shareError: String?
     @State private var showAvatarPicker = false
+    @State private var showAvatarStudio = false
     @State private var showDeleteAccount = false
 
     var body: some View {
@@ -23,6 +24,7 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     accountSection
+                    avatarStudioCard
                     socialShareCard
                     subscriptionBanner
                     FocusModeSettingsView()
@@ -81,8 +83,50 @@ struct ProfileView: View {
                     inventory.selectAvatar(avatar)
                     showAvatarPicker = false
                 }
+                .environmentObject(inventory)
+            }
+            .sheet(isPresented: $showAvatarStudio) {
+                AvatarStudioView(look: inventory.progress.usesCustomAvatar
+                    ? inventory.progress.customAvatarLook
+                    : AvatarLook.seeded(from: inventory.progress.selectedAvatar)
+                )
+                .environmentObject(inventory)
             }
         }
+    }
+
+    private var avatarStudioCard: some View {
+        Button {
+            showAvatarStudio = true
+        } label: {
+            HStack(spacing: 14) {
+                AssembledAvatarView(
+                    look: inventory.progress.usesCustomAvatar
+                        ? inventory.progress.customAvatarLook
+                        : AvatarLook.seeded(from: inventory.progress.selectedAvatar),
+                    style: .bust
+                )
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Ateliê do herói")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    Text("Crie o corpo e as vestimentas realistas: pele, cabelo, gibão, malha, placas e capa.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     private var socialShareCard: some View {
@@ -101,7 +145,9 @@ struct ProfileView: View {
                 successfulForges: inventory.progress.successfulSessions,
                 streak: inventory.progress.currentStreak,
                 focusText: UserProgress.formatDuration(seconds: inventory.progress.totalFocusSeconds),
-                challengeName: OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars).name
+                challengeName: OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars).name,
+                look: inventory.progress.customAvatarLook,
+                usesCustomLook: inventory.progress.usesCustomAvatar
             )
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
@@ -154,7 +200,9 @@ struct ProfileView: View {
             successfulForges: inventory.progress.successfulSessions,
             currentStreak: inventory.progress.currentStreak,
             focusSeconds: inventory.progress.totalFocusSeconds,
-            challengeName: OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars).name
+            challengeName: OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars).name,
+            look: inventory.progress.customAvatarLook,
+            usesCustomLook: inventory.progress.usesCustomAvatar
         ) else {
             shareError = SocialStoryShare.ShareError.imageFailed.localizedDescription
             return
@@ -238,6 +286,8 @@ struct ProfileView: View {
                     placeholderSystemName: accountIconName,
                     avatarImageName: inventory.progress.selectedAvatar.imageName,
                     usesAvatar: inventory.progress.usesAvatarAsProfilePhoto,
+                    look: inventory.progress.customAvatarLook,
+                    usesCustomLook: inventory.progress.usesCustomAvatar,
                     onImageDataSelected: { data in
                         viewModel.updateProfilePhoto(data: data)
                     },
@@ -258,7 +308,13 @@ struct ProfileView: View {
                         showAvatarPicker = true
                     } label: {
                         HStack(spacing: 6) {
-                            MedievalAvatarFaceView(avatar: inventory.progress.selectedAvatar, size: 22, lineWidth: 1)
+                            MedievalAvatarFaceView(
+                                avatar: inventory.progress.selectedAvatar,
+                                size: 22,
+                                lineWidth: 1,
+                                look: inventory.progress.customAvatarLook,
+                                usesCustomLook: inventory.progress.usesCustomAvatar
+                            )
                             Text(inventory.progress.selectedAvatar.name)
                                 .font(.caption.bold())
                             Image(systemName: "chevron.down")
@@ -625,6 +681,10 @@ struct SubscriptionBanner: View {
                         .font(.headline)
                     if entitlements.isStoreKitSubscribed {
                         Text("Assinatura ativa")
+                            .font(.caption)
+                            .foregroundStyle(.green)
+                    } else if entitlements.isPremium {
+                        Text("Voucher ativo · conteúdo completo")
                             .font(.caption)
                             .foregroundStyle(.green)
                     } else {

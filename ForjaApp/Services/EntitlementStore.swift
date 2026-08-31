@@ -24,7 +24,11 @@ final class EntitlementStore: ObservableObject {
     }
 
     var isPremium: Bool {
-        isStoreKitSubscribed
+        isStoreKitSubscribed || InventoryManager.shared.progress.hasVoucherPremium
+    }
+
+    func refreshVoucherAccess() {
+        objectWillChange.send()
     }
 
     var canUseUnlimitedSessions: Bool { isPremium }

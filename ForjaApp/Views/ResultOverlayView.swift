@@ -10,6 +10,8 @@ struct ResultOverlayView: View {
     let state: ForgeSessionState
     let barsEarned: Int
     var avatar: MedievalAvatar = .default
+    var look: AvatarLook? = nil
+    var usesCustomLook: Bool = false
     var countsTowardChallenge: Bool = true
     let onDismiss: () -> Void
 
@@ -93,7 +95,12 @@ struct ResultOverlayView: View {
             Text(reason.emoji)
                 .font(.system(size: 64))
         default:
-            MedievalAvatarFaceView(avatar: avatar, size: 88)
+            MedievalAvatarFaceView(
+                avatar: avatar,
+                size: 88,
+                look: look,
+                usesCustomLook: usesCustomLook
+            )
         }
     }
 

@@ -45,9 +45,15 @@
 		A10000000000000000000024 /* ProfileImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000023 /* ProfileImageStore.swift */; };
 		A10000000000000000000025 /* ProfileAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000024 /* ProfileAvatarView.swift */; };
 		A10000000000000000000026 /* Avatars.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000008 /* Avatars.xcassets */; };
+		D10000000000000000000001 /* Trail.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000001 /* Trail.xcassets */; };
 		A10000000000000000000027 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001C /* PrivacyInfo.xcprivacy */; };
 		B10000000000000000000018 /* AppleSignInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001A /* AppleSignInService.swift */; };
 		B1000000000000000000001A /* LegalViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001B /* LegalViews.swift */; };
+		B1000000000000000000001B /* AvatarLook.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001D /* AvatarLook.swift */; };
+		B1000000000000000000001C /* AssembledAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001E /* AssembledAvatarView.swift */; };
+		B1000000000000000000001D /* AvatarStudioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000001F /* AvatarStudioView.swift */; };
+		B10000000000000000000020 /* VoucherCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000020 /* VoucherCatalog.swift */; };
+		D10000000000000000000002 /* AvatarStudio.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D20000000000000000000002 /* AvatarStudio.xcassets */; };
 		B10000000000000000000001 /* MedievalAvatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* MedievalAvatar.swift */; };
 		B10000000000000000000002 /* CosmeticCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* CosmeticCatalog.swift */; };
 		B10000000000000000000003 /* StoreProductID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* StoreProductID.swift */; };
@@ -171,6 +177,10 @@
 		B2000000000000000000001A /* AppleSignInService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInService.swift; sourceTree = "<group>"; };
 		B2000000000000000000001B /* LegalViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalViews.swift; sourceTree = "<group>"; };
 		B2000000000000000000001C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B2000000000000000000001D /* AvatarLook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarLook.swift; sourceTree = "<group>"; };
+		B2000000000000000000001E /* AssembledAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssembledAvatarView.swift; sourceTree = "<group>"; };
+		B2000000000000000000001F /* AvatarStudioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarStudioView.swift; sourceTree = "<group>"; };
+		B20000000000000000000020 /* VoucherCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoucherCatalog.swift; sourceTree = "<group>"; };
 		C20000000000000000000001 /* ForjaWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForjaWidgetsBundle.swift; sourceTree = "<group>"; };
 		C20000000000000000000002 /* StreakWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakWidget.swift; sourceTree = "<group>"; };
 		C20000000000000000000003 /* ForgeLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgeLiveActivity.swift; sourceTree = "<group>"; };
@@ -178,6 +188,8 @@
 		C20000000000000000000005 /* ForjaWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ForjaWidgets.entitlements; sourceTree = "<group>"; };
 		C20000000000000000000006 /* ForjaWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ForjaWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C20000000000000000000008 /* Avatars.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Avatars.xcassets; sourceTree = "<group>"; };
+		D20000000000000000000001 /* Trail.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Trail.xcassets; sourceTree = "<group>"; };
+		D20000000000000000000002 /* AvatarStudio.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = AvatarStudio.xcassets; sourceTree = "<group>"; };
 		C20000000000000000000009 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -208,6 +220,8 @@
 				A40000000000000000000002 /* ForjaApp */,
 				C40000000000000000000002 /* ForjaWidgets */,
 				C20000000000000000000008 /* Avatars.xcassets */,
+				D20000000000000000000001 /* Trail.xcassets */,
+				D20000000000000000000002 /* AvatarStudio.xcassets */,
 				A40000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -250,12 +264,14 @@
 				A20000000000000000000005 /* UserProgress.swift */,
 				A2000000000000000000001D /* UserProfile.swift */,
 				B20000000000000000000001 /* MedievalAvatar.swift */,
+				B2000000000000000000001D /* AvatarLook.swift */,
 				B20000000000000000000002 /* CosmeticCatalog.swift */,
 				B20000000000000000000003 /* StoreProductID.swift */,
 				B20000000000000000000004 /* SocialModels.swift */,
 				B20000000000000000000015 /* OreChallengeLadder.swift */,
 				B20000000000000000000017 /* MedievalFocusCopy.swift */,
 				B20000000000000000000018 /* MedievalYearlyQuotes.swift */,
+				B20000000000000000000020 /* VoucherCatalog.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -307,6 +323,7 @@
 				B20000000000000000000010 /* SubscriptionPaywallView.swift */,
 				B2000000000000000000001B /* LegalViews.swift */,
 				B20000000000000000000011 /* FocusModeSettingsView.swift */,
+				B2000000000000000000001F /* AvatarStudioView.swift */,
 				A40000000000000000000009 /* Components */,
 			);
 			path = Views;
@@ -333,6 +350,7 @@
 				A20000000000000000000022 /* FocusTimeChartView.swift */,
 				A20000000000000000000024 /* ProfileAvatarView.swift */,
 				B20000000000000000000012 /* WeeklyTrailMapView.swift */,
+				B2000000000000000000001E /* AssembledAvatarView.swift */,
 				B20000000000000000000016 /* MedievalBackdropView.swift */,
 			);
 			path = Components;
@@ -453,6 +471,8 @@
 			files = (
 				A10000000000000000000019 /* Assets.xcassets in Resources */,
 				A10000000000000000000026 /* Avatars.xcassets in Resources */,
+				D10000000000000000000001 /* Trail.xcassets in Resources */,
+				D10000000000000000000002 /* AvatarStudio.xcassets in Resources */,
 				A10000000000000000000027 /* PrivacyInfo.xcprivacy in Resources */,
 				A1000000000000000000001C /* GoogleService-Info.plist in Resources */,
 			);
@@ -531,6 +551,10 @@
 				B10000000000000000000017 /* SocialStoryShare.swift in Sources */,
 				B10000000000000000000018 /* AppleSignInService.swift in Sources */,
 				B1000000000000000000001A /* LegalViews.swift in Sources */,
+				B1000000000000000000001B /* AvatarLook.swift in Sources */,
+				B1000000000000000000001C /* AssembledAvatarView.swift in Sources */,
+				B1000000000000000000001D /* AvatarStudioView.swift in Sources */,
+				B10000000000000000000020 /* VoucherCatalog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -18,6 +18,8 @@ struct TrailMapView: View {
                     WeeklyTrailMapView(
                         weekdaySeconds: inventory.progress.weekdayFocusSeconds,
                         avatar: inventory.progress.selectedAvatar,
+                        look: inventory.progress.customAvatarLook,
+                        usesCustomLook: inventory.progress.usesCustomAvatar,
                         todayIndex: UserProgress.mondayFirstWeekdayIndex(from: Date()),
                         peakIndex: inventory.progress.peakWeekdayIndex,
                         totalSessions: inventory.progress.totalSessions,
@@ -46,6 +48,7 @@ struct TrailMapView: View {
                     inventory.selectAvatar(avatar)
                     showAvatarPicker = false
                 }
+                .environmentObject(inventory)
             }
         }
     }
@@ -53,7 +56,13 @@ struct TrailMapView: View {
     private var heroCard: some View {
         HStack(spacing: 14) {
             Button { showAvatarPicker = true } label: {
-                MedievalAvatarFaceView(avatar: inventory.progress.selectedAvatar, size: 64, lineWidth: 2)
+                MedievalAvatarFaceView(
+                    avatar: inventory.progress.selectedAvatar,
+                    size: 64,
+                    lineWidth: 2,
+                    look: inventory.progress.customAvatarLook,
+                    usesCustomLook: inventory.progress.usesCustomAvatar
+                )
             }
             .buttonStyle(.plain)
 
@@ -102,9 +111,9 @@ struct TrailMapView: View {
                 .font(.headline)
             HStack {
                 VStack(alignment: .leading) {
-                    Text("🪨 \(inventory.ore) minério")
+                    Text("\(inventory.ore) minério")
                         .font(.subheadline.bold())
-                    Text("💎 \(inventory.gems) gemas")
+                    Text("\(inventory.gems) gemas")
                         .font(.subheadline.bold())
                 }
                 Spacer()
@@ -121,33 +130,64 @@ struct TrailMapView: View {
 struct AvatarPickerSheet: View {
     let selectedID: String
     let onSelect: (MedievalAvatar) -> Void
+    @EnvironmentObject private var inventory: InventoryManager
+    @State private var showStudio = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    ForEach(MedievalAvatar.catalog) { avatar in
-                        Button { onSelect(avatar) } label: {
-                            VStack(spacing: 8) {
-                                MedievalAvatarFaceView(avatar: avatar, size: 72)
-                                Text(avatar.name).font(.headline)
-                                Text(avatar.lore)
-                                    .font(.caption2)
+                VStack(alignment: .leading, spacing: 16) {
+                    Button {
+                        showStudio = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "tshirt.fill")
+                                .font(.title2)
+                                .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
+                                .frame(width: 44, height: 44)
+                                .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Criar corpo e vestimentas")
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                Text("Ateliê com pele, cabelo, trajes e capa.")
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
-                                    .multilineTextAlignment(.center)
                             }
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .strokeBorder(
-                                        Color(hex: avatar.accentHex) ?? .orange,
-                                        lineWidth: selectedID == avatar.id ? 2 : 0
-                                    )
-                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.bold())
+                                .foregroundStyle(.secondary)
                         }
-                        .buttonStyle(.plain)
+                        .padding()
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                        ForEach(MedievalAvatar.catalog) { avatar in
+                            Button { onSelect(avatar) } label: {
+                                VStack(spacing: 8) {
+                                    MedievalAvatarFaceView(avatar: avatar, size: 72)
+                                    Text(avatar.name).font(.headline)
+                                    Text(avatar.lore)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                        .strokeBorder(
+                                            Color(hex: avatar.accentHex) ?? .orange,
+                                            lineWidth: selectedID == avatar.id ? 2 : 0
+                                        )
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
                 .padding()
@@ -155,6 +195,13 @@ struct AvatarPickerSheet: View {
             .scrollIndicators(.visible)
             .navigationTitle("Avatar medieval")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showStudio) {
+                AvatarStudioView(look: inventory.progress.usesCustomAvatar
+                    ? inventory.progress.customAvatarLook
+                    : AvatarLook.seeded(from: MedievalAvatar.avatar(for: selectedID))
+                )
+                .environmentObject(inventory)
+            }
         }
         .presentationDetents([.large, .medium])
         .presentationDragIndicator(.visible)

@@ -13,12 +13,16 @@ struct MedievalAvatarFaceView: View {
     var size: CGFloat = 52
     var lineWidth: CGFloat = 2
     var accentHex: String? = nil
+    var look: AvatarLook? = nil
+    var usesCustomLook: Bool = false
 
-    init(avatar: MedievalAvatar, size: CGFloat = 52, lineWidth: CGFloat = 2) {
+    init(avatar: MedievalAvatar, size: CGFloat = 52, lineWidth: CGFloat = 2, look: AvatarLook? = nil, usesCustomLook: Bool = false) {
         self.imageName = avatar.imageName
         self.size = size
         self.lineWidth = lineWidth
         self.accentHex = avatar.accentHex
+        self.look = look
+        self.usesCustomLook = usesCustomLook
     }
 
     init(imageName: String, size: CGFloat = 52, lineWidth: CGFloat = 2, accentHex: String? = nil) {
@@ -26,21 +30,31 @@ struct MedievalAvatarFaceView: View {
         self.size = size
         self.lineWidth = lineWidth
         self.accentHex = accentHex
+        self.look = nil
+        self.usesCustomLook = false
     }
 
     var body: some View {
-        Image(imageName)
-            .resizable()
-            .renderingMode(.original)
-            .scaledToFill()
-            .frame(width: size, height: size)
-            .clipped()
-            .clipShape(Circle())
-            .overlay {
-                if let accentHex {
-                    Circle().stroke(Color(hex: accentHex) ?? .orange, lineWidth: lineWidth)
-                }
+        Group {
+            if usesCustomLook, let look {
+                AssembledAvatarView(look: look, style: .bust)
+                    .frame(width: size, height: size)
+                    .clipped()
+            } else {
+                Image(imageName)
+                    .resizable()
+                    .renderingMode(.original)
+                    .scaledToFill()
             }
+        }
+        .frame(width: size, height: size)
+        .clipped()
+        .clipShape(Circle())
+        .overlay {
+            if let accentHex {
+                Circle().stroke(Color(hex: accentHex) ?? .orange, lineWidth: lineWidth)
+            }
+        }
     }
 }
 
@@ -49,6 +63,8 @@ struct ProfileAvatarView: View {
     let placeholderSystemName: String
     let avatarImageName: String
     let usesAvatar: Bool
+    var look: AvatarLook? = nil
+    var usesCustomLook: Bool = false
     let onImageDataSelected: (Data) -> Void
     let onUseAvatar: () -> Void
     let onRemove: () -> Void
@@ -113,10 +129,14 @@ struct ProfileAvatarView: View {
     private var avatarContent: some View {
         Group {
             if usesAvatar {
-                Image(avatarImageName)
-                    .resizable()
-                    .renderingMode(.original)
-                    .scaledToFill()
+                if usesCustomLook, let look {
+                    AssembledAvatarView(look: look, style: .bust)
+                } else {
+                    Image(avatarImageName)
+                        .resizable()
+                        .renderingMode(.original)
+                        .scaledToFill()
+                }
             } else if let image {
                 Image(uiImage: image)
                     .resizable()

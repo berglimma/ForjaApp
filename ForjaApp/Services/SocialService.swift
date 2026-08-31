@@ -206,6 +206,88 @@ final class SocialService: ObservableObject {
         #endif
     }
 
+    func leaveGuild() async {
+        #if canImport(FirebaseAuth) && canImport(FirebaseFirestore)
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let guild = currentGuild else { return }
+        isLoading = true
+        defer { isLoading = false }
+
+        let db = Firestore.firestore()
+        do {
+            try await db.collection("users").document(uid).setData(
+                ["guildID": FieldValue.delete()],
+                merge: true
+            )
+
+            let remaining = guild.memberIDs.filter { $0 != uid }
+            if remaining.isEmpty {
+                try await db.collection("guilds").document(guild.id).delete()
+            } else {
+                var data: [String: Any] = [
+                    "memberIDs": remaining,
+                    "weeklyBars.\(uid)": FieldValue.delete(),
+                    "displayNames.\(uid)": FieldValue.delete(),
+                    "updatedAt": FieldValue.serverTimestamp()
+                ]
+                if guild.ownerID == uid {
+                    data["ownerID"] = remaining[0]
+                }
+                try await db.collection("guilds").document(guild.id).setData(data, merge: true)
+            }
+
+            currentGuild = nil
+            message = "Você saiu da guilda."
+        } catch {
+            message = error.localizedDescription
+        }
+        #else
+        message = "Firebase não configurado."
+        #endif
+    }
+
+    func leaveChallenge() async {
+        #if canImport(FirebaseAuth) && canImport(FirebaseFirestore)
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let challenge = currentChallenge else { return }
+        isLoading = true
+        defer { isLoading = false }
+
+        let db = Firestore.firestore()
+        do {
+            try await db.collection("users").document(uid).setData(
+                ["challengeID": FieldValue.delete()],
+                merge: true
+            )
+
+            if uid == challenge.hostID {
+                if let opponentID = challenge.opponentID {
+                    try await db.collection("users").document(opponentID).setData(
+                        ["challengeID": FieldValue.delete()],
+                        merge: true
+                    )
+                }
+                try await db.collection("challenges").document(challenge.id).delete()
+            } else {
+                try await db.collection("challenges").document(challenge.id).setData([
+                    "opponentID": FieldValue.delete(),
+                    "opponentName": FieldValue.delete(),
+                    "opponentFocusSeconds": 0,
+                    "status": FocusChallenge.Status.waiting.rawValue,
+                    "updatedAt": FieldValue.serverTimestamp()
+                ], merge: true)
+            }
+
+            currentChallenge = nil
+            message = "Você saiu do desafio."
+        } catch {
+            message = error.localizedDescription
+        }
+        #else
+        message = "Firebase não configurado."
+        #endif
+    }
+
     func syncWeeklyTotals() async {
         #if canImport(FirebaseAuth) && canImport(FirebaseFirestore)
         guard let uid = Auth.auth().currentUser?.uid else { return }
