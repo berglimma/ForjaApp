@@ -124,7 +124,7 @@ struct TimerSetupView: View {
                 total: Double(max(challenge.oreGate, 1))
             )
             .tint(Color(hex: "#C4A574") ?? .yellow)
-            Text("Abaixo de 15 min: +1, sem desafio. 15:00 +2 · 25:00 +3 · 45:00 +3 · 60:00 +4 · acima de 60 +5. \(challenge.name) conta a partir de \(challenge.minFocusMinutes) min.")
+            Text("Abaixo de 15 min: +1, sem desafio. 15:00 +2 · 25:00 +3 · 45:00 +3 · 60:00 +4 · 90:00 +6. \(challenge.name) conta a partir de \(challenge.minFocusMinutes) min.")
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.65))
         }

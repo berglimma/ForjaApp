@@ -63,7 +63,8 @@ struct ForgeDurationOption: Identifiable, Hashable {
         ForgeDurationOption(minutes: 15, seconds: 0),
         ForgeDurationOption(minutes: 25, seconds: 0),
         ForgeDurationOption(minutes: 45, seconds: 0),
-        ForgeDurationOption(minutes: 60, seconds: 0)
+        ForgeDurationOption(minutes: 60, seconds: 0),
+        ForgeDurationOption(minutes: 90, seconds: 0)
     ]
 
     static func rewardBars(for totalSeconds: Int) -> Int {
@@ -71,6 +72,7 @@ struct ForgeDurationOption: Identifiable, Hashable {
         if totalSeconds < 25 * 60 { return 2 }
         if totalSeconds < 60 * 60 { return 3 }
         if totalSeconds == 60 * 60 { return 4 }
-        return 5
+        if totalSeconds < 90 * 60 { return 5 }
+        return 6
     }
 }

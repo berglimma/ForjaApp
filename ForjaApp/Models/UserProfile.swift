@@ -33,7 +33,7 @@ struct LeaderboardEntry: Identifiable, Equatable {
     }
 }
 
-struct FocusChartSegment: Identifiable {
+struct FocusChartSegment: Identifiable, Equatable {
     let id: String
     let title: String
     let seconds: Int
