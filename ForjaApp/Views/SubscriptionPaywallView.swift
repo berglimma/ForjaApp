@@ -7,13 +7,9 @@ import SwiftUI
 import StoreKit
 
 struct SubscriptionPaywallView: View {
-    @EnvironmentObject private var inventory: InventoryManager
     @StateObject private var store = StoreManager.shared
     @StateObject private var entitlements = EntitlementStore.shared
     @Environment(\.dismiss) private var dismiss
-    @State private var voucherCode = ""
-    @State private var voucherMessage: String?
-    @State private var isRedeemingVoucher = false
 
     var body: some View {
         NavigationStack {
@@ -23,17 +19,13 @@ struct SubscriptionPaywallView: View {
                         .font(.system(size: 56))
                     Text("Mestre Ferreiro")
                         .font(.largeTitle.bold())
-                    Text("Assinatura auto-renovável: \(StoreProductID.monthlyListPriceBRL)/mês ou \(StoreProductID.yearlyListPriceBRL)/ano. Os \(EntitlementLimits.trialDurationDays) dias grátis são a oferta introdutória da App Store, na primeira assinatura.")
+                    Text("Assinatura auto-renovável mensal ou anual via App Store. Inclui \(EntitlementLimits.trialDurationDays) dias grátis na oferta introdutória da Apple, na primeira assinatura.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
 
                     if entitlements.isStoreKitSubscribed {
                         Text("Assinatura ativa")
-                            .font(.caption.bold())
-                            .foregroundStyle(.green)
-                    } else if entitlements.isPremium {
-                        Text("Voucher ativo · conteúdo completo")
                             .font(.caption.bold())
                             .foregroundStyle(.green)
                     }
@@ -50,6 +42,18 @@ struct SubscriptionPaywallView: View {
                     .padding()
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
 
+                    Text("O pagamento é cobrado na conta Apple. A assinatura se renova automaticamente, salvo cancelamento até 24 horas antes do fim do período. Gerencie ou cancele em Ajustes → Assinaturas.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    HStack(spacing: 16) {
+                        Link("Política de privacidade", destination: ForjaLegal.privacyPolicyURL)
+                        Link("Termos de uso", destination: ForjaLegal.appleStandardEULA)
+                    }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
+
                     if let yearly = store.yearlyProduct {
                         Button {
                             Task { _ = await store.purchase(yearly) }
@@ -57,7 +61,7 @@ struct SubscriptionPaywallView: View {
                             VStack(spacing: 4) {
                                 Text("Anual · \(yearly.displayPrice)")
                                     .font(.headline)
-                                Text("Melhor valor · lista \(StoreProductID.yearlyListPriceBRL)/ano")
+                                Text("Cobrado uma vez por ano · melhor valor")
                                     .font(.caption)
                             }
                             .frame(maxWidth: .infinity)
@@ -66,8 +70,8 @@ struct SubscriptionPaywallView: View {
                         .buttonStyle(ForgePrimaryButtonStyle())
                     } else {
                         pricePlaceholder(
-                            title: "Anual · \(StoreProductID.yearlyListPriceBRL)",
-                            subtitle: "Publique o IAP com.forja.subscription.yearly na App Store"
+                            title: "Anual",
+                            subtitle: "Carregando preço da App Store…"
                         )
                     }
 
@@ -78,7 +82,7 @@ struct SubscriptionPaywallView: View {
                             VStack(spacing: 4) {
                                 Text("Mensal · \(monthly.displayPrice)")
                                     .font(.headline)
-                                Text("Lista \(StoreProductID.monthlyListPriceBRL)/mês")
+                                Text("Cobrado a cada mês")
                                     .font(.caption)
                             }
                             .frame(maxWidth: .infinity)
@@ -87,8 +91,8 @@ struct SubscriptionPaywallView: View {
                         .buttonStyle(ForgeSecondaryButtonStyle())
                     } else {
                         pricePlaceholder(
-                            title: "Mensal · \(StoreProductID.monthlyListPriceBRL)",
-                            subtitle: "Publique o IAP com.forja.subscription.monthly na App Store"
+                            title: "Mensal",
+                            subtitle: "Carregando preço da App Store…"
                         )
                     }
 
@@ -97,22 +101,6 @@ struct SubscriptionPaywallView: View {
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
-
-                    voucherRedeemCard
-
-                    Text("O pagamento é cobrado na conta Apple. A assinatura se renova automaticamente, salvo cancelamento até 24 horas antes do fim do período. Gerencie ou cancele em Ajustes → Assinaturas.")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-
-                    HStack(spacing: 16) {
-                        NavigationLink("Política de privacidade") {
-                            PrivacyPolicyView()
-                        }
-                        Link("Termos de uso", destination: ForjaLegal.appleStandardEULA)
-                    }
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
 
                     if let error = store.lastError {
                         Text(error)
@@ -154,51 +142,6 @@ struct SubscriptionPaywallView: View {
                 .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
             Text(text)
                 .font(.subheadline)
-        }
-    }
-
-    private var voucherRedeemCard: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Tenho um voucher")
-                .font(.headline)
-            Text("Código de acesso completo: assinatura, skins, packs, hardcore e colecionáveis.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            TextField("FORJA-XXXX-XXXX", text: $voucherCode)
-                .textInputAutocapitalization(.characters)
-                .autocorrectionDisabled()
-                .font(.body.monospaced())
-                .padding(12)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            Button {
-                Task { await redeemVoucher() }
-            } label: {
-                Text(isRedeemingVoucher ? "Resgatando…" : "Resgatar")
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-            }
-            .buttonStyle(ForgeSecondaryButtonStyle())
-            .disabled(isRedeemingVoucher || voucherCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-
-            if let voucherMessage {
-                Text(voucherMessage)
-                    .font(.caption)
-                    .foregroundStyle(entitlements.isPremium ? .green : .red)
-            }
-        }
-        .padding()
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-    }
-
-    private func redeemVoucher() async {
-        isRedeemingVoucher = true
-        defer { isRedeemingVoucher = false }
-        do {
-            try await inventory.redeemFullAccessVoucher(voucherCode)
-            voucherMessage = "Voucher resgatado. Todo o conteúdo está liberado."
-            voucherCode = ""
-        } catch {
-            voucherMessage = error.localizedDescription
         }
     }
 }

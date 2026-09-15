@@ -146,54 +146,12 @@ final class InventoryManager: ObservableObject {
     }
 
     func redeemFullAccessVoucher(_ raw: String) async throws {
-        let code = VoucherCatalog.normalize(raw)
-        guard VoucherCatalog.isFullAccess(code) else {
-            throw VoucherRedeemError.invalid
-        }
-        if progress.hasVoucherPremium {
-            throw VoucherRedeemError.alreadyUnlocked
-        }
-
-        do {
-            try await firebaseManager.claimFullAccessVoucher(code)
-        } catch let error as VoucherRedeemError {
-            throw error
-        } catch {
-            let nsError = error as NSError
-            if nsError.domain == "ForjaVoucher" || nsError.localizedDescription == VoucherRedeemError.alreadyUsed.localizedDescription {
-                throw VoucherRedeemError.alreadyUsed
-            }
-            throw error
-        }
-
-        grantFullAccess(from: code)
-        EntitlementStore.shared.refreshVoucherAccess()
+        // Promo codes that unlock digital content outside App Store IAP violate Guideline 3.1.1.
+        throw VoucherRedeemError.unavailable
     }
 
-    private func grantFullAccess(from code: String) {
-        progress.hasVoucherPremium = true
-        progress.redeemedVoucherCode = code
-        progress.hasUnlockedHardcore = true
-        progress.gems = max(progress.gems, 300)
-
-        for item in CosmeticCatalog.items {
-            progress.grantCosmetic(item.id)
-            for packID in CosmeticCatalog.ownedIDs(from: item) {
-                progress.grantCosmetic(packID)
-            }
-        }
-
-        let ownedItemIDs = Set(progress.ownedCollectibles.map(\.itemID))
-        let catalogItems = ShopCatalog.items + OreChallengeLadder.milestones.map {
-            OreChallengeLadder.relic(rank: $0.rank)
-        }
-        for item in catalogItems where !ownedItemIDs.contains(item.id) {
-            progress.ownedCollectibles.append(
-                OwnedCollectible(id: UUID().uuidString, itemID: item.id, acquiredAt: Date())
-            )
-        }
-        persist()
-    }
+    // Promo-code unlock path removed for App Store Guideline 3.1.1.
+    // Existing accounts that already have hasVoucherPremium keep access via EntitlementStore.
 
     func updateGraceSeconds(_ seconds: Int) {
         let maxAllowed = EntitlementStore.shared.maxGraceSeconds

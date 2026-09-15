@@ -55,6 +55,7 @@ enum VoucherRedeemError: LocalizedError {
     case invalid
     case alreadyUnlocked
     case alreadyUsed
+    case unavailable
 
     var errorDescription: String? {
         switch self {
@@ -64,6 +65,8 @@ enum VoucherRedeemError: LocalizedError {
             return "Esta conta já tem o conteúdo completo."
         case .alreadyUsed:
             return "Este voucher já foi resgatado."
+        case .unavailable:
+            return "Códigos promocionais do app foram removidos. Use a assinatura da App Store ou Offer Codes da Apple."
         }
     }
 }

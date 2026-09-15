@@ -1,0 +1,34 @@
+GUIDELINE 2.1 — INFO FOR APP REVIEW (also in Resolution Center reply)
+
+DEMO LOGIN
+User: lindenbergbrito+appreview@icloud.com
+Pass: ForjaRev!tlz9XIIqW5
+Or use Guest mode (no account required).
+
+2) PURPOSE / AUDIENCE
+Forja is a productivity focus timer with forge/RPG fantasy. Users start a forge session, stay focused while ore heats, earn progress/collectibles. Audience: students/gamers who want motivation beyond a plain Pomodoro. Solves distraction; value = focus ritual + progression + optional premium.
+
+3) HOW TO USE
+Launch → onboarding or “modo livre”. Tab Forja: pick duration → Start (stay in app; leaving may fail session). Earn ore → Loja → Oficina. Tabs: Forja, Trilha, Loja, Guilda, Perfil. Free: 8 sessions/day. Account deletion: Perfil → Excluir conta.
+
+4) EXTERNAL SERVICES
+StoreKit 2 (IAP/subs); Firebase Auth (Anonymous, Email, Apple, Google); Cloud Firestore (sync/ranking/guilds); system notifications/Live Activities/widgets. No ads, analytics SDK, AI, or CloudKit.
+Privacy: https://berglimma.github.io/forja-legal/privacidade.html
+Support: https://berglimma.github.io/forja-legal/suporte.html
+EULA: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+
+5) REGIONS
+Same features worldwide. Primary locale pt-BR / BRL storefront; prices follow Apple.
+
+6) REGULATED / 3RD-PARTY
+N/A — consumer productivity/entertainment; original theme; no regulated industry or licensed third-party media.
+
+7) IAP NAVIGATION
+Subs group Mestre Ferreiro: monthly (com.forja.subscription.monthly) + yearly (com.forja.subscription.yearly), 1-week free intro. Unlocks skins/themes, advanced stats, unlimited sessions, backup, Hardcore.
+Gems: Loja → Tesouro (small/medium/large).
+Packs: Loja → Sazonal (Halloween/Natal).
+Hardcore unlock: focus settings (also in sub).
+Paywall: Loja/Perfil/onboarding “Mestre Ferreiro” (title, length, price, Terms & Privacy links). Restore: Perfil.
+
+1) SCREEN RECORDING
+Physical-device recording (latest iOS) provided in Resolution Center reply attachment / link: cold launch → guest flow → focus session → Loja → subscription paywall (plans/prices/Terms/Privacy) → Perfil login options + Excluir conta.

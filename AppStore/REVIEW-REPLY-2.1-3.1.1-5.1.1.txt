@@ -1,0 +1,23 @@
+Hello App Review team,
+
+We addressed all three issues from the September 9 review:
+
+1) Guideline 3.1.1 — Promo codes
+Removed the in-app voucher / promo-code redeem UI from the Mestre Ferreiro paywall. Digital content (subscription, skins, packs, hardcore) is unlocked only via App Store In-App Purchase. New binary build 5.
+
+2) Guideline 2.1(b) — Annual subscription not submitted
+We are submitting the annual auto-renewable subscription com.forja.subscription.yearly (Anual) for review together with this app version, with an App Review screenshot attached on the IAP.
+
+3) Guideline 5.1.1(v) — Account deletion
+Account deletion is available in the app:
+• Sign in with the demo account (App Review Information username/password)
+• Open the Perfil (Profile) tab
+• Under “Conta e dados”, tap “Excluir conta e dados”
+• Confirm in the dialog — this permanently deletes the Firebase Auth user and Firestore user document, then returns to anonymous session
+
+A physical-device screen recording of this exact flow (login → Perfil → Conta e dados → Excluir conta e dados → confirm) is attached to this reply.
+
+Please continue the review with binary 1.0 (5) once uploaded.
+
+Thank you,
+Berg Limma / Lindenberg Brito

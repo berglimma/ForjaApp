@@ -25,6 +25,8 @@ final class ProfileViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var authMessage: String?
     @Published var showAuthForm = false
+    @Published var showDeleteReauth = false
+    @Published var deleteReauthPassword = ""
     @Published var profileImage: UIImage?
 
     private let firebaseManager = FirebaseManager.shared
@@ -153,15 +155,20 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
-    func deleteAccount() async {
+    func deleteAccount(reauthPassword: String? = nil) async {
         authMessage = nil
         isLoading = true
         defer { isLoading = false }
 
         do {
-            try await firebaseManager.deleteAccount()
+            try await firebaseManager.deleteAccount(reauthPassword: reauthPassword)
             profileImage = nil
+            deleteReauthPassword = ""
+            showDeleteReauth = false
             authMessage = "Conta e dados associados foram excluídos."
+        } catch AuthFlowError.requiresRecentLogin {
+            showDeleteReauth = true
+            authMessage = AuthFlowError.requiresRecentLogin.localizedDescription
         } catch {
             authMessage = error.localizedDescription
         }

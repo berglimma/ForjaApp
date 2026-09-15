@@ -17,8 +17,6 @@ struct ProfileView: View {
     @State private var shareError: String?
     @State private var showAvatarPicker = false
     @State private var showAvatarStudio = false
-    @State private var showDeleteAccount = false
-
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -65,18 +63,6 @@ struct ProfileView: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(shareError ?? "")
-            }
-            .confirmationDialog(
-                "Excluir conta?",
-                isPresented: $showDeleteAccount,
-                titleVisibility: .visible
-            ) {
-                Button("Excluir conta e dados", role: .destructive) {
-                    Task { await viewModel.deleteAccount() }
-                }
-                Button("Cancelar", role: .cancel) {}
-            } message: {
-                Text("Apaga o login, o ranking na nuvem e o progresso salvo nesta conta. Não dá para desfazer. Compras da App Store continuam na sua conta Apple — use Restaurar compras se entrar de novo.")
             }
             .sheet(isPresented: $showAvatarPicker) {
                 AvatarPickerSheet(selectedID: inventory.progress.selectedAvatarID) { avatar in
@@ -324,7 +310,7 @@ struct ProfileView: View {
                     }
                     .buttonStyle(.plain)
 
-                    if viewModel.isLoggedInWithAccount {
+                    if firebase.isLoggedInWithAccount {
                         if let email = viewModel.currentUser?.email {
                             Text(email)
                                 .font(.caption2)
@@ -344,7 +330,7 @@ struct ProfileView: View {
 
                 Spacer(minLength: 4)
 
-                if viewModel.isLoggedInWithAccount {
+                if firebase.isLoggedInWithAccount {
                     Button {
                         Task { await viewModel.signOut() }
                     } label: {
@@ -359,16 +345,36 @@ struct ProfileView: View {
                 }
             }
 
-            if viewModel.isLoggedInWithAccount {
-                Button("Excluir conta") {
-                    showDeleteAccount = true
+            if firebase.isLoggedInWithAccount {
+                NavigationLink {
+                    AccountSettingsView(viewModel: viewModel)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "person.crop.circle.badge.minus")
+                            .font(.title3)
+                            .foregroundStyle(.red)
+                            .frame(width: 36)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Conta e privacidade")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            Text("Excluir conta, sair e gerenciar dados")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                    .padding(12)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.red.opacity(0.9))
-                .disabled(viewModel.isLoading)
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("account.settings.link")
             }
 
-            if !viewModel.isLoggedInWithAccount {
+            if !firebase.isLoggedInWithAccount {
                 SignInWithAppleButton(.signIn) { request in
                     AppleSignInService.prepare(request)
                 } onCompletion: { result in

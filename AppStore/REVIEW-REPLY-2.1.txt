@@ -1,0 +1,96 @@
+APP REVIEW REPLY — Guideline 2.1 Information Needed
+App: Forja: Foco RPG (com.lindenbergbrito.forja)
+Paste this into: (A) Resolution Center reply, and (B) App Review Information → Notes
+
+────────────────────────────────────────────────────────
+1) SCREEN RECORDING
+────────────────────────────────────────────────────────
+Attached / linked separately: physical-device screen recording (latest iOS) showing:
+- Cold launch of the app
+- Guest/onboarding → Forja tab → start a focus session (forge loop)
+- Session complete or cancel → Loja (Oficina / Tesouro / Sazonal)
+- Subscription paywall (Mestre Ferreiro) showing title, length, price, Terms of Use and Privacy Policy links
+- Optional gem / pack purchase entry points
+- Perfil → sign-in options and Account Deletion (Excluir conta)
+
+────────────────────────────────────────────────────────
+2) PURPOSE AND TARGET AUDIENCE
+────────────────────────────────────────────────────────
+Forja is a productivity app that turns Pomodoro-style focus sessions into a forge/RPG fantasy experience. The user lights the forge, stays focused while ore heats, and earns in-app progress and collectibles.
+
+Target audience: students and gamers who want focus tools with RPG aesthetics rather than a plain timer.
+
+Problem solved: distraction and lack of motivation during study/work. Value: a clear focus ritual, daily limits for free users, progression (ore → crafts), weekly trail, and optional premium cosmetics/unlimited sessions via subscription.
+
+────────────────────────────────────────────────────────
+3) SETUP AND ACCESSING MAIN FEATURES
+────────────────────────────────────────────────────────
+Demo account (email/password):
+- Username: lindenbergbrito+appreview@icloud.com
+- Password: ForjaRev!tlz9XIIqW5
+
+Alternatively, reviewers can use the app immediately as Guest (anonymous Firebase session) without creating an account.
+
+How to use main features:
+1. Launch app → complete or skip onboarding (“Continuar no modo livre” / “Começar”).
+2. Tab “Forja”: choose session duration → Start. Stay in the app during the countdown (leaving can fail the session after a short grace period).
+3. On success, earn ore/bars → spend in Loja → Oficina.
+4. Tabs: Forja (timer), Trilha (weekly path), Loja (shop), Guilda (guilds/challenges), Perfil (account, restore purchases, delete account).
+5. Free users: up to 8 focus sessions per day. Mestre Ferreiro subscription removes the daily limit and unlocks premium cosmetics/stats/backup features.
+
+Account deletion: Perfil → Excluir conta (deletes Firebase Auth user + Firestore user data; Apple ID purchases remain tied to the Apple ID and can be restored).
+
+────────────────────────────────────────────────────────
+4) EXTERNAL SERVICES / TOOLS / PLATFORMS
+────────────────────────────────────────────────────────
+- Apple StoreKit 2: all In-App Purchases and auto-renewable subscriptions
+- Firebase Authentication: Anonymous, Email/Password, Sign in with Apple, Google Sign-In
+- Cloud Firestore: cloud progress sync, ranking, guilds/challenges
+- Apple system features: local notifications, Live Activities, widgets
+- No third-party ads SDK, no analytics SDK, no AI services, no CloudKit
+
+Privacy Policy: https://berglimma.github.io/forja-legal/privacidade.html
+Support: https://berglimma.github.io/forja-legal/suporte.html
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+
+────────────────────────────────────────────────────────
+5) REGIONAL DIFFERENCES
+────────────────────────────────────────────────────────
+The app functions consistently across all regions. Primary localization and storefront configuration are Portuguese (Brazil) / BRL pricing via App Store Connect; feature set does not change by country. Prices and taxes follow Apple’s storefront.
+
+────────────────────────────────────────────────────────
+6) REGULATED INDUSTRY / PROTECTED MATERIAL
+────────────────────────────────────────────────────────
+Not applicable. Forja is a consumer productivity/entertainment focus timer with original forge/RPG-themed presentation. It does not operate in a highly regulated industry and does not redistribute protected third-party media that requires special licensing.
+
+────────────────────────────────────────────────────────
+7) IN-APP PURCHASE OVERVIEW AND HOW TO NAVIGATE
+────────────────────────────────────────────────────────
+Subscription group “Mestre Ferreiro” (auto-renewable):
+- com.forja.subscription.monthly — 1 month (intro: 1 week free)
+- com.forja.subscription.yearly — 1 year (intro: 1 week free)
+Unlocks: premium skins/themes, advanced stats, unlimited daily sessions, extended leave grace, unlimited cloud backup; Hardcore mode included.
+
+Consumables (gems — Loja → Tesouro):
+- com.forja.gems.small / .medium / .large
+
+Non-consumables:
+- com.forja.pack.halloween / com.forja.pack.natal — Loja → Sazonal
+- com.forja.unlock.hardcore — unlock Hardcore focus mode (also included with subscription)
+
+Navigation to purchase flows:
+- Loja toolbar / Perfil banner / onboarding → “Mestre Ferreiro” paywall (shows plans, prices, duration, Terms & Privacy links)
+- Loja → Tesouro → gem packs
+- Loja → Sazonal → seasonal packs
+- Focus settings → Desbloquear Hardcore
+- Perfil → Restaurar compras
+
+Note: Subscription Mensal and the subscription group were submitted with app version 1.0. Yearly can be included on a subsequent submission with a review screenshot if not already approved with the group.
+
+────────────────────────────────────────────────────────
+PREVENT COMMON ISSUES (ACKNOWLEDGEMENT)
+────────────────────────────────────────────────────────
+- Build was tested on a physical iPhone before submission.
+- Demo credentials above are valid for review.
+- Screenshots show the real app UI in use.
+- IAP products are configured in App Store Connect and intended for review with the app.

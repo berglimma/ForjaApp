@@ -10,6 +10,10 @@ enum ForjaLegal {
         string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
     )!
 
+    static let privacyPolicyURL = URL(
+        string: "https://berglimma.github.io/forja-legal/privacidade.html"
+    )!
+
     static let privacyPolicy = """
     Política de privacidade — Forja
 
@@ -33,7 +37,7 @@ enum ForjaLegal {
     • Não usamos publicidade de terceiros nem rastreamento entre apps (App Tracking Transparency não se aplica).
 
     4. Conservação e exclusão
-    Dados locais ficam no aparelho até você apagar o app ou excluir a conta. Na nuvem, o documento do usuário é removido quando você usa “Excluir conta” no Perfil. A Apple guarda o histórico de compras segundo as regras da App Store.
+    Dados locais ficam no aparelho até você apagar o app ou excluir a conta. Na nuvem, o documento do usuário é removido em Perfil → Conta e privacidade → Excluir conta permanentemente. A Apple guarda o histórico de compras segundo as regras da App Store.
 
     5. Terceiros
     • Firebase (Google): autenticação e Firestore.

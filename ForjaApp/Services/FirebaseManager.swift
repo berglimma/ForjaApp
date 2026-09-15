@@ -113,11 +113,31 @@ final class FirebaseManager: ObservableObject {
         #endif
     }
 
-    func deleteAccount() async throws {
+    func reauthenticate(email: String, password: String) async throws {
         #if canImport(FirebaseAuth)
         guard isConfigured else { throw AuthFlowError.firebaseNotConfigured }
         guard let user = Auth.auth().currentUser, !user.isAnonymous else {
             throw AuthFlowError.notLoggedIn
+        }
+
+        let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+        try await user.reauthenticate(with: credential)
+        #else
+        throw AuthFlowError.firebaseNotConfigured
+        #endif
+    }
+
+    func deleteAccount(reauthPassword: String? = nil) async throws {
+        #if canImport(FirebaseAuth)
+        guard isConfigured else { throw AuthFlowError.firebaseNotConfigured }
+        guard let user = Auth.auth().currentUser, !user.isAnonymous else {
+            throw AuthFlowError.notLoggedIn
+        }
+
+        if let password = reauthPassword?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !password.isEmpty,
+           let email = user.email {
+            try await reauthenticate(email: email, password: password)
         }
 
         let uid = user.uid

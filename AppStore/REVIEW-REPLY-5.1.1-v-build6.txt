@@ -1,0 +1,18 @@
+Hello App Review team,
+
+We updated build 1.0 (6) to make account deletion easier to find and to work reliably on iPad and iPhone.
+
+Account deletion path (in-app, permanent):
+1. Sign in with the demo account (App Review Information username/password), or create a new account.
+2. Open the Perfil tab (bottom bar).
+3. Tap Conta e privacidade.
+4. Tap Excluir conta permanentemente.
+5. For email accounts, confirm with the account password, then confirm deletion.
+6. The app deletes the Firebase Auth user and Firestore user document, clears local progress, and returns to a guest session.
+
+This is a permanent delete (not deactivation). No website is required.
+
+A new physical-device screen recording demonstrating the full flow is attached to this reply and will also be added to App Review Information notes for future submissions.
+
+Thank you,
+Berg Limma / Lindenberg Brito
