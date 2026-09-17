@@ -13,6 +13,7 @@ final class InventoryManager: ObservableObject {
     static let shared = InventoryManager()
 
     @Published private(set) var progress: UserProgress
+    @Published var lastForgeExtras: ForgeResultExtras = .empty
 
     private let storageKey = "forja.user.progress"
     private let firebaseManager = FirebaseManager.shared
@@ -30,6 +31,7 @@ final class InventoryManager: ObservableObject {
 
     func completeForge(barsEarned: Int, focusSeconds: Int, countsTowardChallenge: Bool = true) {
         progress.rollPeriodsIfNeeded()
+        let lifetimeBefore = progress.lifetimeBars
         progress.forgedBars += barsEarned
         if countsTowardChallenge {
             progress.lifetimeBars += barsEarned
@@ -38,10 +40,18 @@ final class InventoryManager: ObservableObject {
         progress.sessionsToday += 1
         progress.totalSessions += 1
         progress.successfulSessions += 1
+        progress.weeklySuccessfulSessions += 1
         progress.addFocusTime(seconds: focusSeconds)
         progress.recordSessionHour()
         progress.currentStreak += 1
         progress.bestStreak = max(progress.bestStreak, progress.currentStreak)
+
+        let extras = EngagementEngine.recordSuccessfulForge(
+            &progress,
+            focusSeconds: focusSeconds,
+            lifetimeBarsBefore: lifetimeBefore
+        )
+        lastForgeExtras = extras
         persist()
         Task { await SocialService.shared.syncWeeklyTotals() }
     }
@@ -51,12 +61,30 @@ final class InventoryManager: ObservableObject {
         progress.sessionsToday += 1
         progress.totalSessions += 1
         progress.failedSessions += 1
-        progress.currentStreak = 0
+
+        var freezeUsed = false
+        if progress.currentStreak > 0, progress.streakFreezesAvailable > 0 {
+            progress.streakFreezesAvailable -= 1
+            freezeUsed = true
+        } else {
+            progress.currentStreak = 0
+        }
+
         progress.recordSessionHour()
         progress.addUnfulfilledTime(seconds: max(0, plannedSeconds - focusSeconds))
         if focusSeconds > 0 {
             progress.addFocusTime(seconds: focusSeconds)
         }
+
+        lastForgeExtras = ForgeResultExtras(
+            defeatedBoss: nil,
+            newlyClaimedMissions: [],
+            missionBonusOre: 0,
+            seasonalBonusOre: 0,
+            dailyGoalJustMet: false,
+            streakAfter: progress.currentStreak,
+            streakFreezeUsed: freezeUsed
+        )
         persist()
         Task { await SocialService.shared.syncWeeklyTotals() }
     }
@@ -172,6 +200,18 @@ final class InventoryManager: ObservableObject {
 
     func completeOnboarding() {
         progress.onboardingCompleted = true
+        startAppTrialIfNeeded()
+        persist()
+    }
+
+    func startAppTrialIfNeeded() {
+        guard progress.trialStartedAt == nil else { return }
+        progress.trialStartedAt = Date()
+        EntitlementStore.shared.refreshTrialAccess()
+    }
+
+    func markTrailVisited() {
+        EngagementEngine.markTrailVisited(&progress)
         persist()
     }
 
@@ -231,6 +271,7 @@ final class InventoryManager: ObservableObject {
     }
 
     private func publishWidget() {
+        let missions = EngagementEngine.missionsSummary(in: progress)
         WidgetBridge.save(
             WidgetSnapshot(
                 currentStreak: progress.currentStreak,
@@ -240,7 +281,10 @@ final class InventoryManager: ObservableObject {
                 displayName: progress.displayName,
                 avatarImageName: progress.selectedAvatar.imageName,
                 lifetimeBars: progress.lifetimeBars,
-                isDailyGoalMet: progress.isDailyGoalMet
+                isDailyGoalMet: progress.isDailyGoalMet,
+                dailyGoalMinutes: progress.dailyGoalMinutes,
+                missionsCompleted: missions.completed,
+                missionsTotal: missions.total
             )
         )
         WidgetCenter.shared.reloadAllTimelines()

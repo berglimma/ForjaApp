@@ -8,12 +8,15 @@ import SwiftUI
 struct TrailMapView: View {
     @EnvironmentObject private var inventory: InventoryManager
     @State private var showAvatarPicker = false
+    @State private var showWeeklyReport = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 18) {
                     heroCard
+                    bossCard
+                    weeklyReportButton
 
                     WeeklyTrailMapView(
                         weekdaySeconds: inventory.progress.weekdayFocusSeconds,
@@ -43,6 +46,11 @@ struct TrailMapView: View {
                 MedievalBackdropView()
             }
             .navigationTitle("Trilha")
+            .onAppear { inventory.markTrailVisited() }
+            .sheet(isPresented: $showWeeklyReport) {
+                WeeklyReportView()
+                    .environmentObject(inventory)
+            }
             .sheet(isPresented: $showAvatarPicker) {
                 AvatarPickerSheet(selectedID: inventory.progress.selectedAvatarID) { avatar in
                     inventory.selectAvatar(avatar)
@@ -80,6 +88,68 @@ struct TrailMapView: View {
         }
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private var bossCard: some View {
+        let active = OreChallengeLadder.active(lifetimeBars: inventory.progress.lifetimeBars)
+        let defeated = inventory.progress.defeatedBossRanks.count
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Chefe da trilha")
+                    .font(.headline)
+                Spacer()
+                Text("\(defeated)/\(OreChallengeLadder.maxRank)")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
+            }
+
+            HStack(spacing: 14) {
+                Text(active.creatureEmoji)
+                    .font(.system(size: 44))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(active.name)
+                        .font(.subheadline.bold())
+                    Text(active.creature)
+                        .font(.caption)
+                        .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
+                    Text(active.lore)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                }
+            }
+
+            ProgressView(
+                value: Double(inventory.progress.lifetimeBars),
+                total: Double(active.oreGate)
+            )
+            .tint(Color(hex: "#F6AD55") ?? .orange)
+
+            Text("\(OreChallengeLadder.formatOre(inventory.progress.lifetimeBars)) de \(OreChallengeLadder.formatOre(active.oreGate)) barras")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private var weeklyReportButton: some View {
+        Button {
+            showWeeklyReport = true
+        } label: {
+            HStack {
+                Label("Resumo semanal", systemImage: "chart.bar.doc.horizontal")
+                    .font(.subheadline.bold())
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     private var weekdayList: some View {

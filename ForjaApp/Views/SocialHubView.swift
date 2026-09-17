@@ -62,12 +62,7 @@ struct SocialHubView: View {
                 guildHeader(guild)
 
                 ForEach(guild.rankedMembers) { member in
-                    socialRow(
-                        rank: member.rank,
-                        name: member.displayName,
-                        detail: "\(member.weeklyBars) barras",
-                        isCurrentUser: member.id == firebase.currentUser?.uid
-                    )
+                    guildMemberRow(member: member, guild: guild)
                 }
 
                 Button {
@@ -236,7 +231,31 @@ struct SocialHubView: View {
         .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private func socialRow(rank: Int, name: String, detail: String, isCurrentUser: Bool) -> some View {
+    private func guildMemberRow(member: GuildMemberScore, guild: Guild) -> some View {
+        let isCurrentUser = member.id == firebase.currentUser?.uid
+        return socialRow(
+            rank: member.rank,
+            name: member.displayName,
+            detail: "\(member.weeklyBars) barras",
+            isCurrentUser: isCurrentUser,
+            challengeAction: (!isCurrentUser && social.currentChallenge == nil) ? {
+                Task {
+                    await social.challengeGuildMember(
+                        opponentID: member.id,
+                        opponentName: member.displayName
+                    )
+                }
+            } : nil
+        )
+    }
+
+    private func socialRow(
+        rank: Int,
+        name: String,
+        detail: String,
+        isCurrentUser: Bool,
+        challengeAction: (() -> Void)? = nil
+    ) -> some View {
         HStack(spacing: 10) {
             Text("#\(rank)")
                 .font(.caption.bold())
@@ -256,7 +275,17 @@ struct SocialHubView: View {
 
             Spacer(minLength: 8)
 
-            if isCurrentUser {
+            if let challengeAction {
+                Button(action: challengeAction) {
+                    Label("1v1", systemImage: "bolt.fill")
+                        .font(.caption2.bold())
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(hex: "#C05621")?.opacity(0.35) ?? .orange.opacity(0.35), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(social.isLoading)
+            } else if isCurrentUser {
                 Text("Você")
                     .font(.caption2.bold())
                     .padding(.horizontal, 8)

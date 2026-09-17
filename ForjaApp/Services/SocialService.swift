@@ -121,6 +121,56 @@ final class SocialService: ObservableObject {
         #endif
     }
 
+    func challengeGuildMember(opponentID: String, opponentName: String) async {
+        #if canImport(FirebaseAuth) && canImport(FirebaseFirestore)
+        guard let uid = Auth.auth().currentUser?.uid else {
+            message = "Faça login para desafiar um amigo."
+            return
+        }
+        guard opponentID != uid else {
+            message = "Você não pode desafiar a si mesmo."
+            return
+        }
+        if currentChallenge != nil {
+            message = "Saia do desafio atual antes de iniciar outro."
+            return
+        }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        let code = Self.makeCode()
+        let db = Firestore.firestore()
+        let ref = db.collection("challenges").document()
+        let now = Date()
+        let progress = InventoryManager.shared.progress
+
+        do {
+            try await ref.setData([
+                "joinCode": code,
+                "hostID": uid,
+                "hostName": progress.displayName,
+                "opponentID": opponentID,
+                "opponentName": opponentName,
+                "hostFocusSeconds": progress.weeklyFocusSeconds,
+                "opponentFocusSeconds": 0,
+                "weekOfYear": UserProgress.weekOfYear(from: now),
+                "calendarYear": UserProgress.calendarYear(from: now),
+                "status": FocusChallenge.Status.active.rawValue,
+                "updatedAt": FieldValue.serverTimestamp()
+            ])
+            try await db.collection("users").document(uid).setData(["challengeID": ref.documentID], merge: true)
+            try await db.collection("users").document(opponentID).setData(["challengeID": ref.documentID], merge: true)
+            await fetchChallenge()
+            message = "Desafio 1v1 enviado para \(opponentName)!"
+        } catch {
+            message = error.localizedDescription
+        }
+        #else
+        message = "Firebase não configurado."
+        #endif
+    }
+
     func createChallenge() async {
         #if canImport(FirebaseAuth) && canImport(FirebaseFirestore)
         guard let uid = Auth.auth().currentUser?.uid else {

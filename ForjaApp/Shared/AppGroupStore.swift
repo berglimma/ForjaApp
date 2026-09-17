@@ -19,6 +19,9 @@ struct WidgetSnapshot: Codable, Equatable {
     var avatarImageName: String
     var lifetimeBars: Int
     var isDailyGoalMet: Bool
+    var dailyGoalMinutes: Int
+    var missionsCompleted: Int
+    var missionsTotal: Int
 
     static let empty = WidgetSnapshot(
         currentStreak: 0,
@@ -28,7 +31,10 @@ struct WidgetSnapshot: Codable, Equatable {
         displayName: "Ferreiro",
         avatarImageName: "Avatar_smith",
         lifetimeBars: 0,
-        isDailyGoalMet: false
+        isDailyGoalMet: false,
+        dailyGoalMinutes: 60,
+        missionsCompleted: 0,
+        missionsTotal: 5
     )
 
     var dailyProgress: Double {
@@ -42,14 +48,19 @@ struct WidgetSnapshot: Codable, Equatable {
         let hours = remaining / 3600
         let minutes = (remaining % 3600) / 60
         if hours > 0 {
-            return "\(hours)h \(minutes)min restantes"
+            return "\(hours)h \(minutes)min de \(dailyGoalMinutes) min"
         }
-        return "\(minutes) min restantes"
+        return "\(minutes) min de \(dailyGoalMinutes) min"
+    }
+
+    var missionsLabel: String {
+        "\(missionsCompleted)/\(missionsTotal) missões"
     }
 
     enum CodingKeys: String, CodingKey {
         case currentStreak, bestStreak, dailyFocusSeconds, dailyGoalSeconds
         case displayName, avatarImageName, lifetimeBars, isDailyGoalMet
+        case dailyGoalMinutes, missionsCompleted, missionsTotal
     }
 
     init(
@@ -60,7 +71,10 @@ struct WidgetSnapshot: Codable, Equatable {
         displayName: String,
         avatarImageName: String,
         lifetimeBars: Int,
-        isDailyGoalMet: Bool
+        isDailyGoalMet: Bool,
+        dailyGoalMinutes: Int = 60,
+        missionsCompleted: Int = 0,
+        missionsTotal: Int = 5
     ) {
         self.currentStreak = currentStreak
         self.bestStreak = bestStreak
@@ -70,6 +84,9 @@ struct WidgetSnapshot: Codable, Equatable {
         self.avatarImageName = avatarImageName
         self.lifetimeBars = lifetimeBars
         self.isDailyGoalMet = isDailyGoalMet
+        self.dailyGoalMinutes = dailyGoalMinutes
+        self.missionsCompleted = missionsCompleted
+        self.missionsTotal = missionsTotal
     }
 
     init(from decoder: Decoder) throws {
@@ -82,6 +99,9 @@ struct WidgetSnapshot: Codable, Equatable {
         avatarImageName = try container.decodeIfPresent(String.self, forKey: .avatarImageName) ?? "Avatar_smith"
         lifetimeBars = try container.decode(Int.self, forKey: .lifetimeBars)
         isDailyGoalMet = try container.decode(Bool.self, forKey: .isDailyGoalMet)
+        dailyGoalMinutes = try container.decodeIfPresent(Int.self, forKey: .dailyGoalMinutes) ?? max(1, dailyGoalSeconds / 60)
+        missionsCompleted = try container.decodeIfPresent(Int.self, forKey: .missionsCompleted) ?? 0
+        missionsTotal = try container.decodeIfPresent(Int.self, forKey: .missionsTotal) ?? 5
     }
 }
 

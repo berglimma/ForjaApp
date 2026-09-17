@@ -17,6 +17,7 @@ struct ProfileView: View {
     @State private var shareError: String?
     @State private var showAvatarPicker = false
     @State private var showAvatarStudio = false
+    @State private var showWeeklyReport = false
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -25,6 +26,7 @@ struct ProfileView: View {
                     avatarStudioCard
                     socialShareCard
                     subscriptionBanner
+                    engagementCard
                     FocusModeSettingsView()
                     statsSection
                     if entitlements.canUseAdvancedStats {
@@ -78,6 +80,42 @@ struct ProfileView: View {
                 )
                 .environmentObject(inventory)
             }
+            .sheet(isPresented: $showWeeklyReport) {
+                WeeklyReportView()
+                    .environmentObject(inventory)
+            }
+        }
+    }
+
+    private var engagementCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Engajamento")
+                .font(.headline)
+
+            if entitlements.isAppTrialActive {
+                Label(
+                    "Trial Mestre Ferreiro: \(entitlements.trialDaysRemaining) dias restantes",
+                    systemImage: "crown.fill"
+                )
+                .font(.subheadline.bold())
+                .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
+            }
+
+            HStack {
+                Label(
+                    "\(inventory.progress.streakFreezesAvailable) escudo(s) de sequência",
+                    systemImage: "snowflake"
+                )
+                .font(.caption)
+                Spacer()
+                Button("Resumo semanal") {
+                    showWeeklyReport = true
+                }
+                .font(.caption.bold())
+            }
+            .foregroundStyle(.secondary)
+
+            DailyMissionsCard()
         }
     }
 

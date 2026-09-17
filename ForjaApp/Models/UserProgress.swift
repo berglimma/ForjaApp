@@ -47,6 +47,16 @@ struct UserProgress: Codable, Equatable {
     var usesCustomAvatar: Bool
     var hasVoucherPremium: Bool
     var redeemedVoucherCode: String?
+    var dailyMissionProgress: [String: Int]
+    var claimedMissionIDs: [String]
+    var defeatedBossRanks: [Int]
+    var streakFreezesAvailable: Int
+    var streakFreezeWeek: Int
+    var streakFreezeCalendarYear: Int
+    var visitedTrailToday: Bool
+    var missionDayOfYear: Int
+    var missionDayCalendarYear: Int
+    var weeklySuccessfulSessions: Int
 
     static let empty = UserProgress(
         forgedBars: 0,
@@ -92,7 +102,17 @@ struct UserProgress: Codable, Equatable {
         customAvatarLook: .default,
         usesCustomAvatar: false,
         hasVoucherPremium: false,
-        redeemedVoucherCode: nil
+        redeemedVoucherCode: nil,
+        dailyMissionProgress: [:],
+        claimedMissionIDs: [],
+        defeatedBossRanks: [],
+        streakFreezesAvailable: 1,
+        streakFreezeWeek: Self.currentWeekOfYear(),
+        streakFreezeCalendarYear: Self.currentCalendarYear(),
+        visitedTrailToday: false,
+        missionDayOfYear: Self.currentDayOfYear(),
+        missionDayCalendarYear: Self.currentDayCalendarYear(),
+        weeklySuccessfulSessions: 0
     )
 
     var ore: Int { forgedBars }
@@ -169,6 +189,7 @@ struct UserProgress: Codable, Equatable {
             dayOfYear = day
             dayCalendarYear = year
         }
+        EngagementEngine.resetMissionsIfNeeded(&self, now: now)
     }
 
     mutating func rollWeekIfNeeded(now: Date = Date()) {
@@ -177,10 +198,12 @@ struct UserProgress: Codable, Equatable {
         if week != weekOfYear || year != calendarYear {
             weeklyFocusSeconds = 0
             weeklyBars = 0
+            weeklySuccessfulSessions = 0
             weekdayFocusSeconds = Array(repeating: 0, count: 7)
             weekOfYear = week
             calendarYear = year
         }
+        EngagementEngine.replenishStreakFreezeIfNeeded(&self, now: now)
     }
 
     mutating func rollPeriodsIfNeeded(now: Date = Date()) {
@@ -282,6 +305,10 @@ struct UserProgress: Codable, Equatable {
         case onboardingCompleted, trialStartedAt, hasUnlockedHardcore, notificationsEnabled
         case usesAvatarAsProfilePhoto, customAvatarLook, usesCustomAvatar
         case hasVoucherPremium, redeemedVoucherCode
+        case dailyMissionProgress, claimedMissionIDs, defeatedBossRanks
+        case streakFreezesAvailable, streakFreezeWeek, streakFreezeCalendarYear
+        case visitedTrailToday, missionDayOfYear, missionDayCalendarYear
+        case weeklySuccessfulSessions
     }
 
     init(
@@ -324,7 +351,17 @@ struct UserProgress: Codable, Equatable {
         customAvatarLook: AvatarLook = .default,
         usesCustomAvatar: Bool = false,
         hasVoucherPremium: Bool = false,
-        redeemedVoucherCode: String? = nil
+        redeemedVoucherCode: String? = nil,
+        dailyMissionProgress: [String: Int] = [:],
+        claimedMissionIDs: [String] = [],
+        defeatedBossRanks: [Int] = [],
+        streakFreezesAvailable: Int = 1,
+        streakFreezeWeek: Int = UserProgress.empty.weekOfYear,
+        streakFreezeCalendarYear: Int = UserProgress.empty.calendarYear,
+        visitedTrailToday: Bool = false,
+        missionDayOfYear: Int = UserProgress.empty.dayOfYear,
+        missionDayCalendarYear: Int = UserProgress.empty.dayCalendarYear,
+        weeklySuccessfulSessions: Int = 0
     ) {
         self.forgedBars = forgedBars
         self.ownedCollectibles = ownedCollectibles
@@ -366,6 +403,16 @@ struct UserProgress: Codable, Equatable {
         self.usesCustomAvatar = usesCustomAvatar
         self.hasVoucherPremium = hasVoucherPremium
         self.redeemedVoucherCode = redeemedVoucherCode
+        self.dailyMissionProgress = dailyMissionProgress
+        self.claimedMissionIDs = claimedMissionIDs
+        self.defeatedBossRanks = defeatedBossRanks
+        self.streakFreezesAvailable = streakFreezesAvailable
+        self.streakFreezeWeek = streakFreezeWeek
+        self.streakFreezeCalendarYear = streakFreezeCalendarYear
+        self.visitedTrailToday = visitedTrailToday
+        self.missionDayOfYear = missionDayOfYear
+        self.missionDayCalendarYear = missionDayCalendarYear
+        self.weeklySuccessfulSessions = weeklySuccessfulSessions
     }
 
     init(from decoder: Decoder) throws {
@@ -415,6 +462,16 @@ struct UserProgress: Codable, Equatable {
         usesCustomAvatar = try container.decodeIfPresent(Bool.self, forKey: .usesCustomAvatar) ?? false
         hasVoucherPremium = try container.decodeIfPresent(Bool.self, forKey: .hasVoucherPremium) ?? false
         redeemedVoucherCode = try container.decodeIfPresent(String.self, forKey: .redeemedVoucherCode)
+        dailyMissionProgress = try container.decodeIfPresent([String: Int].self, forKey: .dailyMissionProgress) ?? [:]
+        claimedMissionIDs = try container.decodeIfPresent([String].self, forKey: .claimedMissionIDs) ?? []
+        defeatedBossRanks = try container.decodeIfPresent([Int].self, forKey: .defeatedBossRanks) ?? []
+        streakFreezesAvailable = try container.decodeIfPresent(Int.self, forKey: .streakFreezesAvailable) ?? 1
+        streakFreezeWeek = try container.decodeIfPresent(Int.self, forKey: .streakFreezeWeek) ?? defaults.weekOfYear
+        streakFreezeCalendarYear = try container.decodeIfPresent(Int.self, forKey: .streakFreezeCalendarYear) ?? defaults.calendarYear
+        visitedTrailToday = try container.decodeIfPresent(Bool.self, forKey: .visitedTrailToday) ?? false
+        missionDayOfYear = try container.decodeIfPresent(Int.self, forKey: .missionDayOfYear) ?? defaults.dayOfYear
+        missionDayCalendarYear = try container.decodeIfPresent(Int.self, forKey: .missionDayCalendarYear) ?? defaults.dayCalendarYear
+        weeklySuccessfulSessions = try container.decodeIfPresent(Int.self, forKey: .weeklySuccessfulSessions) ?? 0
     }
 
     private static func padded(_ values: [Int], count: Int) -> [Int] {

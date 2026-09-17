@@ -47,6 +47,7 @@ struct ForgeView: View {
                         look: inventory.progress.customAvatarLook,
                         usesCustomLook: inventory.progress.usesCustomAvatar,
                         countsTowardChallenge: viewModel.countsTowardChallenge,
+                        extras: inventory.lastForgeExtras,
                         onDismiss: { viewModel.dismissResult() }
                     )
                     .transition(.opacity.combined(with: .scale(scale: 0.92)))
@@ -73,6 +74,12 @@ struct ForgeView: View {
     private var setupContent: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 20) {
+                if let event = SeasonalEventCatalog.active() {
+                    SeasonalEventBanner(event: event)
+                }
+
+                DailyMissionsCard()
+
                 ForgeSceneView(
                     progress: 0,
                     isForging: false,

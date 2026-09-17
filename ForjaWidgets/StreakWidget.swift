@@ -53,12 +53,17 @@ struct StreakWidgetView: View {
             ProgressView(value: entry.snapshot.dailyProgress)
                 .tint(Color(hex: "#F6AD55") ?? .orange)
 
-            Text(entry.snapshot.isDailyGoalMet ? "Meta diária forjada" : entry.snapshot.remainingGoalLabel)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.snapshot.isDailyGoalMet ? "Meta diária forjada ✓" : entry.snapshot.remainingGoalLabel)
+                    .font(.caption2.bold())
+                    .foregroundStyle(entry.snapshot.isDailyGoalMet ? Color(hex: "#68D391") ?? .green : .secondary)
+                Text(entry.snapshot.missionsLabel)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
 
             if family == .systemMedium {
-                Text("Recorde: \(entry.snapshot.bestStreak) · \(entry.snapshot.lifetimeBars) barras")
+                Text("Meta: \(entry.snapshot.dailyGoalMinutes) min · Recorde: \(entry.snapshot.bestStreak)")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

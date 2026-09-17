@@ -23,11 +23,25 @@ final class EntitlementStore: ObservableObject {
         }
     }
 
+    var isAppTrialActive: Bool {
+        EngagementEngine.isAppTrialActive(trialStartedAt: InventoryManager.shared.progress.trialStartedAt)
+    }
+
+    var trialDaysRemaining: Int {
+        EngagementEngine.trialDaysRemaining(trialStartedAt: InventoryManager.shared.progress.trialStartedAt)
+    }
+
     var isPremium: Bool {
-        isStoreKitSubscribed || InventoryManager.shared.progress.hasVoucherPremium
+        isStoreKitSubscribed
+            || InventoryManager.shared.progress.hasVoucherPremium
+            || isAppTrialActive
     }
 
     func refreshVoucherAccess() {
+        objectWillChange.send()
+    }
+
+    func refreshTrialAccess() {
         objectWillChange.send()
     }
 
