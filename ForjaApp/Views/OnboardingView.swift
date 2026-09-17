@@ -116,7 +116,7 @@ struct OnboardingView: View {
             Text("Mestre Ferreiro")
                 .font(.title.bold())
                 .multilineTextAlignment(.center)
-            Text("Ao começar, você ganha \(EntitlementLimits.trialDurationDays) dias de Mestre Ferreiro grátis no app. Depois, assine pela App Store quando quiser.")
+            Text("Assine pela App Store com \(EntitlementLimits.trialDurationDays) dias grátis na oferta introdutória da Apple, na primeira assinatura.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

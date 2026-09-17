@@ -200,14 +200,7 @@ final class InventoryManager: ObservableObject {
 
     func completeOnboarding() {
         progress.onboardingCompleted = true
-        startAppTrialIfNeeded()
         persist()
-    }
-
-    func startAppTrialIfNeeded() {
-        guard progress.trialStartedAt == nil else { return }
-        progress.trialStartedAt = Date()
-        EntitlementStore.shared.refreshTrialAccess()
     }
 
     func markTrailVisited() {

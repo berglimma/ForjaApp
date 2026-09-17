@@ -1,0 +1,26 @@
+GUIDELINE 2.1 — INFO FOR APP REVIEW (build 1.1 / 7)
+
+DEMO LOGIN
+User: lindenbergbrito+appreview@icloud.com
+Pass: ForjaRev!tlz9XIIqW5
+Or use Guest mode (no account required).
+
+WHAT'S NEW IN 1.1
+- Daily missions with streak-freeze rewards
+- Weekly progress report and trail bosses
+- Seasonal events banner
+- 1v1 guild challenges
+- Enhanced victory ritual and widget mission labels
+
+3) HOW TO USE
+Launch → onboarding or guest. Tab Forja: pick duration → Start. Tabs: Forja, Trilha, Loja, Guilda, Perfil.
+Account deletion: Perfil → Conta e privacidade → Excluir conta permanentemente (email: password reauth).
+
+4) EXTERNAL SERVICES
+StoreKit 2; Firebase Auth; Cloud Firestore; notifications/Live Activities/widgets.
+Privacy: https://berglimma.github.io/forja-legal/privacidade.html
+Support: https://berglimma.github.io/forja-legal/suporte.html
+
+7) IAP
+Mestre Ferreiro monthly/yearly with Apple 7-day intro offer. Gems, seasonal packs, Hardcore unlock via StoreKit only.
+Premium is unlocked only via App Store subscription (or legacy voucher for existing accounts). No in-app trial bypassing IAP.

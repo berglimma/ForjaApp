@@ -92,15 +92,6 @@ struct ProfileView: View {
             Text("Engajamento")
                 .font(.headline)
 
-            if entitlements.isAppTrialActive {
-                Label(
-                    "Trial Mestre Ferreiro: \(entitlements.trialDaysRemaining) dias restantes",
-                    systemImage: "crown.fill"
-                )
-                .font(.subheadline.bold())
-                .foregroundStyle(Color(hex: "#F6AD55") ?? .orange)
-            }
-
             HStack {
                 Label(
                     "\(inventory.progress.streakFreezesAvailable) escudo(s) de sequência",
